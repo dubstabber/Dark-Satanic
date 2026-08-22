@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://n3mrat5brw226"]
+
+[ext_resource type="Script" path="res://tests/fixtures/spawn_stub.gd" id="1_stub"]
+
+[node name="SpawnStub" type="Node3D"]
+script = ExtResource("1_stub")
