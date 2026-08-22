@@ -27,6 +27,10 @@ func _ready() -> void:
 		input_reader = _find_input_reader()
 	health.died.connect(_on_health_died)
 	movement.landed.connect(camera_rig.on_landed)
+	weapon_holder.kicked.connect(camera_rig.kick)
+	weapon_holder.kicked.connect(hands.kick)
+	if movement.stats != null:
+		camera_rig.position.y = movement.stats.camera_height
 
 
 func setup(mouse_sensitivity: float) -> void:
