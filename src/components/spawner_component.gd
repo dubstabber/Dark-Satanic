@@ -16,6 +16,10 @@ signal spawned(node: Node3D)
 ## Extra copies emitted when the owner's HealthComponent dies.
 @export_range(0, 32) var death_burst: int = 0
 @export_range(0.0, 10.0, 0.1) var spawn_radius: float = 1.5
+## Place children at the arena floor (plus their own `stats.min_height`) instead of the
+## anchor's height; for elevated anchors such as hovering nests. The floor comes from the
+## anchor's `arena.info()` when it has one, otherwise y = 0.
+@export var spawn_on_floor: bool = false
 @export var enabled: bool = true
 ## Run on the engine clock instead of waiting for advance() calls.
 @export var autonomous: bool = false
@@ -89,6 +93,8 @@ func spawn_burst(amount: int) -> Array[Node3D]:
 			continue
 		var angle := rng.randf_range(0.0, TAU)
 		var world_position := origin.global_position + Vector3(cos(angle), 0.0, sin(angle)) * spawn_radius
+		if spawn_on_floor:
+			world_position.y = _floor_y(origin) + _min_height(node)
 		node.position = root.to_local(world_position) if root is Node3D else world_position
 		_inherit(origin, node)
 		root.add_child.call_deferred(node)
@@ -110,6 +116,25 @@ func _inherit(from: Node, to: Node) -> void:
 	for property in inherited_properties:
 		if property in from and property in to:
 			to.set(property, from.get(property))
+
+
+func _floor_y(origin: Node) -> float:
+	if origin == null or not ("arena" in origin):
+		return 0.0
+	var arena: Variant = origin.get("arena")
+	if arena is Node and is_instance_valid(arena) and arena.has_method("info"):
+		var info: Variant = arena.call("info")
+		if info is ArenaInfo:
+			return info.floor_y
+	return 0.0
+
+
+func _min_height(node: Node) -> float:
+	if "stats" in node:
+		var stats: Variant = node.get("stats")
+		if stats is EnemyStats:
+			return stats.min_height
+	return 0.0
 
 
 func _on_died(_hit: HitInfo) -> void:

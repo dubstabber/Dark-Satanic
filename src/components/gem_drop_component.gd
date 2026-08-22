@@ -13,6 +13,8 @@ signal gems_dropped(gems: Array[Node3D])
 @export var spawn_root: Node
 ## World position source; when null the parent is used.
 @export var anchor: Node3D
+## Handed to each gem that declares `arena` so it stays on the platform; optional.
+@export var arena: Node
 @export var rng_seed: int = 0
 
 var rng := RandomNumberGenerator.new()
@@ -43,6 +45,8 @@ func drop() -> Array[Node3D]:
 		var offset := Vector3(rng.randf_range(-1.0, 1.0), 0.0, rng.randf_range(-1.0, 1.0)) * scatter_radius
 		var world_position := center + offset
 		gem.position = root.to_local(world_position) if root is Node3D else world_position
+		if arena != null and "arena" in gem:
+			gem.set("arena", arena)
 		root.add_child.call_deferred(gem)
 		if gem.has_method("scatter"):
 			gem.call("scatter", rng)

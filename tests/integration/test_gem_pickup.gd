@@ -209,3 +209,74 @@ func test_scatter_without_rng_still_launches() -> void:
 	gem.scatter(null)
 	assert_eq(gem.velocity.y, 3.0)
 	assert_eq(gem.state, GemPickup.State.SCATTER)
+
+
+class ArenaStub:
+	extends Node
+	var radius: float = 3.0
+
+	func info() -> ArenaInfo:
+		return ArenaInfo.new(Vector3.ZERO, radius, 0.0)
+
+
+func test_scatter_lands_clamped_to_the_platform() -> void:
+	var arena := ArenaStub.new()
+	_world.add_child(arena)
+	var gem := _gem(Vector3(2.9, 3.5, 0))
+	gem.arena = arena
+	gem.scatter(_rng(21))
+	for i in 240:
+		gem.advance(DT)
+	assert_eq(gem.state, GemPickup.State.REST)
+	assert_almost_eq(gem.global_position.y, 0.35, 0.0001)
+	var flat := Vector2(gem.global_position.x, gem.global_position.z).length()
+	assert_almost_eq(flat, 2.5, 0.0001, "pulled back to radius - edge_margin")
+	var free := _gem(Vector3(2.9, 3.5, 0))
+	free.scatter(_rng(21))
+	for i in 240:
+		free.advance(DT)
+	assert_true(Vector2(free.global_position.x, free.global_position.z).length() > 3.0, "without an arena it lands wherever the arc ends")
+
+
+func test_resting_gem_falls_and_frees_when_the_platform_shrinks_away() -> void:
+	var arena := ArenaStub.new()
+	_world.add_child(arena)
+	var gem := _gem(Vector3(2.5, 0.35, 0))
+	gem.arena = arena
+	gem.state = GemPickup.State.REST
+	gem.advance(DT)
+	assert_eq(gem.state, GemPickup.State.REST, "still on the platform")
+	arena.radius = 2.0
+	gem.advance(DT)
+	assert_eq(gem.state, GemPickup.State.FALL)
+	for i in 120:
+		gem.advance(DT)
+		if gem.is_queued_for_deletion():
+			break
+	assert_true(gem.is_queued_for_deletion(), "freed below floor_y - fall_depth")
+	assert_true(gem.global_position.y <= -2.0)
+	await wait_process_frames(1)
+
+
+func test_consume_spawns_collect_vfx_next_to_the_gem() -> void:
+	var gem := _gem(Vector3(1, 0.35, 2))
+	assert_eq(gem.stats.collect_vfx.resource_path, "res://src/vfx/particles/gem_sparkle.tscn")
+	gem.consume()
+	await wait_process_frames(2)
+	var sparkles: Array[Node] = []
+	for child in _world.get_children():
+		if child is OneShotVfx:
+			sparkles.append(child)
+	assert_eq(sparkles.size(), 1)
+	assert_eq((sparkles[0] as Node3D).position, Vector3(1, 0.35, 2))
+
+
+func test_mesh_dimensions_are_exported() -> void:
+	var gem: GemPickup = GemScene.instantiate()
+	gem.mesh_half_width = 0.6
+	gem.mesh_half_height = 0.9
+	_world.add_child(gem)
+	gem.set_physics_process(false)
+	var aabb := gem.mesh_instance.mesh.get_aabb()
+	assert_almost_eq(aabb.size.x, 1.2, 0.001)
+	assert_almost_eq(aabb.size.y, 1.8, 0.001)

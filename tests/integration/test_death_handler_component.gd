@@ -40,14 +40,41 @@ func test_death_disables_collisions_while_lingering() -> void:
 	assert_false(enemy.body.monitorable)
 
 
-func test_delayed_free_keeps_node_for_a_while() -> void:
+func test_delayed_free_counts_down_through_advance() -> void:
 	var enemy := _enemy(0.2)
+	enemy.handler.set_physics_process(false)
 	enemy.health.kill()
+	assert_true(enemy.handler.is_pending_free())
 	await wait_process_frames(2)
 	assert_true(is_instance_valid(enemy.body))
 	assert_false(enemy.body.is_queued_for_deletion())
-	await wait_seconds(0.4)
-	assert_true(not is_instance_valid(enemy.body) or enemy.body.is_queued_for_deletion())
+	enemy.handler.advance(0.1)
+	assert_false(enemy.body.is_queued_for_deletion(), "0.1 < 0.2")
+	enemy.handler.advance(0.1)
+	assert_true(enemy.body.is_queued_for_deletion(), "freed once the delay elapsed")
+	assert_false(enemy.handler.is_pending_free())
+	await wait_process_frames(1)
+
+
+func test_delayed_free_is_driven_by_physics_not_the_engine_clock() -> void:
+	var enemy := _enemy(0.05)
+	enemy.health.kill()
+	await wait_process_frames(2)
+	assert_true(is_instance_valid(enemy.body))
+	await wait_physics_frames(5)
+	assert_true(not is_instance_valid(enemy.body) or enemy.body.is_queued_for_deletion(), "5 ticks at 60 fps > 0.05 s")
+	await wait_process_frames(1)
+
+
+func test_advance_before_death_or_with_zero_delta_is_a_no_op() -> void:
+	var enemy := _enemy(0.2)
+	enemy.handler.advance(10.0)
+	assert_true(is_instance_valid(enemy.body))
+	assert_false(enemy.body.is_queued_for_deletion())
+	enemy.health.kill()
+	enemy.handler.advance(0.0)
+	assert_false(enemy.body.is_queued_for_deletion())
+	await wait_process_frames(1)
 
 
 func test_death_vfx_spawned_next_to_body() -> void:

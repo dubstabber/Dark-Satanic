@@ -1,7 +1,7 @@
 class_name DeathHandlerComponent
 extends Node
 ## When the owner's HealthComponent dies: stop it colliding, spawn a VFX, play a cue,
-## and free it after `free_delay` seconds.
+## and free it after `free_delay` seconds counted through advance(delta).
 
 signal handled
 
@@ -12,12 +12,36 @@ signal handled
 ## Node to disable and free; when null the parent is used.
 @export var target: Node
 
+var _free_target: Node
+var _free_remaining: float = -1.0
+
 
 func _ready() -> void:
 	if health == null:
 		health = _find_sibling_health()
 	if health != null:
 		health.died.connect(_on_died)
+
+
+func _physics_process(delta: float) -> void:
+	advance(delta)
+
+
+## Counts down the free delay; frees the target when it reaches zero.
+func advance(delta: float) -> void:
+	if _free_remaining < 0.0 or delta <= 0.0:
+		return
+	_free_remaining -= delta
+	if _free_remaining > 0.0:
+		return
+	_free_remaining = -1.0
+	if _free_target != null and is_instance_valid(_free_target):
+		_free_target.queue_free()
+	_free_target = null
+
+
+func is_pending_free() -> bool:
+	return _free_remaining >= 0.0
 
 
 func handle_death() -> void:
@@ -36,7 +60,8 @@ func handle_death() -> void:
 	if free_delay <= 0.0:
 		node.queue_free()
 	else:
-		get_tree().create_timer(free_delay).timeout.connect(node.queue_free)
+		_free_target = node
+		_free_remaining = free_delay
 	handled.emit()
 
 

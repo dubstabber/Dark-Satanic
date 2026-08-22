@@ -58,3 +58,20 @@ func test_nothing_without_scene_or_count() -> void:
 	enemy.drop.gem_scene = null
 	assert_eq(enemy.drop.drop().size(), 0)
 	assert_signal_not_emitted(enemy.drop, "gems_dropped")
+
+
+func test_gems_receive_the_arena() -> void:
+	var enemy := _enemy(2)
+	var arena := Node.new()
+	_world.add_child(arena)
+	enemy.drop.arena = arena
+	enemy.drop.gem_scene = preload("res://src/pickups/gem_pickup.tscn")
+	var gems: Array = enemy.drop.drop()
+	await wait_process_frames(2)
+	assert_eq(gems.size(), 2)
+	for gem in gems:
+		assert_same((gem as GemPickup).arena, arena)
+	enemy.drop.gem_scene = GemStub
+	var stubs: Array = enemy.drop.drop()
+	await wait_process_frames(2)
+	assert_eq(stubs.size(), 2, "scenes without an `arena` property still spawn")
