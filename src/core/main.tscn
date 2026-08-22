@@ -1,3 +1,48 @@
-[gd_scene format=3 uid="uid://w0xnwzt4m0wk6"]
+[gd_scene load_steps=17 format=3 uid="uid://w0xnwzt4m0wk6"]
 
-[node name="Main" type="Node"]
+[ext_resource type="Script" path="res://src/core/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://src/core/game_flow.gd" id="2_flow"]
+[ext_resource type="Resource" path="res://src/game/default_game.tres" id="3_config"]
+[ext_resource type="PackedScene" path="res://src/game/game.tscn" id="4_game"]
+[ext_resource type="PackedScene" path="res://src/ui/main_menu/main_menu.tscn" id="5_menu"]
+[ext_resource type="PackedScene" path="res://src/ui/death_screen/death_screen.tscn" id="6_death"]
+[ext_resource type="PackedScene" path="res://src/ui/pause_menu/pause_menu.tscn" id="7_pause"]
+[ext_resource type="PackedScene" path="res://src/ui/settings_panel/settings_panel.tscn" id="8_settings"]
+[ext_resource type="Resource" path="res://src/vfx/post_process/profiles/menu.tres" id="9_pmenu"]
+[ext_resource type="Resource" path="res://src/vfx/post_process/profiles/gameplay.tres" id="10_pgame"]
+[ext_resource type="Resource" path="res://src/vfx/post_process/profiles/death.tres" id="11_pdeath"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/menu_hum.ogg" id="12_hum"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/amb_drone.ogg" id="13_drone"]
+[ext_resource type="Resource" path="res://assets/audio/cues/death_stinger.tres" id="14_death_cue"]
+[ext_resource type="Resource" path="res://assets/audio/cues/tier_up.tres" id="15_tier_cue"]
+[ext_resource type="PackedScene" path="res://src/vfx/post_process/post_process.tscn" id="16_post"]
+
+[node name="Main" type="Node" node_paths=PackedStringArray("game_flow")]
+script = ExtResource("1_main")
+game_flow = NodePath("GameFlow")
+
+[node name="GameFlow" type="Node" parent="." node_paths=PackedStringArray("scene_slot", "ui_layer", "post_process")]
+script = ExtResource("2_flow")
+scene_slot = NodePath("../SceneSlot")
+ui_layer = NodePath("../UiLayer")
+post_process = NodePath("../PostProcess")
+config = ExtResource("3_config")
+game_scene = ExtResource("4_game")
+main_menu_scene = ExtResource("5_menu")
+death_screen_scene = ExtResource("6_death")
+pause_menu_scene = ExtResource("7_pause")
+settings_panel_scene = ExtResource("8_settings")
+menu_profile = ExtResource("9_pmenu")
+gameplay_profile = ExtResource("10_pgame")
+death_profile = ExtResource("11_pdeath")
+menu_music = ExtResource("12_hum")
+game_music = ExtResource("13_drone")
+death_cue = ExtResource("14_death_cue")
+tier_up_cue = ExtResource("15_tier_cue")
+
+[node name="SceneSlot" type="Node" parent="."]
+
+[node name="UiLayer" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="PostProcess" parent="." instance=ExtResource("16_post")]

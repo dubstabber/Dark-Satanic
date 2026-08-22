@@ -61,7 +61,7 @@ func _create() -> DaggerProjectile:
 	projectile.visible = false
 	projectile.released.connect(_on_released)
 	_all.append(projectile)
-	effective_container().add_child(projectile)
+	_attach(projectile, effective_container())
 	return projectile
 
 
@@ -78,4 +78,31 @@ func _move_all() -> void:
 			continue
 		if projectile.get_parent() != null:
 			projectile.get_parent().remove_child(projectile)
+		_attach(projectile, target)
+
+
+## Parents immediately when the target is ready; defers while the target's scene
+## is still being set up (add_child is refused on a node that is busy with its children).
+func _attach(projectile: DaggerProjectile, target: Node) -> void:
+	if target.is_inside_tree() and not target.is_node_ready():
+		_attach_deferred.call_deferred(projectile, target)
+	else:
 		target.add_child(projectile)
+
+
+func _attach_deferred(projectile: DaggerProjectile, target: Node) -> void:
+	if not is_instance_valid(projectile) or projectile.get_parent() != null:
+		return
+	if not is_instance_valid(target) or not target.is_inside_tree():
+		projectile.free()
+		return
+	target.add_child(projectile)
+
+
+## Projectiles detached while waiting for a deferred attach would leak if the pool
+## died first (scene freed in the same frame); free them with the pool.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		for projectile in _all:
+			if is_instance_valid(projectile) and projectile.get_parent() == null:
+				projectile.free()

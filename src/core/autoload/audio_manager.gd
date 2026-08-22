@@ -86,6 +86,17 @@ func playing_count() -> int:
 	return count
 
 
+## Release stream references before the engine tears down (avoids "resource still
+## in use at exit" reports from a looping music stream).
+func _exit_tree() -> void:
+	reset()
+	for player in _players_3d:
+		player.stream = null
+	for player in _players_2d:
+		player.stream = null
+	_music.stream = null
+
+
 ## Stops everything; used between tests and when returning to the menu.
 func reset() -> void:
 	for player in _players_3d:
