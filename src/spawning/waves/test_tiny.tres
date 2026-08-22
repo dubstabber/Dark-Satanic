@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="WaveTable" load_steps=9 format=3 uid="uid://bcp18ss6zz2v1"]
+
+[ext_resource type="Script" path="res://src/spawning/resources/wave_table.gd" id="1_table"]
+[ext_resource type="Script" path="res://src/spawning/resources/spawn_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://src/spawning/patterns/ring_pattern.gd" id="3_ring"]
+[ext_resource type="Script" path="res://src/spawning/patterns/point_pattern.gd" id="4_point"]
+[ext_resource type="PackedScene" path="res://tests/fixtures/spawn_stub.tscn" id="5_stub"]
+
+[sub_resource type="Resource" id="RingPattern_1"]
+script = ExtResource("3_ring")
+radius_fraction = 0.5
+height = 1.0
+angle_offset_deg = -1.0
+jitter = 0.0
+
+[sub_resource type="Resource" id="PointPattern_1"]
+script = ExtResource("4_point")
+point = Vector3(0, 1, 5)
+jitter = 0.0
+height = -1.0
+
+[sub_resource type="Resource" id="SpawnEvent_1"]
+script = ExtResource("2_event")
+time = 0.5
+enemy_scene = ExtResource("5_stub")
+count = 3
+pattern = SubResource("RingPattern_1")
+stagger = 0.0
+label = "ring of three"
+
+[sub_resource type="Resource" id="SpawnEvent_2"]
+script = ExtResource("2_event")
+time = 1.5
+enemy_scene = ExtResource("5_stub")
+count = 1
+pattern = SubResource("PointPattern_1")
+stagger = 0.0
+label = "single point"
+
+[resource]
+script = ExtResource("1_table")
+events = Array[ExtResource("2_event")]([SubResource("SpawnEvent_1"), SubResource("SpawnEvent_2")])
+loop_from_time = -1.0
+loop_count_multiplier = 1.25
+loop_interval_multiplier = 0.9
+max_alive = 120
