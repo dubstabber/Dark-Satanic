@@ -3,6 +3,7 @@ extends GameTest
 const WeaponScene := preload("res://src/weapons/dagger_weapon.tscn")
 const Tier1 := preload("res://src/weapons/resources/tiers/tier_1.tres")
 const Tier3 := preload("res://src/weapons/resources/tiers/tier_3.tres")
+const Tier4 := preload("res://src/weapons/resources/tiers/tier_4.tres")
 const DT := 1.0 / 60.0
 
 var _world: Node3D
@@ -52,6 +53,52 @@ func test_scene_structure_and_default_tier() -> void:
 	assert_eq(_weapon.stream_mode().rate, 15.0)
 	assert_eq(_weapon.shotgun_mode().pellets, 12)
 	assert_same(_weapon.spawner().source, _weapon)
+
+
+func test_scene_wires_pool_and_spawner_exports_without_fallback_discovery() -> void:
+	var weapon: DaggerWeapon = WeaponScene.instantiate()
+	var spawner: ProjectileSpawner = weapon.get_node("ProjectileSpawner")
+	var stream: StreamFire = weapon.get_node("StreamFire")
+	var shotgun: ShotgunFire = weapon.get_node("ShotgunFire")
+	assert_same(spawner.pool, weapon.get_node("ProjectileSpawner/ProjectilePool"), "node_paths export resolved")
+	assert_same(stream.spawner, spawner)
+	assert_same(shotgun.spawner, spawner)
+	weapon.free()
+
+
+func test_apply_tier_pre_grows_pool_to_peak_live_count() -> void:
+	assert_eq(DaggerWeapon.peak_live_projectiles(Tier1), 15 + 12 * 2)
+	assert_eq(DaggerWeapon.peak_live_projectiles(Tier4), 48 + 24 * 3)
+	assert_eq(DaggerWeapon.peak_live_projectiles(null), 0)
+	var pool := _weapon.spawner().pool
+	assert_eq(pool.total_count(), 64, "tier I needs fewer than the initial size")
+	_weapon.apply_tier(Tier4)
+	assert_eq(pool.total_count(), 120, "grown to tier IV's peak")
+	_weapon.apply_tier(Tier1)
+	assert_eq(pool.total_count(), 120, "never shrinks")
+	assert_eq(pool.free_count(), 120)
+	for projectile in _world.get_children():
+		if projectile is DaggerProjectile:
+			projectile.autonomous = false
+
+
+func test_tier_four_homing_flows_through_the_real_weapon() -> void:
+	_weapon.apply_tier(Tier4)
+	assert_true(_weapon.stream_mode().params.homing)
+	assert_true(_weapon.shotgun_mode().params.homing)
+	var candidate := Node3D.new()
+	candidate.position = Vector3(4, 0, -6)
+	_world.add_child(candidate)
+	_weapon.target_provider = func() -> Array[Node3D]: return [candidate]
+	assert_eq(_weapon.update_fire(true, false, DT), 2)
+	for projectile in _active_projectiles():
+		projectile.autonomous = false
+		assert_true(projectile.params.homing)
+		assert_eq(projectile.params.homing_acquire_range, 25.0)
+		assert_eq(projectile.params.homing_turn_rate_deg, 240.0)
+		var before := projectile.velocity.x
+		projectile.advance(DT)
+		assert_gt(projectile.velocity.x, before, "steered toward the candidate on +x")
 
 
 func test_setup_moves_pool_into_projectile_root() -> void:

@@ -18,7 +18,13 @@ var _all: Array[DaggerProjectile] = []
 
 
 func _ready() -> void:
-	while _all.size() < initial_size:
+	ensure_size(initial_size)
+
+
+## Grows the pool (never shrinks) so at least `size` projectiles exist; lets the
+## weapon pre-allocate for a tier's peak live count instead of instantiating mid-fight.
+func ensure_size(size: int) -> void:
+	while _all.size() < size:
 		_free.append(_create())
 
 

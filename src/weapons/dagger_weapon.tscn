@@ -14,7 +14,7 @@ script = ExtResource("1_weapon")
 stream_cue = ExtResource("8_dagger_tick")
 shotgun_cue = ExtResource("9_shotgun_thump")
 
-[node name="ProjectileSpawner" type="Node" parent="."]
+[node name="ProjectileSpawner" type="Node" parent="." node_paths=PackedStringArray("pool")]
 script = ExtResource("2_spawner")
 pool = NodePath("ProjectilePool")
 
@@ -23,10 +23,10 @@ script = ExtResource("3_pool")
 projectile_scene = ExtResource("4_projectile")
 initial_size = 64
 
-[node name="StreamFire" type="Node" parent="."]
+[node name="StreamFire" type="Node" parent="." node_paths=PackedStringArray("spawner")]
 script = ExtResource("5_stream")
 spawner = NodePath("../ProjectileSpawner")
 
-[node name="ShotgunFire" type="Node" parent="."]
+[node name="ShotgunFire" type="Node" parent="." node_paths=PackedStringArray("spawner")]
 script = ExtResource("6_shotgun")
 spawner = NodePath("../ProjectileSpawner")

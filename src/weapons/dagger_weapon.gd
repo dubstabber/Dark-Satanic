@@ -56,6 +56,18 @@ func apply_tier(p_tier: DaggerUpgradeTier) -> void:
 		_stream.configure(p_tier)
 	if _shotgun != null:
 		_shotgun.configure(p_tier)
+	if _spawner != null and _spawner.ensure_pool() != null:
+		_spawner.pool.ensure_size(peak_live_projectiles(p_tier))
+
+
+## Upper bound on daggers in flight at once for a tier: a full lifetime of stream
+## shots plus every shotgun volley that can still be alive.
+static func peak_live_projectiles(p_tier: DaggerUpgradeTier) -> int:
+	if p_tier == null:
+		return 0
+	var stream := ceili(p_tier.stream_rate * p_tier.stream_daggers_per_shot * p_tier.projectile_lifetime)
+	var volleys := ceili(p_tier.projectile_lifetime / maxf(p_tier.shotgun_cooldown, 0.001))
+	return stream + p_tier.shotgun_pellets * volleys
 
 
 ## Returns the number of projectiles launched this tick.
