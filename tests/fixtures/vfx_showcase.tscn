@@ -1,0 +1,65 @@
+[gd_scene load_steps=10 format=3 uid="uid://b8ubi222t8pso"]
+
+[ext_resource type="Script" path="res://tests/fixtures/vfx_showcase.gd" id="1_showcase"]
+[ext_resource type="PackedScene" path="res://src/vfx/post_process/post_process.tscn" id="2_post"]
+[ext_resource type="PackedScene" path="res://src/vfx/particles/death_burst.tscn" id="3_burst"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/scratch_text.gdshader" id="4_scratch"]
+
+[sub_resource type="Environment" id="Environment_void"]
+background_mode = 1
+background_color = Color(0, 0, 0, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.1
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+size = Vector2(16, 16)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_text"]
+frequency = 0.1
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_text"]
+width = 64
+height = 64
+seamless = true
+noise = SubResource("FastNoiseLite_text")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_scratch"]
+shader = ExtResource("4_scratch")
+shader_parameter/noise_tex = SubResource("NoiseTexture2D_text")
+
+[node name="VfxShowcase" type="Node3D" node_paths=PackedStringArray("toon_target", "floor_target")]
+script = ExtResource("1_showcase")
+toon_target = NodePath("Skull")
+floor_target = NodePath("Floor")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_void")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.94, 0.342, 0, -0.342, 0.94, 0, 1.5, 4)
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 0, 4, 0)
+
+[node name="Skull" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_floor")
+
+[node name="Burst" parent="." instance=ExtResource("3_burst")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.5, 0)
+
+[node name="Text" type="CanvasLayer" parent="."]
+layer = 50
+
+[node name="Label" type="Label" parent="Text"]
+material = SubResource("ShaderMaterial_scratch")
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 400.0
+offset_bottom = 80.0
+text = "DARK SATANIC"
+
+[node name="PostProcess" parent="." instance=ExtResource("2_post")]
