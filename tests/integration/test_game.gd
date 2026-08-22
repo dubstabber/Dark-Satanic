@@ -1,0 +1,131 @@
+extends GameTest
+## Game (composition root) wiring with an injected RunState and a stub wave table.
+
+const GameScene := preload("res://src/game/game.tscn")
+const WeeperScene := preload("res://src/enemies/archetypes/weeper.tscn")
+const MournerScene := preload("res://src/enemies/archetypes/mourner.tscn")
+
+
+class FakeEnemy:
+	extends Node3D
+	signal died(enemy: Node3D, last_hit: HitInfo)
+
+
+var _game: Game
+var _state: RunState
+
+
+func before_each() -> void:
+	super.before_each()
+	_state = RunState.new(load("res://src/weapons/resources/default_ladder.tres"))
+	_state.start()
+	_game = GameScene.instantiate()
+	_game.config = E2EHelpers.tiny_config()
+	_game.setup(_state)
+	add_child_autofree(_game)
+	watch_signals(EventBus)
+	watch_signals(_game)
+
+
+func test_scene_wiring() -> void:
+	assert_same(_game.run_state, _state, "injected state used instead of RunManager")
+	assert_false(RunManager.is_running(), "RunManager untouched when a state is injected")
+	assert_same(_game.player.weapon_holder.projectile_root, _game.projectile_container)
+	assert_same(_game.player.weapon_holder.weapon.target_provider.get_object(), _game)
+	assert_eq(_game.player.weapon_holder.weapon.target_provider.get_method(), &"enemies")
+	assert_same(_game.spawn_director.enemy_container, _game.enemy_container)
+	assert_same(_game.spawn_director.drop_root, _game.gem_container)
+	assert_same(_game.spawn_director.arena, _game.arena)
+	assert_same(_game.spawn_director.target, _game.player)
+	assert_same(_game.spawn_director.wave_table, _game.config.wave_table)
+	assert_eq(_game.spawn_director.rng_seed, 1)
+	assert_same(_game.arena.target, _game.player)
+	assert_true(_game.hud.is_bound())
+	assert_almost_eq(_game.player.look.sensitivity, SettingsManager.mouse_sensitivity, 0.00001)
+	assert_same(_game.player.weapon_holder.tier(), _state.current_tier())
+
+
+func test_physics_clock_drives_run_director_and_light() -> void:
+	await wait_physics_frames(60)
+	assert_almost_eq(_state.elapsed, 1.0, 0.05)
+	assert_almost_eq(_game.spawn_director.elapsed(), _state.elapsed, 0.0001)
+	assert_eq(_game.enemy_container.get_child_count(), 3, "ring of three at 0.5 s")
+	assert_signal_emit_count(EventBus, "enemy_spawned", 3)
+	assert_almost_eq(_game.player_light.global_position.y, _game.player.global_position.y + 2.5, 0.01)
+	_state.end(&"test")
+	await wait_physics_frames(60)
+	assert_eq(_game.enemy_container.get_child_count(), 3, "clock stops once the run ended")
+
+
+func test_gems_raise_tier_and_forward_to_weapon_and_bus() -> void:
+	var needed := _state.gems_to_next_tier()
+	_game.player.pickup_collector.gem_collected.emit(needed)
+	assert_eq(_state.gems, needed)
+	assert_eq(_state.tier_index, 1)
+	assert_same(_game.player.weapon_holder.tier(), _state.ladder.tier(1))
+	assert_signal_emitted_with_parameters(EventBus, "gem_collected", [needed])
+	assert_signal_emitted_with_parameters(EventBus, "tier_changed", [_state.ladder.tier(1), 1])
+
+
+func test_enemy_death_counts_a_kill() -> void:
+	var enemy := FakeEnemy.new()
+	enemy.position = Vector3(1, 2, 3)
+	_game.enemy_container.add_child(enemy)
+	enemy.died.emit(enemy, null)
+	assert_eq(_state.kills, 1)
+	assert_signal_emitted_with_parameters(EventBus, "enemy_died", [enemy, Vector3(1, 2, 3)])
+
+
+func test_enemies_lists_only_live_nodes_with_died() -> void:
+	var enemy := FakeEnemy.new()
+	_game.enemy_container.add_child(enemy)
+	var dying := FakeEnemy.new()
+	_game.enemy_container.add_child(dying)
+	dying.queue_free()
+	var stray := Node3D.new()
+	_game.enemy_container.add_child(stray)
+	assert_eq(_game.enemies(), [enemy] as Array[Node3D])
+	assert_eq(_game.spawn_director.alive_count(), 1)
+	await wait_process_frames(1)
+
+
+func test_player_death_ends_run_once() -> void:
+	_state.tick(4.0)
+	_game.player.died.emit(&"enemy")
+	assert_false(_state.is_running)
+	assert_signal_emitted_with_parameters(EventBus, "player_died", [&"enemy"])
+	assert_signal_emit_count(_game, "run_ended", 1)
+	var result: RunResult = get_signal_parameters(_game, "run_ended", 0)[0]
+	assert_eq(result.death_cause, &"enemy")
+	assert_almost_eq(result.time_survived, 4.0, 0.0001)
+	_game.player.died.emit(&"void")
+	assert_signal_emit_count(_game, "run_ended", 1, "second death ignored")
+
+
+func test_real_enemy_drops_gems_into_gem_container() -> void:
+	var event := SpawnEvent.new()
+	event.enemy_scene = MournerScene
+	event.pattern = PointPattern.new()
+	event.pattern.point = Vector3(0, 1.2, 10)
+	var spawned := _game.spawn_director.spawn_now(event)
+	assert_eq(spawned.size(), 1)
+	var enemy: Enemy = spawned[0]
+	assert_same(enemy.gem_drop.spawn_root, _game.gem_container)
+	assert_same(enemy.target, _game.player)
+	assert_ne(enemy.rng_seed, 0, "director seeds the enemy")
+	enemy.health.kill(&"dagger")
+	await wait_process_frames(1)
+	assert_eq(_state.kills, 1)
+	assert_true(_game.gem_container.get_child_count() >= 1, "gem parented to GemContainer")
+	for child in _game.enemy_container.get_children():
+		assert_true(child.has_signal("died"), "%s: no gems in EnemyContainer" % child.name)
+	await wait_seconds(0.3)
+
+
+func test_uses_run_manager_when_no_state_injected() -> void:
+	var game: Game = GameScene.instantiate()
+	game.config = E2EHelpers.tiny_config()
+	add_child_autofree(game)
+	assert_true(RunManager.is_running())
+	assert_same(game.run_state, RunManager.current)
+	assert_same(game.run_state.ladder, game.config.ladder)
