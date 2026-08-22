@@ -63,3 +63,13 @@ func test_corrupt_file_loads_empty_and_warns() -> void:
 func test_save_null_returns_error() -> void:
 	var store := LeaderboardStore.new(temp_user_path("null_leaderboard"))
 	assert_eq(store.save(null), ERR_INVALID_PARAMETER)
+
+
+func test_nested_temp_directories_are_removed_after_each() -> void:
+	var path := temp_user_path("nested_probe/deeper/leaderboard")
+	assert_eq(LeaderboardStore.new(path).save(_sample()), OK)
+	var top := ProjectSettings.globalize_path(GameTest.TEMP_DIR.path_join("nested_probe"))
+	assert_true(DirAccess.dir_exists_absolute(top))
+	super.after_each()
+	assert_false(DirAccess.dir_exists_absolute(top), "temp_user_path cleans its directories")
+	super.before_each()

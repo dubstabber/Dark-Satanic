@@ -7,7 +7,7 @@ signal menu_requested
 signal name_submitted(name: String)
 
 const MAX_NAME_LENGTH := 12
-const DEFAULT_NAME := "ANON"
+const DEFAULT_NAME := LeaderboardEntry.DEFAULT_NAME
 
 @onready var title_label: Label = %TitleLabel
 @onready var time_label: Label = %TimeLabel

@@ -60,6 +60,18 @@ func play_music(stream: AudioStream, volume_db: float = 0.0) -> void:
 	_music.play()
 
 
+## Plays a cue as the looping music track (stream, volume, pitch and bus come from the cue).
+func play_music_cue(cue: AudioCue) -> void:
+	if cue == null or not cue.is_playable():
+		stop_music()
+		return
+	_music.stream = cue.pick_stream(rng)
+	_music.volume_db = cue.volume_db
+	_music.pitch_scale = cue.pick_pitch(rng)
+	_music.bus = _existing_bus(cue.bus)
+	_music.play()
+
+
 func stop_music() -> void:
 	_music.stop()
 

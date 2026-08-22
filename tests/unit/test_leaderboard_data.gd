@@ -90,3 +90,16 @@ func test_entry_make_copies_every_field() -> void:
 	assert_eq(entry.tier_index, 2)
 	assert_eq(entry.kills, 9)
 	assert_eq(entry.unix_time, 777)
+
+
+func test_entry_from_result_is_unnamed_and_complete() -> void:
+	var result := RunResult.new(42.5, 7, 9, 2, &"void")
+	var entry := LeaderboardEntry.from_result(result)
+	assert_eq(entry.player_name, LeaderboardEntry.DEFAULT_NAME)
+	assert_eq(LeaderboardEntry.DEFAULT_NAME, "ANON")
+	assert_almost_eq(entry.time_survived, 42.5, 0.0001)
+	assert_eq(entry.gems, 7)
+	assert_eq(entry.kills, 9)
+	assert_eq(entry.tier_index, 2)
+	assert_eq(entry.unix_time, result.unix_time)
+	assert_eq(DeathScreen.DEFAULT_NAME, LeaderboardEntry.DEFAULT_NAME)

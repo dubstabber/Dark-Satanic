@@ -140,3 +140,57 @@ func test_milestone1_table_when_archetypes_exist() -> void:
 		assert_ne(event.label, "")
 	assert_eq(times[0], 3.0)
 	assert_eq(times[times.size() - 1], 300.0)
+
+
+func test_loop_time_scale_is_floored_and_count_scale_capped() -> void:
+	var table := _table([0, 240, 300])
+	table.loop_interval_multiplier = 0.9
+	table.min_interval_fraction = 0.5
+	table.loop_count_multiplier = 1.25
+	table.max_count_multiplier = 4.0
+	assert_almost_eq(table.loop_time_scale(1), 0.9, 0.0001)
+	assert_almost_eq(table.loop_time_scale(7), 0.5, 0.0001, "0.9^7 = 0.478 floored at 0.5")
+	assert_almost_eq(table.loop_time_scale(200), 0.5, 0.0001)
+	assert_almost_eq(table.loop_count_scale(2), 1.5625, 0.0001)
+	assert_almost_eq(table.loop_count_scale(100), 4.0, 0.0001)
+	var far := table.loop_events(100)
+	assert_eq(far[0].count, 4, "ceil(1 * 4.0), never explodes")
+	assert_almost_eq(far[1].time - far[0].time, 60.0 * 0.5, 0.001, "block keeps half the authored length")
+
+
+func test_loop_block_start_grows_without_bound() -> void:
+	var table := _table([0, 240, 300])
+	var floor_length := table.loop_block_duration() * table.min_interval_fraction
+	assert_true(table.loop_block_start(200) - table.loop_block_start(100) >= 100.0 * floor_length - 0.001,
+		"100 more blocks take at least 100 floor-length blocks of time")
+	assert_almost_eq(table.loop_events(101)[0].time, table.loop_block_start(101), 0.001,
+		"block start and block length agree")
+
+
+func test_milestone1_loop_is_bounded_for_an_hour() -> void:
+	var table: WaveTable = load("res://src/spawning/waves/milestone1.tres")
+	assert_almost_eq(table.loop_count_multiplier, 1.15, 0.0001)
+	assert_almost_eq(table.loop_interval_multiplier, 0.95, 0.0001)
+	var k := 1
+	while table.loop_block_start(k) < 3600.0:
+		k += 1
+		assert_true(k < 200, "an hour of looping needs fewer than 200 blocks")
+	var total := 0
+	for event in table.loop_events(k):
+		total += event.count
+	assert_true(total <= 4 * 60, "per-block count stays under the 4x cap of the authored ~50")
+
+
+func test_milestone1_gem_budget_for_documentation() -> void:
+	var table: WaveTable = load("res://src/spawning/waves/milestone1.tres")
+	var gems := 0
+	var stats_cache := {}
+	for event in table.expanded():
+		var path: String = event.enemy_scene.resource_path
+		if not stats_cache.has(path):
+			var probe := event.enemy_scene.instantiate()
+			stats_cache[path] = probe.get("stats").gem_count if probe.get("stats") != null else 0
+			probe.free()
+		gems += int(stats_cache[path]) * event.count
+	gut.p("milestone1 authored gem budget (without spawner children): %d" % gems)
+	assert_true(gems > 0)

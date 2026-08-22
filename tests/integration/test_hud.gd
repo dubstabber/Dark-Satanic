@@ -91,8 +91,21 @@ func test_bind_null_just_unbinds() -> void:
 	assert_false(_hud.is_bound())
 
 
-func test_crosshair_draws_without_error() -> void:
+func test_crosshair_setters_request_a_redraw() -> void:
+	assert_true(_hud.crosshair is Crosshair)
+	await wait_process_frames(1)
+	watch_signals(_hud.crosshair)
+	await wait_process_frames(1)
+	assert_signal_not_emitted(_hud.crosshair, "draw", "idle once drawn")
 	_hud.crosshair.size_px = 20.0
+	await wait_process_frames(1)
+	assert_signal_emit_count(_hud.crosshair, "draw", 1, "size setter schedules a redraw")
 	_hud.crosshair.color = Color.RED
-	await wait_process_frames(2)
-	assert_eq(_hud.crosshair.size_px, 20.0)
+	await wait_process_frames(1)
+	assert_signal_emit_count(_hud.crosshair, "draw", 2, "colour setter schedules a redraw")
+	assert_eq(_hud.crosshair.color, Color.RED)
+
+
+func test_kills_label_uses_the_theme_font_size() -> void:
+	assert_false(_hud.kills_label.has_theme_font_size_override("font_size"), "no 16 px override")
+	assert_eq(_hud.kills_label.get_theme_font_size("font_size"), _hud.gems_label.get_theme_font_size("font_size"))

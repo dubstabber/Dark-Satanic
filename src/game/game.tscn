@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://a7yh7fjmb40co"]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
-[ext_resource type="Resource" path="res://src/game/default_game.tres" id="2_config"]
+[ext_resource type="Resource" uid="uid://x17set90aaksm" path="res://src/game/default_game.tres" id="2_config"]
 [ext_resource type="Environment" path="res://src/arena/void_environment.tres" id="3_env"]
 [ext_resource type="PackedScene" path="res://src/arena/arena.tscn" id="4_arena"]
 [ext_resource type="PackedScene" path="res://src/player/player.tscn" id="5_player"]
@@ -21,17 +21,24 @@ environment = ExtResource("3_env")
 [node name="Player" parent="." instance=ExtResource("5_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
 
-[node name="WeaponHolder" parent="Player" index="0" node_paths=PackedStringArray("weapon")]
+[node name="WeaponHolder" parent="Player" index="0" node_paths=PackedStringArray("weapon", "projectile_root")]
 weapon = NodePath("DaggerWeapon")
+projectile_root = NodePath("../../ProjectileContainer")
 
 [node name="DaggerWeapon" parent="Player/WeaponHolder" instance=ExtResource("6_weapon")]
 
 [node name="EnemyContainer" type="Node3D" parent="."]
 
+[node name="GemContainer" type="Node3D" parent="."]
+
 [node name="ProjectileContainer" type="Node3D" parent="."]
 
-[node name="SpawnDirector" type="Node" parent="."]
+[node name="SpawnDirector" type="Node" parent="." node_paths=PackedStringArray("enemy_container", "drop_root", "arena", "target")]
 script = ExtResource("7_director")
+enemy_container = NodePath("../EnemyContainer")
+drop_root = NodePath("../GemContainer")
+arena = NodePath("../Arena")
+target = NodePath("../Player")
 
 [node name="PlayerLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)

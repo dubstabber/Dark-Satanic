@@ -2,6 +2,7 @@ class_name GameFlow
 extends Node
 ## MENU → PLAYING ⇄ PAUSED → DEAD state machine. Owns screen instances and the live
 ## Game; screens only emit intent signals, this node decides what happens.
+## Runs with PROCESS_MODE_ALWAYS so the pause action still reaches it while the tree is paused.
 
 enum State { MENU, PLAYING, PAUSED, DEAD }
 
@@ -21,10 +22,16 @@ signal state_changed(from: State, to: State)
 @export var menu_profile: PostFxProfile
 @export var gameplay_profile: PostFxProfile
 @export var death_profile: PostFxProfile
-@export var menu_music: AudioStream
-@export var game_music: AudioStream
+## Seconds the post-process crossfades when the state changes.
+@export_range(0.0, 5.0, 0.05) var screen_fade_duration: float = 0.6
+## Brightness bump (>1 also inverts) and its decay on every tier-up.
+@export_range(0.0, 3.0, 0.05) var tier_pulse_strength: float = 0.6
+@export_range(0.0, 3.0, 0.05) var tier_pulse_duration: float = 0.3
+@export var menu_music: AudioCue
+@export var game_music: AudioCue
 @export var death_cue: AudioCue
 @export var tier_up_cue: AudioCue
+## Played when any button of a screen this node shows is pressed.
 @export var ui_cue: AudioCue
 
 var state: State = State.MENU
@@ -35,6 +42,10 @@ var last_entry: LeaderboardEntry
 var _screen: Control
 
 
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
 func setup(p_store: LeaderboardStore) -> void:
 	store = p_store
 	leaderboard = store.load()
@@ -43,6 +54,7 @@ func setup(p_store: LeaderboardStore) -> void:
 
 
 func show_menu() -> void:
+	RunManager.finish(&"aborted")
 	_clear_game()
 	get_tree().paused = false
 	var menu := _show_screen(main_menu_scene)
@@ -89,6 +101,7 @@ func resume() -> void:
 func open_settings() -> void:
 	var panel := settings_panel_scene.instantiate()
 	ui_layer.add_child(panel)
+	_wire_button_clicks(panel)
 	panel.bind(SettingsManager.mouse_sensitivity, SettingsManager.master_volume,
 		SettingsManager.music_volume, SettingsManager.sfx_volume)
 	panel.sensitivity_changed.connect(SettingsManager.set_mouse_sensitivity)
@@ -102,13 +115,7 @@ func _on_run_ended(result: RunResult) -> void:
 	# Deferred: death usually arrives from a physics callback, where collision
 	# objects may not be disabled synchronously.
 	game.set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
-	last_entry = LeaderboardEntry.new()
-	last_entry.player_name = "ANON"
-	last_entry.time_survived = result.time_survived
-	last_entry.gems = result.gems
-	last_entry.kills = result.kills
-	last_entry.tier_index = result.tier_index
-	last_entry.unix_time = result.unix_time
+	last_entry = LeaderboardEntry.from_result(result)
 	var rank := leaderboard.insert(last_entry)
 	store.save(leaderboard)
 	var screen := _show_screen(death_screen_scene)
@@ -132,7 +139,7 @@ func _on_tier_changed(_tier: DaggerUpgradeTier, index: int) -> void:
 	if index > 0 and state == State.PLAYING:
 		AudioManager.play(tier_up_cue)
 		if post_process != null:
-			post_process.pulse(0.6, 0.3)
+			post_process.pulse(tier_pulse_strength, tier_pulse_duration)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -147,13 +154,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _present(new_state: State, profile: PostFxProfile, music: AudioStream, mouse_mode: Input.MouseMode) -> void:
+func _present(new_state: State, profile: PostFxProfile, music: AudioCue, mouse_mode: Input.MouseMode) -> void:
 	_set_state(new_state)
 	Input.mouse_mode = mouse_mode
 	if post_process != null and profile != null:
-		post_process.apply(profile, 0.6)
+		post_process.apply(profile, screen_fade_duration)
 	if music != null:
-		AudioManager.play_music(music)
+		AudioManager.play_music_cue(music)
 	elif new_state == State.DEAD:
 		AudioManager.stop_music()
 
@@ -172,7 +179,20 @@ func _show_screen(scene: PackedScene) -> Control:
 		return null
 	_screen = scene.instantiate()
 	ui_layer.add_child(_screen)
+	_wire_button_clicks(_screen)
 	return _screen
+
+
+## Every Button under `root` plays ui_cue when pressed (null cue = silent).
+func _wire_button_clicks(root: Node) -> void:
+	if root is BaseButton:
+		root.pressed.connect(_play_ui_cue)
+	for child in root.get_children():
+		_wire_button_clicks(child)
+
+
+func _play_ui_cue() -> void:
+	AudioManager.play(ui_cue)
 
 
 func _clear_screen() -> void:

@@ -36,3 +36,18 @@ func test_loading_missing_file_keeps_defaults() -> void:
 	SettingsManager.load_from("user://tests/does_not_exist_%d.cfg" % randi())
 	assert_almost_eq(SettingsManager.mouse_sensitivity, SettingsManager.DEFAULT_SENSITIVITY, 0.00001)
 	assert_signal_emitted(SettingsManager, "changed")
+
+
+func test_volume_defaults_come_from_the_constants() -> void:
+	SettingsManager.set_volume(&"Master", 0.1)
+	SettingsManager.set_volume(&"Music", 0.2)
+	SettingsManager.set_volume(&"SFX", 0.3)
+	SettingsManager.reset()
+	assert_eq(SettingsManager.master_volume, SettingsManager.DEFAULT_MASTER_VOLUME)
+	assert_eq(SettingsManager.music_volume, SettingsManager.DEFAULT_MUSIC_VOLUME)
+	assert_eq(SettingsManager.sfx_volume, SettingsManager.DEFAULT_SFX_VOLUME)
+
+
+func test_game_test_points_settings_at_a_temp_file() -> void:
+	assert_ne(SettingsManager.path, SettingsManager.DEFAULT_PATH)
+	assert_true(SettingsManager.path.begins_with(GameTest.TEMP_DIR))
