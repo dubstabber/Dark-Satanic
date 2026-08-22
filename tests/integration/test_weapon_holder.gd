@@ -23,6 +23,12 @@ class BareWeapon:
 	extends Node
 
 
+## A weapon that reports shots through `fired` like DaggerWeapon.
+class FiringStub:
+	extends WeaponStub
+	signal fired(count: int, mode: StringName)
+
+
 var _world: Node3D
 var _player_root: Node3D
 var _aim: Node3D
@@ -127,3 +133,52 @@ func test_update_with_null_frame_is_ignored() -> void:
 	var holder := _holder(weapon, _root)
 	holder.update(null, 0.016)
 	assert_eq(weapon.fire_calls.size(), 0)
+
+
+func test_projectile_root_assigned_after_ready_reruns_setup() -> void:
+	var weapon := WeaponStub.new()
+	var holder := _holder(weapon)
+	assert_same(weapon.setup_calls[0][2], _world)
+	holder.projectile_root = _root
+	assert_eq(weapon.setup_calls.size(), 2, "setup re-run with the new root")
+	assert_same(weapon.setup_calls[1][2], _root)
+
+
+func test_projectile_root_assigned_after_ready_moves_a_real_weapons_pool() -> void:
+	var weapon: DaggerWeapon = load("res://src/weapons/dagger_weapon.tscn").instantiate()
+	var holder := _holder(weapon)
+	assert_same(weapon.spawner().pool.container, _world)
+	holder.projectile_root = _root
+	assert_same(weapon.spawner().pool.container, _root)
+	assert_eq(_root.get_child_count(), 64, "every pooled dagger re-parented")
+	for projectile in _root.get_children():
+		projectile.autonomous = false
+
+
+func test_kicked_emitted_from_weapon_fired_with_mode_strength() -> void:
+	var weapon := FiringStub.new()
+	var holder := _holder(weapon, _root)
+	holder.stream_kick = 1.5
+	holder.shotgun_kick = 5.0
+	watch_signals(holder)
+	weapon.fired.emit(1, &"stream")
+	assert_signal_emitted_with_parameters(holder, "kicked", [1.5])
+	weapon.fired.emit(12, &"shotgun")
+	assert_signal_emitted_with_parameters(holder, "kicked", [5.0])
+	assert_signal_emit_count(holder, "kicked", 2)
+
+
+func test_swapping_weapons_moves_the_fired_connection() -> void:
+	var first := FiringStub.new()
+	var holder := _holder(first, _root)
+	var second := FiringStub.new()
+	holder.add_child(second)
+	holder.weapon = second
+	watch_signals(holder)
+	first.fired.emit(1, &"stream")
+	assert_signal_not_emitted(holder, "kicked", "old weapon disconnected")
+	second.fired.emit(1, &"stream")
+	assert_signal_emit_count(holder, "kicked", 1)
+	holder.weapon = second
+	second.fired.emit(1, &"stream")
+	assert_signal_emit_count(holder, "kicked", 2, "re-assigning the same weapon does not double-connect")

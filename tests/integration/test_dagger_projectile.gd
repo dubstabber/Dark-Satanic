@@ -50,12 +50,43 @@ func test_launch_activates_and_positions() -> void:
 	assert_almost_eq(material.emission_energy_multiplier, 3.0, 0.001)
 
 
-func test_material_is_per_instance() -> void:
+func test_material_is_shared_between_instances() -> void:
 	var other: DaggerProjectile = ProjectileScene.instantiate()
 	_world.add_child(other)
 	var a := (_projectile.get_node("Mesh") as MeshInstance3D).get_surface_override_material(0)
 	var b := (other.get_node("Mesh") as MeshInstance3D).get_surface_override_material(0)
-	assert_ne(a, b, "each projectile owns its material so emission differs per tier")
+	assert_same(a, b, "one tier look = one material, so daggers batch")
+	var params := _params()
+	params.emission_energy = 2.5
+	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, params, _source)
+	assert_almost_eq((b as StandardMaterial3D).emission_energy_multiplier, 2.5, 0.001, "emission applied to all")
+
+
+func test_armoured_hurtbox_is_passed_through_to_inner_hurtbox() -> void:
+	var target := WeaponTargets.armoured_target(_world, Vector3(0, 0, -4), 1.0)
+	watch_signals(target.outer)
+	watch_signals(target.inner)
+	await wait_physics_frames(3)
+	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, _params(60.0, 1.0), _source)
+	_tick(6)
+	assert_true(target.health.is_dead(), "armour did not eat the dagger")
+	assert_signal_emitted(target.inner, "hit_received")
+	assert_signal_not_emitted(target.outer, "hit_received")
+	assert_signal_emit_count(_projectile, "hit", 1)
+	assert_same(get_signal_parameters(_projectile, "hit")[0], target.inner)
+	assert_almost_eq(_projectile.global_position.z, -3.5, 0.05, "stopped on the inner surface")
+
+
+func test_armour_alone_lets_the_dagger_fly_on() -> void:
+	var target := WeaponTargets.armoured_target(_world, Vector3(0, 0, -4), 1.0)
+	target.inner.collision_layer = PhysicsLayers.PLAYER_HURTBOX
+	await wait_physics_frames(3)
+	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, _params(60.0, 1.0, 2.0), _source)
+	_tick(10)
+	assert_true(_projectile.active, "passed through the armour and kept flying")
+	assert_lt(_projectile.global_position.z, -6.0)
+	assert_false(target.health.is_dead())
+	assert_signal_not_emitted(_projectile, "hit")
 
 
 func test_hits_hurtbox_damages_and_releases() -> void:
@@ -188,6 +219,38 @@ func test_homing_ignores_targets_behind_and_out_of_range() -> void:
 	assert_almost_eq(_projectile.velocity, Vector3(0, 0, -60), Vector3.ONE * 0.001)
 
 
+## Stand-in for an enemy whose damageable part sits away from its root (a lament's eye).
+class AimOffsetTarget:
+	extends Node3D
+	var aim_offset: Vector3 = Vector3.ZERO
+
+	func aim_position() -> Vector3:
+		return global_position + aim_offset
+
+
+func test_homing_steers_at_aim_position_when_offered() -> void:
+	var target := AimOffsetTarget.new()
+	target.position = Vector3(0, 0, -6)
+	target.aim_offset = Vector3(0, 3, 0)
+	_world.add_child(target)
+	_projectile.target_provider = func() -> Array[Node3D]: return [target]
+	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, _homing_params(), _source)
+	_tick(1)
+	assert_gt(_projectile.velocity.y, 0.0, "turned upward toward the weak point, not the root")
+	assert_almost_eq(_projectile.velocity.x, 0.0, 0.001)
+
+
+func test_homing_range_and_cone_use_aim_position() -> void:
+	var target := AimOffsetTarget.new()
+	target.position = Vector3(0, 0, 2)
+	target.aim_offset = Vector3(3, 0, -8)
+	_world.add_child(target)
+	_projectile.target_provider = func() -> Array[Node3D]: return [target]
+	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, _homing_params(), _source)
+	_tick(1)
+	assert_gt(_projectile.velocity.x, 0.0, "root is behind but the aim point is ahead: still acquired")
+
+
 func test_homing_picks_nearest_candidate() -> void:
 	var near := _node_at(Vector3(2, 0, -4))
 	var farther := _node_at(Vector3(-5, 0, -8))
@@ -195,6 +258,35 @@ func test_homing_picks_nearest_candidate() -> void:
 	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, _homing_params(), _source)
 	_tick(1)
 	assert_gt(_projectile.velocity.x, 0.0, "turned toward +x (the nearer target)")
+
+
+func test_default_hit_vfx_is_hit_spark_and_plays_on_hit() -> void:
+	assert_not_null(_projectile.hit_vfx, "scene wires a default hit effect")
+	assert_eq(_projectile.hit_vfx.resource_path, "res://src/vfx/particles/hit_spark.tscn")
+	WeaponTargets.hurtbox_target(_world, Vector3(0, 0, -3), 1.0)
+	await wait_physics_frames(3)
+	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, _params(), _source)
+	_tick(5)
+	await wait_process_frames(2)
+	var spark: OneShotVfx = null
+	for child in _world.get_children():
+		if child is OneShotVfx:
+			spark = child
+	assert_not_null(spark, "a OneShotVfx spawned under the projectile's parent")
+	if spark != null:
+		assert_almost_eq(spark.global_position.z, -2.5, 0.05)
+
+
+func test_hit_vfx_is_not_instantiated_when_projectile_dies_before_the_deferred_add() -> void:
+	WeaponTargets.hurtbox_target(_world, Vector3(0, 0, -3), 1.0)
+	await wait_physics_frames(3)
+	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, _params(), _source)
+	_tick(5)
+	_projectile.free()
+	await wait_process_frames(2)
+	for child in _world.get_children():
+		assert_false(child is OneShotVfx, "nothing was instantiated ahead of the deferred add")
+	pass_test("no orphan when the projectile is freed in the same frame as the hit")
 
 
 func test_hit_vfx_spawned_under_parent_at_hit_point() -> void:
