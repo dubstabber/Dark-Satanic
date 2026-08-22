@@ -1,0 +1,51 @@
+[gd_scene load_steps=10 format=3 uid="uid://mhnrtropu256v"]
+
+[ext_resource type="PackedScene" path="res://src/enemies/base_enemy.tscn" id="1_base"]
+[ext_resource type="Resource" path="res://src/enemies/resources/stats/mourner.tres" id="2_stats"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/seek_behavior.gd" id="3_seek"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/bob_behavior.gd" id="4_bob"]
+[ext_resource type="Script" path="res://src/components/spawner_component.gd" id="5_spawner"]
+[ext_resource type="PackedScene" path="res://src/enemies/archetypes/weeper.tscn" id="6_weeper"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_mourner"]
+radius = 1.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mourner"]
+albedo_color = Color(0.45, 0.44, 0.4, 1)
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.15
+
+[sub_resource type="SphereMesh" id="SphereMesh_mourner"]
+radius = 1.2
+height = 2.4
+radial_segments = 16
+rings = 8
+
+[node name="Enemy" instance=ExtResource("1_base")]
+stats = ExtResource("2_stats")
+
+[node name="CollisionShape3D" parent="Hurtbox" index="0"]
+shape = SubResource("SphereShape3D_mourner")
+
+[node name="CollisionShape3D" parent="ContactHitbox" index="0"]
+shape = SubResource("SphereShape3D_mourner")
+
+[node name="Seek" type="Node" parent="Behaviors"]
+script = ExtResource("3_seek")
+
+[node name="Bob" type="Node" parent="Behaviors"]
+script = ExtResource("4_bob")
+amplitude = 0.3
+frequency = 0.7
+
+[node name="Mesh" parent="Visual" index="0"]
+material_override = SubResource("StandardMaterial3D_mourner")
+mesh = SubResource("SphereMesh_mourner")
+
+[node name="Spawner" type="Node" parent="."]
+script = ExtResource("5_spawner")
+scene = ExtResource("6_weeper")
+death_burst = 2
+spawn_radius = 1.5
+enabled = false
