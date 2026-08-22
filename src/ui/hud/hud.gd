@@ -7,7 +7,7 @@ extends Control
 @onready var gems_label: Label = %GemsLabel
 @onready var tier_label: Label = %TierLabel
 @onready var kills_label: Label = %KillsLabel
-@onready var crosshair: Control = %Crosshair
+@onready var crosshair: Crosshair = %Crosshair
 
 var _run_state: RunState
 

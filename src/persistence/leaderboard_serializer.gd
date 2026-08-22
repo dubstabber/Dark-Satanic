@@ -32,7 +32,7 @@ static func from_config(config: ConfigFile) -> LeaderboardData:
 
 static func _read_entry(config: ConfigFile, section: String) -> LeaderboardEntry:
 	return LeaderboardEntry.make(
-		_as_string(config.get_value(section, "name", "ANON")),
+		_as_string(config.get_value(section, "name", LeaderboardEntry.DEFAULT_NAME)),
 		_as_float(config.get_value(section, "time", 0.0)),
 		_as_int(config.get_value(section, "gems", 0)),
 		_as_int(config.get_value(section, "tier", 0)),
@@ -44,8 +44,8 @@ static func _read_entry(config: ConfigFile, section: String) -> LeaderboardEntry
 static func _as_string(value: Variant) -> String:
 	if value is String or value is StringName:
 		var text := str(value).strip_edges()
-		return text if not text.is_empty() else "ANON"
-	return "ANON"
+		return text if not text.is_empty() else LeaderboardEntry.DEFAULT_NAME
+	return LeaderboardEntry.DEFAULT_NAME
 
 
 static func _as_float(value: Variant) -> float:

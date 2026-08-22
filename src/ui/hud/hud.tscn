@@ -37,8 +37,7 @@ anchors_preset = 0
 offset_left = 16.0
 offset_top = 16.0
 offset_right = 160.0
-offset_bottom = 44.0
-theme_override_font_sizes/font_size = 16
+offset_bottom = 56.0
 text = "KILLS 0"
 
 [node name="GemsLabel" type="Label" parent="."]

@@ -1,3 +1,4 @@
+class_name Crosshair
 extends Control
 ## Draws a 3x3 white dot with a thin ring around it, centred on this control.
 

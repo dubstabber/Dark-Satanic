@@ -47,3 +47,24 @@ func test_music() -> void:
 	assert_true(AudioManager.is_music_playing())
 	AudioManager.stop_music()
 	assert_false(AudioManager.is_music_playing())
+
+
+func test_play_music_cue_applies_the_cue_settings() -> void:
+	var cue := AudioCue.new()
+	cue.streams = [AudioStreamGenerator.new()]
+	cue.volume_db = -9.0
+	cue.pitch_min = 1.2
+	cue.pitch_max = 1.2
+	cue.bus = &"Master"
+	AudioManager.play_music_cue(cue)
+	var music: AudioStreamPlayer = AudioManager.get_node("Music")
+	assert_true(AudioManager.is_music_playing())
+	assert_same(music.stream, cue.streams[0])
+	assert_almost_eq(music.volume_db, -9.0, 0.001)
+	assert_almost_eq(music.pitch_scale, 1.2, 0.001)
+	assert_eq(music.bus, &"Master")
+	AudioManager.play_music_cue(null)
+	assert_false(AudioManager.is_music_playing(), "null cue stops the music")
+	AudioManager.play_music_cue(cue)
+	AudioManager.play_music_cue(AudioCue.new())
+	assert_false(AudioManager.is_music_playing(), "empty cue stops the music")

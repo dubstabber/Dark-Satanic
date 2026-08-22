@@ -2,7 +2,9 @@ class_name LeaderboardEntry
 extends Resource
 ## One leaderboard row: who survived how long and what they achieved.
 
-@export var player_name: String = "ANON"
+const DEFAULT_NAME := "ANON"
+
+@export var player_name: String = DEFAULT_NAME
 @export var time_survived: float = 0.0
 @export var gems: int = 0
 @export var tier_index: int = 0
@@ -21,3 +23,8 @@ static func make(
 	entry.kills = p_kills
 	entry.unix_time = p_unix
 	return entry
+
+
+## An unnamed entry carrying everything a finished run recorded.
+static func from_result(result: RunResult) -> LeaderboardEntry:
+	return make(DEFAULT_NAME, result.time_survived, result.gems, result.tier_index, result.kills, result.unix_time)

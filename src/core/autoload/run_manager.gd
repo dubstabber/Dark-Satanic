@@ -1,6 +1,8 @@
 extends Node
-## Owns the current RunState so it outlives the Game scene (menus read it after death).
-## Thin on purpose: all run logic lives in RunState / UpgradeLadder.
+## Owns the current RunState so it outlives the Game scene: `is_running()` and
+## `last_result` stay valid after the Game is freed (GameFlow aborts the run when the
+## player quits to the menu). Thin on purpose: all run logic lives in RunState /
+## UpgradeLadder.
 
 signal run_started(state: RunState)
 signal run_ended(result: RunResult)

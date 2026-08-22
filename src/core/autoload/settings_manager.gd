@@ -7,11 +7,14 @@ signal changed
 const DEFAULT_PATH := "user://settings.cfg"
 const SECTION := "settings"
 const DEFAULT_SENSITIVITY := 0.0022
+const DEFAULT_MASTER_VOLUME := 1.0
+const DEFAULT_MUSIC_VOLUME := 0.8
+const DEFAULT_SFX_VOLUME := 1.0
 
 var mouse_sensitivity: float = DEFAULT_SENSITIVITY
-var master_volume: float = 1.0
-var music_volume: float = 0.8
-var sfx_volume: float = 1.0
+var master_volume: float = DEFAULT_MASTER_VOLUME
+var music_volume: float = DEFAULT_MUSIC_VOLUME
+var sfx_volume: float = DEFAULT_SFX_VOLUME
 var path: String = DEFAULT_PATH
 
 
@@ -67,6 +70,6 @@ func reset() -> void:
 
 func _apply_defaults() -> void:
 	mouse_sensitivity = DEFAULT_SENSITIVITY
-	master_volume = 1.0
-	music_volume = 0.8
-	sfx_volume = 1.0
+	master_volume = DEFAULT_MASTER_VOLUME
+	music_volume = DEFAULT_MUSIC_VOLUME
+	sfx_volume = DEFAULT_SFX_VOLUME
