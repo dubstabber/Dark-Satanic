@@ -1,6 +1,7 @@
 class_name KillZone
 extends Area3D
-## Kills anything with a HealthComponent child that falls below the platform.
+## Kills anything with a HealthComponent child that falls below the platform. Collision
+## objects without one (an enemy's Hurtbox area) are resolved through their parent.
 
 signal killed(node: Node)
 
@@ -24,6 +25,17 @@ func try_kill(node: Node) -> bool:
 
 
 static func find_health(node: Node) -> HealthComponent:
+	if node == null:
+		return null
+	var direct := _health_child(node)
+	if direct != null:
+		return direct
+	if node is CollisionObject3D:
+		return _health_child(node.get_parent())
+	return null
+
+
+static func _health_child(node: Node) -> HealthComponent:
 	if node == null:
 		return null
 	for child in node.get_children():
