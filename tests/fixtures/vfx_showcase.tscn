@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://b8ubi222t8pso"]
+[gd_scene format=3 uid="uid://b8ubi222t8pso"]
 
 [ext_resource type="Script" path="res://tests/fixtures/vfx_showcase.gd" id="1_showcase"]
 [ext_resource type="PackedScene" path="res://src/vfx/post_process/post_process.tscn" id="2_post"]

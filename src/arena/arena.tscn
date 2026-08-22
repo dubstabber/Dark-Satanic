@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://a2yi9iev4m2dp"]
+[gd_scene format=3 uid="uid://2yjaiev4m2dp"]
 
 [ext_resource type="Script" path="res://src/arena/arena.gd" id="1_arena"]
 [ext_resource type="Shader" path="res://src/vfx/shaders/void_floor.gdshader" id="4_void_floor"]

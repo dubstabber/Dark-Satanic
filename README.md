@@ -16,7 +16,7 @@ The Godot binary is looked up via `GODOT_BIN` (default `./Godot_v4.7.1-stable_li
 ## Controls
 
 WASD move · mouse look · hold **LMB** dagger stream · **RMB** shotgun burst · **Space** jump (hold to bunny-hop,
-jumping on landing gains speed) · **Esc** pause · **R** retry after death. Gems dropped by nests and big skulls
+jumping on landing gains speed) · **Esc** pause · **R** retry after death · **F11** / **Alt+Enter** fullscreen (also in Settings, persisted). Gems dropped by nests and big skulls
 upgrade the daggers at 10 / 70 / 220 gems; any touch kills you; the platform shrinks from 60 s on.
 
 ## Test

@@ -63,3 +63,18 @@ func test_close_button_emits_closed() -> void:
 func test_sensitivity_has_focus_on_ready() -> void:
 	await wait_process_frames(1)
 	assert_true(_panel.sensitivity_slider.has_focus())
+
+
+func test_bind_sets_fullscreen_without_emitting() -> void:
+	_panel.bind(0.004, 0.5, 0.25, 0.75, true)
+	assert_true(_panel.fullscreen_check.button_pressed)
+	assert_signal_not_emitted(_panel, "fullscreen_changed")
+	_panel.bind(0.004, 0.5, 0.25, 0.75)
+	assert_false(_panel.fullscreen_check.button_pressed, "defaults to windowed")
+
+
+func test_fullscreen_toggle_emits_value() -> void:
+	_panel.fullscreen_check.button_pressed = true
+	assert_signal_emitted_with_parameters(_panel, "fullscreen_changed", [true])
+	_panel.fullscreen_check.button_pressed = false
+	assert_signal_emitted_with_parameters(_panel, "fullscreen_changed", [false])

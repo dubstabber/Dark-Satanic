@@ -103,9 +103,10 @@ func open_settings() -> void:
 	ui_layer.add_child(panel)
 	_wire_button_clicks(panel)
 	panel.bind(SettingsManager.mouse_sensitivity, SettingsManager.master_volume,
-		SettingsManager.music_volume, SettingsManager.sfx_volume)
+		SettingsManager.music_volume, SettingsManager.sfx_volume, SettingsManager.fullscreen)
 	panel.sensitivity_changed.connect(SettingsManager.set_mouse_sensitivity)
 	panel.volume_changed.connect(SettingsManager.set_volume)
+	panel.fullscreen_changed.connect(SettingsManager.set_fullscreen)
 	panel.closed.connect(func() -> void:
 		SettingsManager.save()
 		panel.queue_free())
@@ -152,6 +153,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("retry") and state == State.DEAD:
 		start_run()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("toggle_fullscreen"):
+		toggle_fullscreen()
+		get_viewport().set_input_as_handled()
+
+
+## F11 / Alt+Enter: flips the persisted setting; Main applies it to the window.
+func toggle_fullscreen() -> void:
+	SettingsManager.toggle_fullscreen()
+	SettingsManager.save()
 
 
 func _present(new_state: State, profile: PostFxProfile, music: AudioCue, mouse_mode: Input.MouseMode) -> void:

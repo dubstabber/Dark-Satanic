@@ -13,9 +13,15 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	SettingsManager.changed.connect(_apply_window_mode)
+	_apply_window_mode()
 	game_flow.setup(LeaderboardStore.new(leaderboard_path))
 	# Deferred: screens cannot be added while this subtree is still being set up.
 	if autostart:
 		game_flow.start_run.call_deferred()
 	else:
 		game_flow.show_menu.call_deferred()
+
+
+func _apply_window_mode() -> void:
+	WindowMode.apply(SettingsManager.fullscreen)

@@ -136,8 +136,11 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
   `show_result(result: RunResult, data: LeaderboardData, rank: int)` (rank -1 = unranked hides the name box).
   `PauseMenu`: `resume_requested`, `menu_requested` (`process_mode = PROCESS_MODE_ALWAYS`).
   `SettingsPanel`: never touches the autoload — it receives values via `func bind(sensitivity: float, master:
-  float, music: float, sfx: float)` and emits `sensitivity_changed(value)`, `volume_changed(bus: StringName,
-  value: float)`, `closed`.
+  float, music: float, sfx: float, fullscreen: bool = false)` and emits `sensitivity_changed(value)`,
+  `volume_changed(bus: StringName, value: float)`, `fullscreen_changed(value: bool)`, `closed`.
+  Fullscreen is persisted by `SettingsManager.fullscreen` (`set_fullscreen`/`toggle_fullscreen`), applied to the
+  window by `Main` through the static `WindowMode` helper (`src/core/window_mode.gd`, a no-op when headless), and
+  also bound to the `toggle_fullscreen` action (F11 / Alt+Enter) handled by `GameFlow`.
   `HUD`: `func bind(run_state: RunState)`; shows timer (`TimeFormat.seconds`), gems, tier (`TimeFormat.roman`),
   kills, `Crosshair` (theme font sizes; only the big timer/tier labels override them).
 - `LeaderboardEntry` (Resource: name, time_survived, gems, tier_index, kills, unix_time; `DEFAULT_NAME`,

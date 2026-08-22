@@ -124,3 +124,23 @@ func test_menu_and_game_music_come_from_cues() -> void:
 	_flow.start_run()
 	assert_same(music.stream, _flow.game_music.streams[0])
 	assert_almost_eq(music.volume_db, _flow.game_music.volume_db, 0.001)
+
+
+func test_fullscreen_action_flips_and_saves_the_setting() -> void:
+	assert_false(SettingsManager.fullscreen)
+	var press := InputEventAction.new()
+	press.action = "toggle_fullscreen"
+	press.pressed = true
+	get_viewport().push_input(press)
+	await wait_process_frames(1)
+	assert_true(SettingsManager.fullscreen, "F11 / Alt+Enter toggles fullscreen from any state")
+	assert_true(FileAccess.file_exists(ProjectSettings.globalize_path(SettingsManager.path)), "toggle persists")
+	SettingsManager.load_from(SettingsManager.path)
+	assert_true(SettingsManager.fullscreen)
+	_flow.open_settings()
+	var panel := _ui().get_node_or_null("SettingsPanel")
+	assert_true(panel.fullscreen_check.button_pressed, "panel reflects the saved value")
+	panel.fullscreen_changed.emit(false)
+	assert_false(SettingsManager.fullscreen)
+	panel.closed.emit()
+	await wait_process_frames(2)

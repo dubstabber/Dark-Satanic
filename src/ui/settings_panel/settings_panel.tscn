@@ -103,6 +103,16 @@ max_value = 1.0
 step = 0.01
 value = 1.0
 
+[node name="FullscreenLabel" type="Label" parent="Center/Panel/Column/Grid"]
+layout_mode = 2
+text = "FULLSCREEN"
+
+[node name="FullscreenCheck" type="CheckButton" parent="Center/Panel/Column/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+text = "F11"
+
 [node name="CloseButton" type="Button" parent="Center/Panel/Column"]
 unique_name_in_owner = true
 layout_mode = 2

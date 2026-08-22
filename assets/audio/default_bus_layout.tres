@@ -1,4 +1,4 @@
-[gd_resource type="AudioBusLayout" load_steps=7 format=3 uid="uid://pw5pcfyp76xdw"]
+[gd_resource type="AudioBusLayout" format=3 uid="uid://hi7x7bpyegcu"]
 
 [sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_vhs"]
 cutoff_hz = 3800.0
@@ -15,7 +15,6 @@ post_gain = -2.0
 cutoff_hz = 1600.0
 
 [sub_resource type="AudioEffectReverb" id="AudioEffectReverb_music"]
-room_size = 0.8
 wet = 0.35
 
 [sub_resource type="AudioEffectDistortion" id="AudioEffectDistortion_sfx"]
@@ -23,12 +22,6 @@ mode = 3
 drive = 0.2
 
 [resource]
-bus/0/name = &"Master"
-bus/0/solo = false
-bus/0/mute = false
-bus/0/bypass_fx = false
-bus/0/volume_db = 0.0
-bus/0/send = &""
 bus/1/name = &"VHS"
 bus/1/solo = false
 bus/1/mute = false
