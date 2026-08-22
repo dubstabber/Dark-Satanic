@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://oiqweu79akl64"]
+
+[ext_resource type="Script" path="res://src/vfx/post_process/post_process_controller.gd" id="1_controller"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/sad_satan_post.gdshader" id="2_shader"]
+[ext_resource type="Resource" path="res://src/vfx/post_process/profiles/gameplay.tres" id="3_gameplay"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_post"]
+shader = ExtResource("2_shader")
+
+[node name="PostProcess" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1_controller")
+default_profile = ExtResource("3_gameplay")
+scaling_3d_scale = 0.4
+
+[node name="Rect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_post")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

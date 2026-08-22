@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="PostFxProfile" load_steps=2 format=3 uid="uid://udfxni99vpupy"]
+
+[ext_resource type="Script" path="res://src/vfx/post_process/post_fx_profile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+fps_quantize = 24.0
+jitter_chance = 0.03
+jitter_amount = 0.02
+tracking_strength = 0.03
+tracking_speed = 0.25
+tracking_band = 0.06
+chroma_smear = 0.0025
+crush_black = 0.08
+crush_gamma = 1.35
+dither_levels = 5.0
+dither_strength = 1.0
+scanline_strength = 0.3
+grain_amount = 0.35
+vignette_strength = 1.0
+invert_chance = 0.002
+brightness = 1.0
+invert = 0.0
+tint = Color(0.93, 0.9, 0.82, 1)
