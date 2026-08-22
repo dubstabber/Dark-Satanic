@@ -191,3 +191,107 @@ func test_glutton_magnetises_and_eats_real_gem() -> void:
 	await wait_physics_frames(30)
 	assert_eq((glutton.get_node("GemEater") as GemEaterComponent).eaten, 1)
 	assert_false(is_instance_valid(gem) and not gem.is_queued_for_deletion())
+
+
+func test_lament_weak_point_is_not_shadowed_by_its_armour() -> void:
+	var lament := _spawn(Lament, Vector3(0, 3.5, 0))
+	lament.set_physics_process(false)
+	var weak_point: WeakPointComponent = lament.get_node("WeakPoint")
+	var armour: CollisionShape3D = lament.hurtbox.get_child(0)
+	var armour_top: float = armour.position.y + (armour.shape as CylinderShape3D).height * 0.5
+	var eye_bottom: float = weak_point.position.y - (weak_point.get_child(0) as CollisionShape3D).shape.radius
+	assert_true(eye_bottom > armour_top, "eye sphere sits fully above the armour (%.2f > %.2f)" % [eye_bottom, armour_top])
+	assert_almost_eq((lament.get_node("Visual/Eye") as Node3D).position.y, weak_point.position.y, 0.001, "eye mesh matches the weak point")
+	var contact: CollisionShape3D = lament.contact_hitbox.get_child(0)
+	assert_almost_eq((contact.shape as CylinderShape3D).height, 3.0, 0.001, "contact kill volume unchanged")
+	await wait_physics_frames(2)
+	var space := _world.get_world_3d().direct_space_state
+	for distance: float in [4.5, 6.0, 10.0, 16.0]:
+		var query := PhysicsRayQueryParameters3D.create(Vector3(distance, 1.6, 0), weak_point.global_position, PhysicsLayers.ENEMY_HURTBOX)
+		query.collide_with_areas = true
+		query.collide_with_bodies = false
+		var result := space.intersect_ray(query)
+		assert_true(not result.is_empty() and result.collider is WeakPointComponent, "eye reachable from %.1f m" % distance)
+	assert_eq(lament.aim_position(), weak_point.global_position, "homing aims at the eye")
+
+
+func test_lament_weepers_spawn_on_the_floor() -> void:
+	var arena := Node.new()
+	var script := GDScript.new()
+	script.source_code = "extends Node\nfunc info() -> ArenaInfo:\n\treturn ArenaInfo.new(Vector3.ZERO, 30.0, 1.0)\n"
+	script.reload()
+	arena.set_script(script)
+	_world.add_child(arena)
+	var lament: Enemy = Lament.instantiate()
+	lament.target = _target
+	lament.arena = arena
+	lament.position = Vector3(0, 4.5, 0)
+	_world.add_child(lament)
+	lament.set_physics_process(false)
+	var spawner: SpawnerComponent = lament.get_node("Spawner")
+	assert_true(spawner.spawn_on_floor)
+	spawner.autonomous = false
+	assert_eq(spawner.advance(3.1), 3)
+	await wait_process_frames(2)
+	var weepers := 0
+	for child in _world.get_children():
+		if child is Enemy and child != lament:
+			weepers += 1
+			child.set_physics_process(false)
+			assert_almost_eq(child.global_position.y, 1.45, 0.1, "floor_y 1.0 + weeper min_height 0.45 (bob may have ticked)")
+			for i in 30:
+				child.advance(1.0 / 60.0)
+			assert_true(child.global_position.y <= 1.0 + 1.65, "stays within the player's reach")
+	assert_eq(weepers, 3)
+
+
+func test_weeper_left_at_nest_height_sinks_to_the_floor() -> void:
+	var weeper := _spawn(Weeper, Vector3(0, 3.5, 6))
+	weeper.set_physics_process(false)
+	assert_true(weeper.stats.grounded)
+	for i in 60:
+		weeper.advance(1.0 / 60.0)
+	assert_true(weeper.global_position.y <= 0.45 + 0.5 + 0.001, "pulled down to min_height + ground_slack (y %.2f)" % weeper.global_position.y)
+
+
+func test_lament_contact_hitbox_stays_off_until_it_has_risen() -> void:
+	var lament := _spawn(Lament, Vector3(10, 0, 0))
+	lament.set_physics_process(false)
+	(lament.get_node("Spawner") as SpawnerComponent).enabled = false
+	for i in 60:
+		lament.advance(1.0 / 60.0)
+	assert_true(lament.is_spawned(), "spawn_duration 0.8 < 1.0")
+	assert_false(lament.contact_hitbox.active, "still rising at t = 1.0")
+	assert_true(lament.global_position.y < 0.0)
+	for i in 120:
+		lament.advance(1.0 / 60.0)
+	assert_true(lament.contact_hitbox.active, "live once hovering")
+	assert_false(lament.stats.grounded)
+	assert_almost_eq(lament.global_position.y, 3.5, 0.1, "flyers are not pulled down")
+
+
+func test_glutton_colliders_match_the_squashed_body() -> void:
+	var glutton := _spawn(Glutton)
+	for area: Area3D in [glutton.hurtbox, glutton.contact_hitbox]:
+		var shape := (area.get_child(0) as CollisionShape3D).shape as CylinderShape3D
+		assert_not_null(shape, "%s uses a cylinder" % area.name)
+		assert_almost_eq(shape.radius, 1.0, 0.001)
+		assert_almost_eq(shape.height, 1.3, 0.001, "2 x 0.65 visual half-height")
+	var eater_shape := (glutton.get_node("GemEater/CollisionShape3D") as CollisionShape3D).shape as SphereShape3D
+	assert_almost_eq(eater_shape.radius, 1.1, 0.001, "reach volume untouched")
+
+
+func test_weeper_has_no_spawn_cue_and_death_vfx_is_wired() -> void:
+	var weeper := _spawn(Weeper)
+	assert_null(weeper.stats.spawn_cue, "a skull ring must not sound like a massacre")
+	assert_not_null(weeper.stats.death_cue)
+	for scene: PackedScene in [Weeper, Mourner, Lament, Vesper, Glutton]:
+		var enemy := _spawn(scene)
+		assert_eq(enemy.death_handler.death_vfx.resource_path, "res://src/vfx/particles/death_burst.tscn", scene.resource_path)
+	weeper.health.kill()
+	await wait_process_frames(2)
+	var bursts := 0
+	for child in _world.get_children():
+		if child is OneShotVfx:
+			bursts += 1
+	assert_eq(bursts, 1, "death burst spawned as a sibling")

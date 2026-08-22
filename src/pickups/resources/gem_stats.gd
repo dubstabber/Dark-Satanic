@@ -19,3 +19,5 @@ extends Resource
 ## Seconds before the gem disappears on its own; 0 = never.
 @export_range(0.0, 600.0, 0.5) var lifetime: float = 0.0
 @export var collect_cue: AudioCue
+## One-shot VFX scene spawned next to the gem when it is collected; optional.
+@export var collect_vfx: PackedScene

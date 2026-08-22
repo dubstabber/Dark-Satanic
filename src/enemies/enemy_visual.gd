@@ -9,6 +9,10 @@ extends Node3D
 @export_range(0.01, 2.0, 0.01) var flash_duration: float = 0.12
 @export_range(0.0, 2.0, 0.01) var death_duration: float = 0.25
 @export_range(1.0, 3.0, 0.05) var death_pop_scale: float = 1.3
+## Scale bump used for the hit flash when the mesh has no StandardMaterial3D.
+@export_range(1.0, 3.0, 0.05) var flash_scale: float = 1.15
+## Share of `death_duration` spent popping out before the shrink.
+@export_range(0.0, 1.0, 0.05) var death_pop_fraction: float = 0.4
 
 var base_scale: Vector3 = Vector3.ONE
 var _material: StandardMaterial3D
@@ -53,7 +57,7 @@ func flash() -> void:
 		_material.emission_energy_multiplier = flash_emission
 		_tween.tween_property(_material, "emission_energy_multiplier", _base_emission, flash_duration)
 	else:
-		scale = base_scale * 1.15
+		scale = base_scale * flash_scale
 		_tween.tween_property(self, "scale", base_scale, flash_duration)
 
 
@@ -62,8 +66,8 @@ func death() -> void:
 	_kill(_tween)
 	_kill(_death_tween)
 	_death_tween = create_tween()
-	_death_tween.tween_property(self, "scale", base_scale * death_pop_scale, death_duration * 0.4)
-	_death_tween.tween_property(self, "scale", Vector3.ONE * 0.001, death_duration * 0.6)
+	_death_tween.tween_property(self, "scale", base_scale * death_pop_scale, death_duration * death_pop_fraction)
+	_death_tween.tween_property(self, "scale", Vector3.ONE * 0.001, death_duration * (1.0 - death_pop_fraction))
 
 
 func is_animating() -> bool:

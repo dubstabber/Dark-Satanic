@@ -99,3 +99,57 @@ func test_death_burst() -> void:
 	health.kill()
 	await wait_process_frames(2)
 	assert_eq(spawner.alive_count(), 3)
+
+
+class ArenaStub:
+	extends Node
+	var floor_height: float = 2.0
+
+	func info() -> ArenaInfo:
+		return ArenaInfo.new(Vector3.ZERO, 30.0, floor_height)
+
+
+func test_spawn_on_floor_places_children_at_floor_plus_min_height() -> void:
+	_spawner.spawn_on_floor = true
+	_anchor.position = Vector3(3, 7.5, 0)
+	var nodes := _spawner.spawn_burst(1)
+	await wait_process_frames(2)
+	assert_almost_eq(nodes[0].global_position.y, 0.0, 0.001, "no arena: floor y = 0")
+	var arena := ArenaStub.new()
+	_world.add_child(arena)
+	_anchor.arena = arena
+	_spawner.scene = preload("res://src/enemies/base_enemy.tscn")
+	nodes = _spawner.spawn_burst(1)
+	var enemy := nodes[0] as Enemy
+	enemy.stats = EnemyStats.new()
+	enemy.stats.min_height = 0.7
+	var target := Node3D.new()
+	_world.add_child(target)
+	enemy.target = target
+	await wait_process_frames(2)
+	enemy.set_physics_process(false)
+	assert_same(enemy.arena, arena, "arena inherited")
+	assert_almost_eq(Vector2(enemy.global_position.x - 3.0, enemy.global_position.z).length(), 1.5, 0.01, "still on the spawn ring")
+	_spawner.spawn_on_floor = false
+	_spawner.scene = SpawnStub
+	nodes = _spawner.spawn_burst(1)
+	await wait_process_frames(2)
+	assert_almost_eq(nodes[0].global_position.y, 7.5, 0.001, "default keeps the anchor's height")
+
+
+func test_spawn_on_floor_uses_floor_and_child_min_height() -> void:
+	var arena := ArenaStub.new()
+	_world.add_child(arena)
+	_anchor.arena = arena
+	_anchor.position = Vector3(0, 9.0, 0)
+	_spawner.spawn_on_floor = true
+	assert_almost_eq(_spawner._floor_y(_anchor), 2.0, 0.001)
+	var enemy: Enemy = preload("res://src/enemies/base_enemy.tscn").instantiate()
+	enemy.stats = EnemyStats.new()
+	enemy.stats.min_height = 0.7
+	assert_almost_eq(_spawner._min_height(enemy), 0.7, 0.001)
+	assert_almost_eq(_spawner._min_height(_anchor), 0.0, 0.001, "no stats: sits on the floor")
+	enemy.free()
+	var nodes := _spawner.spawn_burst(1)
+	await wait_process_frames(2)
+	assert_almost_eq(nodes[0].global_position.y, 2.0, 0.001, "stub lands on the arena floor")

@@ -1,6 +1,7 @@
 extends GameTest
 
 const ArenaScene := preload("res://src/arena/arena.tscn")
+const BaseEnemy := preload("res://src/enemies/base_enemy.tscn")
 
 var _world: Node3D
 var _arena: Arena
@@ -33,6 +34,8 @@ func test_scene_layout() -> void:
 	assert_almost_eq(_arena.floor_mesh.position.y, -1.0, 0.001)
 	assert_eq(_cylinder().height, 2.0)
 	assert_eq(_cylinder().radial_segments, 64)
+	assert_eq(_cylinder().top_radius, 1.0, "unit cylinder scaled by the radius")
+	assert_eq(_arena.floor_mesh.scale, Vector3(30, 1, 30))
 	var material := _cylinder().material as ShaderMaterial
 	assert_not_null(material, "floor uses the void_floor shader")
 	assert_true(material.get_shader_parameter(&"noise_tex") is NoiseTexture2D)
@@ -40,7 +43,7 @@ func test_scene_layout() -> void:
 	assert_almost_eq(_arena.edge_ring.position.y, 0.05, 0.001)
 	var kill_zone: KillZone = _arena.get_node("KillZone")
 	assert_eq(kill_zone.collision_layer, PhysicsLayers.KILL_ZONE)
-	assert_eq(kill_zone.collision_mask, PhysicsLayers.PLAYER | PhysicsLayers.ENEMY)
+	assert_eq(kill_zone.collision_mask, PhysicsLayers.PLAYER | PhysicsLayers.ENEMY_HURTBOX)
 	assert_true(kill_zone.monitoring)
 	assert_almost_eq(kill_zone.position.y, -12.0, 0.001)
 	assert_true(_arena.get_node("ArenaShrinker") is ArenaShrinker)
@@ -48,23 +51,40 @@ func test_scene_layout() -> void:
 
 func test_radius_setter_updates_everything() -> void:
 	_arena.radius = 20.0
-	assert_eq(_cylinder().top_radius, 20.0)
-	assert_eq(_cylinder().bottom_radius, 20.0)
+	assert_eq(_arena.floor_mesh.scale, Vector3(20, 1, 20))
+	assert_eq(_cylinder().top_radius, 1.0, "mesh itself is never rebuilt")
 	assert_eq(_shape().radius, 20.0)
 	assert_eq(_torus().outer_radius, 20.0)
 	assert_almost_eq(_torus().inner_radius, 19.6, 0.001)
+	assert_eq(_arena.edge_ring.scale, Vector3.ONE)
 	assert_signal_emitted_with_parameters(_arena, "radius_changed", [20.0])
 	_arena.radius = -5.0
 	assert_eq(_arena.radius, 0.0, "clamped at zero")
 
 
-func test_shape_only_rebuilt_for_large_changes() -> void:
+func test_shape_and_ring_only_rebuilt_for_large_changes() -> void:
 	_arena.radius = 20.0
 	_arena.radius = 19.95
 	assert_almost_eq(_shape().radius, 20.0, 0.001, "tiny change skips the shape")
-	assert_almost_eq(_cylinder().top_radius, 19.95, 0.001, "mesh always follows")
+	assert_almost_eq(_torus().outer_radius, 20.0, 0.001, "tiny change skips the ring mesh")
+	assert_almost_eq(_arena.edge_ring.scale.x, 19.95 / 20.0, 0.0001, "ring scaled for the remainder")
+	assert_almost_eq(_arena.floor_mesh.scale.x, 19.95, 0.001, "floor scale always follows")
 	_arena.radius = 19.8
 	assert_almost_eq(_shape().radius, 19.8, 0.001)
+	assert_almost_eq(_torus().outer_radius, 19.8, 0.001)
+	assert_eq(_arena.edge_ring.scale, Vector3.ONE)
+
+
+func test_sub_resources_are_local_to_each_instance() -> void:
+	var other: Arena = ArenaScene.instantiate()
+	_world.add_child(other)
+	assert_ne(other.floor_mesh.mesh, _arena.floor_mesh.mesh, "floor mesh not shared")
+	assert_ne(other.floor_shape.shape, _arena.floor_shape.shape, "floor shape not shared")
+	assert_ne(other.edge_ring.mesh, _arena.edge_ring.mesh, "ring mesh not shared")
+	assert_ne(other.floor_mesh.mesh.material, _arena.floor_mesh.mesh.material, "floor material not shared")
+	other.radius = 12.0
+	assert_almost_eq(_shape().radius, 30.0, 0.001, "the first arena is untouched")
+	assert_almost_eq(float((_cylinder().material as ShaderMaterial).get_shader_parameter(&"radius")), 30.0, 0.001)
 
 
 func test_info() -> void:
@@ -132,13 +152,32 @@ func test_kill_zone_kills_body_and_area() -> void:
 	var body := _body_with_health(PhysicsLayers.PLAYER)
 	body.position = Vector3(3, -12, 0)
 	_world.add_child(body)
-	var area := _area_with_health(PhysicsLayers.ENEMY)
+	var area := _area_with_health(PhysicsLayers.ENEMY_HURTBOX)
 	area.position = Vector3(-3, -12, 1)
 	_world.add_child(area)
 	await wait_physics_frames(3)
 	assert_true(KillZone.find_health(body).is_dead(), "body killed")
 	assert_true(KillZone.find_health(area).is_dead(), "area killed")
 	assert_signal_emit_count(kill_zone, "killed", 2)
+
+
+func test_kill_zone_kills_a_real_enemy_through_its_hurtbox() -> void:
+	var kill_zone: KillZone = _arena.get_node("KillZone")
+	watch_signals(kill_zone)
+	var enemy: Enemy = BaseEnemy.instantiate()
+	enemy.stats = EnemyStats.new()
+	enemy.position = Vector3(2, -12, 0)
+	_world.add_child(enemy)
+	enemy.set_physics_process(false)
+	watch_signals(enemy)
+	assert_null(KillZone._health_child(enemy.hurtbox), "the hurtbox area itself owns no health")
+	assert_same(KillZone.find_health(enemy.hurtbox), enemy.health, "resolved through the parent")
+	await wait_physics_frames(3)
+	assert_true(enemy.health.is_dead(), "enemy void-killed")
+	assert_signal_emitted(enemy, "died")
+	assert_eq((get_signal_parameters(enemy, "died")[1] as HitInfo).cause, &"void")
+	assert_signal_emit_count(kill_zone, "killed", 1)
+	await wait_process_frames(2)
 
 
 func test_kill_zone_cause_is_void() -> void:

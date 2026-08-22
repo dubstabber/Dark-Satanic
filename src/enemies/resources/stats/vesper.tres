@@ -12,6 +12,7 @@ move_speed = 16.0
 acceleration = 80.0
 turn_speed_deg = 720.0
 min_height = 0.45
+grounded = false
 scale = 1.0
 gem_count = 2
 contact_damage = 1.0

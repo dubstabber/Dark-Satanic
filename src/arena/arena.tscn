@@ -18,6 +18,7 @@ seamless = true
 noise = SubResource("FastNoiseLite_floor")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
+resource_local_to_scene = true
 shader = ExtResource("4_void_floor")
 shader_parameter/noise_tex = SubResource("NoiseTexture2D_floor")
 shader_parameter/center = Vector3(0, 0, 0)
@@ -28,13 +29,15 @@ shader_parameter/brightness = 0.85
 shader_parameter/dither_cell = 3.0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_floor"]
+resource_local_to_scene = true
 material = SubResource("ShaderMaterial_floor")
-top_radius = 30.0
-bottom_radius = 30.0
+top_radius = 1.0
+bottom_radius = 1.0
 height = 2.0
 radial_segments = 64
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_floor"]
+resource_local_to_scene = true
 height = 2.0
 radius = 30.0
 
@@ -46,6 +49,7 @@ emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 1.5
 
 [sub_resource type="TorusMesh" id="TorusMesh_ring"]
+resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_ring")
 inner_radius = 29.6
 outer_radius = 30.0
@@ -59,7 +63,7 @@ size = Vector3(400, 10, 400)
 script = ExtResource("1_arena")
 
 [node name="Floor" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+transform = Transform3D(30, 0, 0, 0, 1, 0, 0, 0, 30, 0, -1, 0)
 mesh = SubResource("CylinderMesh_floor")
 
 [node name="FloorBody" type="StaticBody3D" parent="."]
@@ -80,7 +84,7 @@ script = ExtResource("2_shrinker")
 [node name="KillZone" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -12, 0)
 collision_layer = 128
-collision_mask = 10
+collision_mask = 18
 monitorable = false
 script = ExtResource("3_killzone")
 

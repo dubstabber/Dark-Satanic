@@ -149,3 +149,37 @@ func test_zero_delta_or_missing_body_is_safe() -> void:
 	_mover.body = null
 	_mover.advance(_ctx, 0.1)
 	assert_eq(_body.global_position, Vector3.ZERO)
+
+
+func test_grounded_body_sinks_to_min_height_plus_slack() -> void:
+	_add(Vector3(1, 0, 0))
+	_ctx.stats.grounded = true
+	_mover.fall_speed = 10.0
+	_mover.ground_slack = 0.5
+	_body.position = Vector3(0, 3.5, 0)
+	_mover.advance(_ctx, 0.1)
+	assert_almost_eq(_body.global_position.y, 2.5, 0.001, "sinks at fall_speed")
+	for i in 10:
+		_mover.advance(_ctx, 0.1)
+	assert_almost_eq(_body.global_position.y, 1.0, 0.001, "rests at floor_y + min_height + ground_slack")
+	_behaviors.get_child(0).velocity = Vector3(0, 2, 0)
+	_mover.advance(_ctx, 0.1)
+	assert_almost_eq(_body.global_position.y, 1.0, 0.001, "cannot climb above the slack")
+
+
+func test_flyers_and_rising_bodies_are_not_pulled_down() -> void:
+	var up := _add(Vector3(0, 0, 0))
+	_ctx.stats.grounded = false
+	_body.position = Vector3(0, 3.5, 0)
+	_mover.advance(_ctx, 0.1)
+	assert_almost_eq(_body.global_position.y, 3.5, 0.001, "flyers keep their height")
+	_ctx.stats.grounded = true
+	up.exclusive = true
+	up.floor_free = true
+	_mover.advance(_ctx, 0.1)
+	assert_almost_eq(_body.global_position.y, 3.5, 0.001, "floor-free exclusive behaviours are left alone")
+	assert_true(_mover.is_rising())
+	up.floor_free = false
+	_mover.advance(_ctx, 0.1)
+	assert_false(_mover.is_rising())
+	assert_true(_body.global_position.y < 3.5)

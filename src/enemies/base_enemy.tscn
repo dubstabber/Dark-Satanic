@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://hdj55bx2e55rz"]
+[gd_scene load_steps=15 format=3 uid="uid://hdj55bx2e55rz"]
 
 [ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://src/components/health_component.gd" id="2_health"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://src/components/gem_drop_component.gd" id="7_gem_drop"]
 [ext_resource type="Script" path="res://src/components/death_handler_component.gd" id="8_death"]
 [ext_resource type="PackedScene" path="res://src/pickups/gem_pickup.tscn" id="9_gem_scene"]
+[ext_resource type="PackedScene" path="res://src/vfx/particles/death_burst.tscn" id="10_death_burst"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_hurt"]
 radius = 0.5
@@ -70,4 +71,5 @@ count = 0
 
 [node name="DeathHandler" type="Node" parent="."]
 script = ExtResource("8_death")
+death_vfx = ExtResource("10_death_burst")
 free_delay = 0.25

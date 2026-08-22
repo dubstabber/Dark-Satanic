@@ -177,8 +177,10 @@ func test_dead_enemy_stops_moving_and_is_freed_after_delay() -> void:
 	var before := enemy.global_position
 	enemy.advance(0.5)
 	assert_eq(enemy.global_position, before)
-	await wait_seconds(0.5)
-	assert_false(is_instance_valid(enemy), "freed after DeathHandler.free_delay")
+	enemy.death_handler.advance(0.3)
+	assert_true(enemy.is_queued_for_deletion(), "freed after DeathHandler.free_delay (0.25 s of advance)")
+	await wait_process_frames(2)
+	assert_false(is_instance_valid(enemy))
 
 
 func test_no_stats_is_safe() -> void:
@@ -188,4 +190,52 @@ func test_no_stats_is_safe() -> void:
 	enemy.set_physics_process(false)
 	enemy.advance(0.1)
 	assert_eq(enemy.scale, Vector3.ONE)
+	assert_true(enemy.contact_hitbox.active)
+
+
+func test_aim_position_prefers_an_exposed_weak_point() -> void:
+	var enemy := _spawn(false)
+	enemy.position = Vector3(1, 2, 3)
+	assert_eq(enemy.aim_position(), Vector3(1, 2, 3), "no weak point: the root")
+	var weak: WeakPointComponent = preload("res://src/components/weak_point_component.tscn").instantiate()
+	weak.position = Vector3(0, 1.5, 0)
+	enemy.add_child(weak)
+	assert_eq(enemy.aim_position(), Vector3(1, 4.25, 3), "exposed weak point wins (1.5 m scaled by stats.scale 1.5)")
+	weak.exposed = false
+	assert_eq(enemy.aim_position(), Vector3(1, 2, 3), "hidden weak points are skipped")
+
+
+func test_armour_hit_flashes_without_damage() -> void:
+	var enemy := _spawn(false)
+	enemy.hurtbox.damage_multiplier = 0.0
+	enemy.hurtbox.receive_hit(HitInfo.new(1.0))
+	assert_eq(enemy.health.health, 3.0, "armour absorbs the hit")
+	assert_true(enemy.visual.is_animating(), "but the hit is still readable")
+	assert_null(enemy.last_hit, "never reached health.damaged")
+
+
+func test_gem_drop_inherits_the_arena() -> void:
+	var arena := Node.new()
+	_world.add_child(arena)
+	var enemy: Enemy = BaseEnemy.instantiate()
+	enemy.stats = _stats()
+	enemy.target = _target
+	enemy.arena = arena
+	_world.add_child(enemy)
+	enemy.set_physics_process(false)
+	assert_same(enemy.gem_drop.arena, arena)
+
+
+func test_contact_hitbox_waits_while_the_mover_is_rising() -> void:
+	var enemy := _spawn(false)
+	var hover := HoverDriftBehavior.new()
+	hover.rise_duration = 1.0
+	enemy.get_node("Behaviors").add_child(hover)
+	enemy.advance(0.5)
+	assert_true(enemy.is_spawned(), "spawn_duration 0.4 elapsed")
+	assert_true(enemy.mover.is_rising())
+	assert_false(enemy.contact_hitbox.active, "still coming through the floor")
+	for i in 40:
+		enemy.advance(0.05)
+	assert_false(enemy.mover.is_rising())
 	assert_true(enemy.contact_hitbox.active)
