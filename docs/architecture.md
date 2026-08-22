@@ -124,8 +124,8 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
   `ArenaShrinker` (Node: `advance(run_time)` using a `Curve`; `radius_at(run_time)` pure; start/end time and
   end radius are authored on the node, not in GameConfig), `KillZone` (Area3D, layer KILL_ZONE, at y ≈ -12;
   finds a `HealthComponent` under the entered node — or its parent for an enemy `Hurtbox` area — and calls
-  `kill(&"void")`; the mask is PLAYER, plus ENEMY_HURTBOX when enemy void-kills are enabled, never the unused
-  ENEMY body layer).
+  `kill(&"void")`; the mask is PLAYER | ENEMY_HURTBOX, so enemies that fall off the shrinking platform die too —
+  the ENEMY body layer is unused).
 - `void_environment.tres` (Environment): black background, black depth fog 10→42, ambient 0.1.
 
 ### UI (`src/ui`) and persistence (`src/persistence`)
@@ -151,9 +151,10 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
   `PostProcessController`: `func apply(profile: PostFxProfile, duration: float = 0.0)`,
   `func pulse(strength: float, duration: float)`, `func set_virtual_scale(scale: float)`,
   `get_parameter(name)`; profiles in `src/vfx/post_process/profiles/{menu,gameplay,death}.tres`.
-- `MeshFactory` / `MaterialFactory` (static, cached builders) and the `src/vfx/particles/*` scenes +
-  `OneShotVfx` are a tested toolkit that production scenes do not reference yet (`DeathHandlerComponent.death_vfx`
-  and the projectile hit VFX are the intended hook points).
+- `src/vfx/particles/*` + `OneShotVfx` are wired: `death_burst.tscn` is the `DeathHandler.death_vfx` of
+  `base_enemy.tscn`, `hit_spark.tscn` the default `DaggerProjectile.hit_vfx`, `gem_sparkle.tscn` the
+  `GemStats.collect_vfx`. `MeshFactory` / `MaterialFactory` (static, cached builders) are a tested toolkit for
+  future procedural meshes (the archetype scenes still use primitive meshes).
 
 ### Audio (`assets/audio`)
 - `tools/gen_audio.sh` generates `assets/audio/sfx/*.ogg` (LFS). `assets/audio/cues/*.tres` are `AudioCue`

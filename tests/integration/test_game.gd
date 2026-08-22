@@ -118,7 +118,7 @@ func test_real_enemy_drops_gems_into_gem_container() -> void:
 	assert_eq(_state.kills, 1)
 	assert_true(_game.gem_container.get_child_count() >= 1, "gem parented to GemContainer")
 	for child in _game.enemy_container.get_children():
-		assert_true(child.has_signal("died"), "%s: no gems in EnemyContainer" % child.name)
+		assert_false(child is GemPickup, "%s: no gems in EnemyContainer" % child.name)
 	await wait_seconds(0.3)
 
 
