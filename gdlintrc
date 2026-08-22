@@ -1,0 +1,6 @@
+# gdtoolkit 4.5.0 configuration (advisory: it predates Godot 4.6/4.7 syntax)
+max-line-length: 120
+max-file-lines: 900
+function-name: '(_on_[a-z0-9_]+|_[a-z][a-z0-9_]*|[a-z][a-z0-9_]*|test_[a-z0-9_]+)'
+disable:
+  - class-definitions-order

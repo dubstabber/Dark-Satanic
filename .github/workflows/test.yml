@@ -1,0 +1,98 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.1
+  GODOT_ZIP: Godot_v4.7.1-stable_linux.x86_64.zip
+  GODOT_BIN_NAME: Godot_v4.7.1-stable_linux.x86_64
+
+jobs:
+  gut:
+    name: GUT (unit, integration, e2e) + smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: .godot-bin
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .godot-bin
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/${GODOT_ZIP}"
+          unzip -q /tmp/godot.zip -d .godot-bin
+          chmod +x ".godot-bin/${GODOT_BIN_NAME}"
+
+      - name: Export GODOT_BIN
+        run: echo "GODOT_BIN=$GITHUB_WORKSPACE/.godot-bin/$GODOT_BIN_NAME" >> "$GITHUB_ENV"
+
+      - name: Godot version
+        run: "$GODOT_BIN" --headless --version
+
+      - name: Run GUT
+        run: tools/run_tests.sh
+
+      - name: Smoke test (real binary boot)
+        run: tools/smoke_test.sh
+
+      - name: Script size and autoload rules
+        run: tools/check_script_sizes.sh
+
+      - name: Fail if import generated uncommitted files (.uid / .import)
+        run: |
+          git status --porcelain -- '*.uid' '*.import' | tee /tmp/dirty.txt
+          test ! -s /tmp/dirty.txt
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test_results/
+          if-no-files-found: warn
+
+      - name: Publish JUnit report
+        if: always()
+        continue-on-error: true
+        uses: mikepenz/action-junit-report@v5
+        with:
+          report_paths: test_results/junit.xml
+          check_name: GUT results
+          fail_on_failure: false
+
+  lint:
+    name: gdlint / gdformat (advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "gdtoolkit==4.5.0"
+      - name: gdlint
+        run: gdlint src tests
+      - name: gdformat --check
+        run: gdformat --check src tests
