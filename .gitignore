@@ -1,0 +1,36 @@
+# Godot 4 generated
+.godot/
+/android/
+
+# Engine binaries (never commit the editor)
+/Godot_v*
+/Godot_v*.zip
+/.godot-bin/
+
+# Exports and builds
+/export/
+/build/
+/builds/
+/dist/
+*.keystore
+*.pck
+
+# Test / tooling output
+/test_results/
+/reports/
+.gutconfig.local.json
+/logs/
+*.log
+*.tmp
+
+# Python (gdtoolkit venv)
+.venv/
+__pycache__/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*~
+*.swp
+.idea/
+.vscode/
