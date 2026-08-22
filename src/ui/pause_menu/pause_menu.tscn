@@ -1,0 +1,54 @@
+[gd_scene load_steps=4 format=3 uid="uid://t57scr9468m1m"]
+
+[ext_resource type="Script" path="res://src/ui/pause_menu/pause_menu.gd" id="1_pause"]
+[ext_resource type="Theme" path="res://src/ui/theme/sad_satan_theme.tres" id="2_theme"]
+[ext_resource type="LabelSettings" path="res://src/ui/theme/title_label_settings.tres" id="3_title"]
+
+[node name="PauseMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_pause")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Column" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PAUSED"
+label_settings = ExtResource("3_title")
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "RESUME"
+
+[node name="MenuButton" type="Button" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "MENU"

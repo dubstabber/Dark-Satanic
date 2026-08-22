@@ -1,0 +1,109 @@
+[gd_scene load_steps=4 format=3 uid="uid://hane3ylmz3zfx"]
+
+[ext_resource type="Script" path="res://src/ui/settings_panel/settings_panel.gd" id="1_settings"]
+[ext_resource type="Theme" path="res://src/ui/theme/sad_satan_theme.tres" id="2_theme"]
+[ext_resource type="LabelSettings" path="res://src/ui/theme/title_label_settings.tres" id="3_title"]
+
+[node name="SettingsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_settings")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center"]
+layout_mode = 2
+
+[node name="Column" type="VBoxContainer" parent="Center/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Center/Panel/Column"]
+layout_mode = 2
+text = "SETTINGS"
+label_settings = ExtResource("3_title")
+horizontal_alignment = 1
+
+[node name="Grid" type="GridContainer" parent="Center/Panel/Column"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="SensitivityLabel" type="Label" parent="Center/Panel/Column/Grid"]
+layout_mode = 2
+text = "SENSITIVITY"
+
+[node name="SensitivitySlider" type="HSlider" parent="Center/Panel/Column/Grid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_vertical = 4
+min_value = 0.0005
+max_value = 0.01
+step = 0.0001
+value = 0.0022
+
+[node name="MasterLabel" type="Label" parent="Center/Panel/Column/Grid"]
+layout_mode = 2
+text = "MASTER"
+
+[node name="MasterSlider" type="HSlider" parent="Center/Panel/Column/Grid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="MusicLabel" type="Label" parent="Center/Panel/Column/Grid"]
+layout_mode = 2
+text = "MUSIC"
+
+[node name="MusicSlider" type="HSlider" parent="Center/Panel/Column/Grid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 0.8
+
+[node name="SfxLabel" type="Label" parent="Center/Panel/Column/Grid"]
+layout_mode = 2
+text = "SFX"
+
+[node name="SfxSlider" type="HSlider" parent="Center/Panel/Column/Grid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="CloseButton" type="Button" parent="Center/Panel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "CLOSE"

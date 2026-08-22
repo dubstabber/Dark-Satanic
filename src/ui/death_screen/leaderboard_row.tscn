@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3 uid="uid://k04rzwdk51cpj"]
+
+[ext_resource type="Script" path="res://src/ui/death_screen/leaderboard_row.gd" id="1_row"]
+
+[node name="LeaderboardRow" type="PanelContainer"]
+custom_minimum_size = Vector2(520, 0)
+script = ExtResource("1_row")
+
+[node name="Columns" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="RankLabel" type="Label" parent="Columns"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+text = "#1"
+
+[node name="NameLabel" type="Label" parent="Columns"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ANON"
+text_overrun_behavior = 3
+
+[node name="TimeLabel" type="Label" parent="Columns"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+text = "0.00"
+horizontal_alignment = 2
+
+[node name="GemsLabel" type="Label" parent="Columns"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="TierLabel" type="Label" parent="Columns"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 0)
+layout_mode = 2
+text = "I"
+horizontal_alignment = 2
