@@ -1,0 +1,114 @@
+[gd_scene load_steps=18 format=3 uid="uid://vm7p6ui6hndm8"]
+
+[ext_resource type="Script" path="res://src/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://src/player/input_reader.gd" id="2_input"]
+[ext_resource type="Script" path="res://src/player/movement_controller.gd" id="3_movement"]
+[ext_resource type="Resource" path="res://src/player/resources/default_movement.tres" id="4_stats"]
+[ext_resource type="Script" path="res://src/player/look_controller.gd" id="5_look"]
+[ext_resource type="Script" path="res://src/player/camera_rig.gd" id="6_rig"]
+[ext_resource type="Script" path="res://src/player/hand_view_model.gd" id="7_hands"]
+[ext_resource type="Script" path="res://src/player/weapon_holder.gd" id="8_weapon"]
+[ext_resource type="Script" path="res://src/components/health_component.gd" id="9_health"]
+[ext_resource type="PackedScene" path="res://src/components/hurtbox_component.tscn" id="10_hurtbox"]
+[ext_resource type="Script" path="res://src/player/pickup_collector.gd" id="11_pickup"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.4
+height = 1.7
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bone"]
+albedo_color = Color(0.88, 0.86, 0.8, 1)
+roughness = 0.9
+emission_enabled = true
+emission = Color(0.88, 0.86, 0.8, 1)
+emission_energy_multiplier = 0.3
+
+[sub_resource type="BoxMesh" id="BoxMesh_finger_l"]
+material = SubResource("StandardMaterial3D_bone")
+size = Vector3(0.05, 0.05, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_finger_r"]
+material = SubResource("StandardMaterial3D_bone")
+size = Vector3(0.05, 0.05, 0.26)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurt"]
+radius = 0.35
+height = 1.6
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
+radius = 0.8
+
+[node name="Player" type="CharacterBody3D" groups=["player"]]
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 0.2
+floor_max_angle = 0.872665
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="InputReader" type="Node" parent="."]
+script = ExtResource("2_input")
+
+[node name="MovementController" type="Node" parent="." node_paths=PackedStringArray("body")]
+script = ExtResource("3_movement")
+body = NodePath("..")
+stats = ExtResource("4_stats")
+
+[node name="LookController" type="Node" parent="." node_paths=PackedStringArray("yaw_target", "pitch_target")]
+script = ExtResource("5_look")
+yaw_target = NodePath("..")
+pitch_target = NodePath("../CameraRig")
+stats = ExtResource("4_stats")
+
+[node name="CameraRig" type="Node3D" parent="." node_paths=PackedStringArray("camera")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+script = ExtResource("6_rig")
+camera = NodePath("Camera3D")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+fov = 100.0
+near = 0.05
+
+[node name="HandViewModel" type="Node3D" parent="CameraRig/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, -0.22, -0.45)
+script = ExtResource("7_hands")
+
+[node name="FingerL" type="MeshInstance3D" parent="CameraRig/Camera3D/HandViewModel"]
+transform = Transform3D(0.996195, 0, -0.0871557, 0, 1, 0, 0.0871557, 0, 0.996195, -0.035, 0, 0)
+mesh = SubResource("BoxMesh_finger_l")
+
+[node name="FingerR" type="MeshInstance3D" parent="CameraRig/Camera3D/HandViewModel"]
+transform = Transform3D(0.996195, 0, 0.0871557, 0, 1, 0, -0.0871557, 0, 0.996195, 0.035, 0, 0.02)
+mesh = SubResource("BoxMesh_finger_r")
+
+[node name="Muzzle" type="Marker3D" parent="CameraRig/Camera3D/HandViewModel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.2)
+
+[node name="WeaponHolder" type="Node" parent="." node_paths=PackedStringArray("aim_source", "muzzle")]
+script = ExtResource("8_weapon")
+aim_source = NodePath("../CameraRig/Camera3D")
+muzzle = NodePath("../CameraRig/Camera3D/HandViewModel/Muzzle")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("9_health")
+max_health = 1.0
+
+[node name="Hurtbox" parent="." instance=ExtResource("10_hurtbox")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+collision_layer = 4
+
+[node name="CollisionShape3D" parent="Hurtbox" index="0"]
+shape = SubResource("CapsuleShape3D_hurt")
+
+[node name="PickupCollector" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+collision_layer = 64
+collision_mask = 0
+monitoring = false
+script = ExtResource("11_pickup")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupCollector"]
+shape = SubResource("SphereShape3D_pickup")
