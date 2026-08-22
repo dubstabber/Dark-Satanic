@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyStats" load_steps=2 format=3 uid="uid://mdqav82qj5ixk"]
+
+[ext_resource type="Script" path="res://src/enemies/resources/enemy_stats.gd" id="1_stats"]
+
+[resource]
+script = ExtResource("1_stats")
+display_name = "Lament"
+max_health = 10.0
+move_speed = 4.0
+acceleration = 40.0
+turn_speed_deg = 60.0
+min_height = 3.5
+scale = 1.0
+gem_count = 10
+contact_damage = 1.0
+spawn_duration = 0.8

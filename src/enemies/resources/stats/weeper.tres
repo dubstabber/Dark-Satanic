@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyStats" load_steps=2 format=3 uid="uid://o8s8qthik3uq2"]
+
+[ext_resource type="Script" path="res://src/enemies/resources/enemy_stats.gd" id="1_stats"]
+
+[resource]
+script = ExtResource("1_stats")
+display_name = "Weeper"
+max_health = 1.0
+move_speed = 7.0
+acceleration = 40.0
+turn_speed_deg = 540.0
+min_height = 0.45
+scale = 1.0
+gem_count = 0
+contact_damage = 1.0
+spawn_duration = 0.4

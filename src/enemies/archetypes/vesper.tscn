@@ -1,0 +1,54 @@
+[gd_scene load_steps=10 format=3 uid="uid://p8wmg00yqywjn"]
+
+[ext_resource type="PackedScene" path="res://src/enemies/base_enemy.tscn" id="1_base"]
+[ext_resource type="Resource" path="res://src/enemies/resources/stats/vesper.tres" id="2_stats"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/orbit_dive_behavior.gd" id="3_orbit_dive"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vesper"]
+radius = 0.3
+height = 1.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vesper"]
+albedo_color = Color(0.08, 0.08, 0.08, 1)
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.05
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tip"]
+albedo_color = Color(1, 1, 1, 1)
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 2.5
+
+[sub_resource type="PrismMesh" id="PrismMesh_vesper"]
+size = Vector3(0.6, 1.6, 0.6)
+
+[sub_resource type="SphereMesh" id="SphereMesh_tip"]
+radius = 0.12
+height = 0.24
+radial_segments = 8
+rings = 4
+
+[node name="Enemy" instance=ExtResource("1_base")]
+stats = ExtResource("2_stats")
+
+[node name="CollisionShape3D" parent="Hurtbox" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_vesper")
+
+[node name="CollisionShape3D" parent="ContactHitbox" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_vesper")
+
+[node name="OrbitDive" type="Node" parent="Behaviors"]
+script = ExtResource("3_orbit_dive")
+
+[node name="Mesh" parent="Visual" index="0"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_vesper")
+mesh = SubResource("PrismMesh_vesper")
+
+[node name="Tip" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.85)
+material_override = SubResource("StandardMaterial3D_tip")
+mesh = SubResource("SphereMesh_tip")
