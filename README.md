@@ -13,6 +13,12 @@ tools/run_game.sh -e       # open the editor
 The Godot binary is looked up via `GODOT_BIN` (default `./Godot_v4.7.1-stable_linux.x86_64`, git-ignored).
 `tools/run_game.sh -- --autostart` skips the menu.
 
+## Controls
+
+WASD move · mouse look · hold **LMB** dagger stream · **RMB** shotgun burst · **Space** jump (hold to bunny-hop,
+jumping on landing gains speed) · **Esc** pause · **R** retry after death. Gems dropped by nests and big skulls
+upgrade the daggers at 10 / 70 / 220 gems; any touch kills you; the platform shrinks from 60 s on.
+
 ## Test
 
 ```sh
