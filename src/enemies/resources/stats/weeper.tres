@@ -18,4 +18,3 @@ contact_damage = 1.0
 spawn_duration = 0.4
 hurt_cue = ExtResource("2_hit")
 death_cue = ExtResource("3_skull_screech")
-spawn_cue = ExtResource("3_skull_screech")

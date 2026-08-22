@@ -12,6 +12,8 @@ enum Phase { RISE, DRIFT }
 @export_range(0.0, 20.0, 0.05) var drift_speed: float = 1.2
 ## Strength of the pull back onto the drift circle (m/s per metre of error).
 @export_range(0.0, 10.0, 0.1) var radius_correction: float = 1.0
+## Strength of the pull back to `hover_height` while drifting (m/s per metre of error).
+@export_range(0.0, 20.0, 0.1) var altitude_gain: float = 2.0
 
 var phase: Phase = Phase.RISE
 var drift_direction: float = 0.0
@@ -55,5 +57,5 @@ func steer(ctx: EnemyContext, delta: float) -> Vector3:
 		var tangent := Vector3(-offset.z, 0.0, offset.x).normalized() * drift_direction
 		velocity = tangent * drift_speed
 		velocity += offset.normalized() * (_radius - offset.length()) * radius_correction
-	velocity.y = (floor_y + hover_height - ctx.body_position().y) * 2.0
+	velocity.y = (floor_y + hover_height - ctx.body_position().y) * altitude_gain
 	return velocity

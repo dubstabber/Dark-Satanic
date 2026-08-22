@@ -43,6 +43,8 @@ func _ready() -> void:
 	if health != null:
 		health.damaged.connect(_on_damaged)
 		health.died.connect(_on_died)
+	if hurtbox != null:
+		hurtbox.hit_received.connect(_on_hurtbox_hit)
 	if contact_hitbox != null:
 		contact_hitbox.active = _spawn_duration() <= 0.0
 	if visual != null:
@@ -77,13 +79,26 @@ func advance(delta: float) -> void:
 			contact_hitbox.active = true
 	if mover != null:
 		mover.advance(ctx, delta)
+		# A nest still rising through the floor must not kill from underneath.
+		if contact_hitbox != null:
+			contact_hitbox.active = _spawned and not mover.is_rising()
 
 
 func is_spawned() -> bool:
 	return _spawned
 
 
+## Where projectiles should aim: the first exposed WeakPointComponent child, else the root.
+func aim_position() -> Vector3:
+	for child in get_children():
+		if child is WeakPointComponent and child.exposed and child is Node3D:
+			return child.global_position
+	return global_position
+
+
 func _apply_stats() -> void:
+	if gem_drop != null and gem_drop.arena == null:
+		gem_drop.arena = arena
 	if stats == null:
 		return
 	if health != null:
@@ -118,6 +133,16 @@ func _on_damaged(hit: HitInfo) -> void:
 		visual.flash()
 	if stats != null and stats.hurt_cue != null:
 		AudioManager.play(stats.hurt_cue, global_position)
+
+
+## Armour hits (0-multiplier) never reach `health.damaged`; make them readable anyway.
+func _on_hurtbox_hit(hit: HitInfo) -> void:
+	if hurtbox.effective_multiplier(hit) > 0.0:
+		return
+	if visual != null:
+		visual.flash()
+	if stats != null and stats.armor_cue != null:
+		AudioManager.play(stats.armor_cue, global_position)
 
 
 func _on_died(hit: HitInfo) -> void:

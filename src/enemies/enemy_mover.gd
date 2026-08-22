@@ -10,6 +10,10 @@ extends Node
 @export var behaviors_root: Node
 @export_range(0.0, 5.0, 0.05) var platform_margin: float = 0.5
 @export var face_velocity: bool = true
+## Grounded enemies left above `floor_y + min_height + ground_slack` sink at this speed (m/s).
+@export_range(0.0, 100.0, 0.5) var fall_speed: float = 12.0
+## Headroom a grounded enemy may bob up into before it is pulled back down.
+@export_range(0.0, 5.0, 0.05) var ground_slack: float = 0.5
 
 var velocity: Vector3 = Vector3.ZERO
 var desired_velocity: Vector3 = Vector3.ZERO
@@ -21,6 +25,11 @@ func _ready() -> void:
 		body = get_parent() as Node3D
 	if behaviors_root == null and get_parent() != null:
 		behaviors_root = get_parent().get_node_or_null("Behaviors")
+
+
+## True while an exclusive behaviour is letting the body sit below the floor (e.g. a rising nest).
+func is_rising() -> bool:
+	return _floor_free
 
 
 func behaviors() -> Array[EnemyBehavior]:
@@ -53,6 +62,7 @@ func advance(ctx: EnemyContext, delta: float) -> void:
 	var max_speed: float = ctx.stats.move_speed if ctx.stats != null else 5.0
 	var acceleration: float = ctx.stats.acceleration if ctx.stats != null else 40.0
 	var min_height: float = ctx.stats.min_height if ctx.stats != null else 0.0
+	var grounded: bool = ctx.stats.grounded if ctx.stats != null else false
 	desired_velocity = blend(ctx, delta).limit_length(max_speed)
 	velocity = velocity.move_toward(desired_velocity, acceleration * delta)
 	var next := body.global_position + velocity * delta
@@ -61,9 +71,18 @@ func advance(ctx: EnemyContext, delta: float) -> void:
 		next = info.clamp_to_platform(next, platform_margin)
 		if not _floor_free:
 			next.y = maxf(next.y, info.floor_y + min_height)
+			if grounded:
+				next.y = _sink(next.y, info.floor_y + min_height + ground_slack, delta)
 	body.global_position = next
 	if face_velocity:
 		_face(velocity)
+
+
+## Pulls a height above `ceiling` down toward it at `fall_speed` (never below it).
+func _sink(y: float, ceiling: float, delta: float) -> float:
+	if y <= ceiling:
+		return y
+	return maxf(ceiling, y - fall_speed * delta)
 
 
 func _face(motion: Vector3) -> void:

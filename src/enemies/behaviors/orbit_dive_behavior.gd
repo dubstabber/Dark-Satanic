@@ -21,6 +21,8 @@ enum Phase { ORBIT, DIVE, RETREAT }
 @export_range(0.0, 50.0, 0.5) var retreat_radius: float = 15.0
 @export_range(0.0, 30.0, 0.1) var retreat_time: float = 2.0
 @export_range(0.0, 10.0, 0.1) var radius_correction: float = 1.5
+## Strength of the pull back to `altitude` while orbiting/retreating (m/s per metre of error).
+@export_range(0.0, 20.0, 0.1) var altitude_gain: float = 2.0
 
 var phase: Phase = Phase.ORBIT
 var phase_time: float = 0.0
@@ -105,7 +107,7 @@ func _circle(ctx: EnemyContext, radius: float, speed: float) -> Vector3:
 
 func _lift(ctx: EnemyContext, cap: float) -> float:
 	var goal_y := ctx.floor_y() + altitude
-	return clampf((goal_y - ctx.body_position().y) * 2.0, -cap, cap)
+	return clampf((goal_y - ctx.body_position().y) * altitude_gain, -cap, cap)
 
 
 func _update_target_velocity(ctx: EnemyContext, delta: float) -> void:
