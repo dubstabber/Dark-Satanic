@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PlayerMovementStats" load_steps=2 format=3 uid="uid://tle1n6ymes68c"]
+
+[ext_resource type="Script" path="res://src/player/resources/player_movement_stats.gd" id="1_stats"]
+
+[resource]
+script = ExtResource("1_stats")
+walk_speed = 9.0
+ground_accel = 10.0
+friction = 6.0
+stop_speed = 1.0
+air_accel = 12.0
+air_speed_cap = 1.0
+air_control_accel = 0.8
+gravity = 18.0
+jump_velocity = 7.0
+jump_horizontal_boost = 1.08
+max_bhop_speed = 14.0
+auto_bhop = true
+pitch_limit_deg = 89.0
+camera_height = 1.6
