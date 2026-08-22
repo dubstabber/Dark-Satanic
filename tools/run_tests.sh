@@ -22,6 +22,7 @@ if [[ "${SKIP_IMPORT:-0}" != "1" ]]; then
 fi
 
 echo "==> Running GUT"
+GUT_LOG="$JUNIT_DIR/gut.log"
 set +e
 "$GODOT_BIN" --headless --path "$ROOT" \
   --fixed-fps "$FIXED_FPS" \
@@ -29,9 +30,15 @@ set +e
   -gconfig=res://.gutconfig.json \
   -gjunit_xml_file=res://test_results/junit.xml \
   -gexit \
-  "$@"
-STATUS=$?
+  "$@" 2>&1 | tee "$GUT_LOG"
+STATUS=${PIPESTATUS[0]}
 set -e
+
+# A test script that fails to parse is silently skipped by GUT; treat that as a failure.
+if grep -qE "SCRIPT ERROR|Failed to load script|Parse Error" "$GUT_LOG"; then
+  echo "error: script errors found in GUT output (see above)" >&2
+  STATUS=1
+fi
 
 if [[ ! -f "$JUNIT_DIR/junit.xml" ]]; then
   echo "error: GUT did not produce $JUNIT_DIR/junit.xml (runner crashed?)" >&2

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="UpgradeLadder" load_steps=7 format=3 uid="uid://aini6iwz6kf2t"]
+
+[ext_resource type="Script" path="res://src/weapons/resources/upgrade_ladder.gd" id="1_ladder"]
+[ext_resource type="Script" path="res://src/weapons/resources/dagger_upgrade_tier.gd" id="2_tier"]
+[ext_resource type="Resource" path="res://src/weapons/resources/tiers/tier_1.tres" id="3_t1"]
+[ext_resource type="Resource" path="res://src/weapons/resources/tiers/tier_2.tres" id="4_t2"]
+[ext_resource type="Resource" path="res://src/weapons/resources/tiers/tier_3.tres" id="5_t3"]
+[ext_resource type="Resource" path="res://src/weapons/resources/tiers/tier_4.tres" id="6_t4"]
+
+[resource]
+script = ExtResource("1_ladder")
+tiers = Array[ExtResource("2_tier")]([ExtResource("3_t1"), ExtResource("4_t2"), ExtResource("5_t3"), ExtResource("6_t4")])
