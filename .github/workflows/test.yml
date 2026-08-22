@@ -48,7 +48,8 @@ jobs:
         run: echo "GODOT_BIN=$GITHUB_WORKSPACE/.godot-bin/$GODOT_BIN_NAME" >> "$GITHUB_ENV"
 
       - name: Godot version
-        run: "$GODOT_BIN" --headless --version
+        run: |
+          "$GODOT_BIN" --headless --version
 
       - name: Run GUT
         run: tools/run_tests.sh
