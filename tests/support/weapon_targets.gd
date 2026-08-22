@@ -20,6 +20,25 @@ static func hurtbox_target(world: Node, position: Vector3, max_health: float = 1
 	return {"body": body, "health": health, "hurtbox": hurtbox}
 
 
+## Like hurtbox_target but with two concentric hurtboxes: an armoured outer sphere
+## (`outer_radius`, damage_multiplier 0) around a normal inner one (r=0.5). Returns
+## {"body", "health", "outer", "inner"}.
+static func armoured_target(
+	world: Node, position: Vector3, max_health: float = 1.0, outer_radius: float = 1.5
+) -> Dictionary:
+	var target := hurtbox_target(world, position, max_health)
+	var inner: HurtboxComponent = target["hurtbox"]
+	inner.name = "Inner"
+	var outer: HurtboxComponent = HurtboxScene.instantiate()
+	outer.name = "Outer"
+	outer.damage_multiplier = 0.0
+	var sphere := SphereShape3D.new()
+	sphere.radius = outer_radius
+	(outer.get_child(0) as CollisionShape3D).shape = sphere
+	target["body"].add_child(outer)
+	return {"body": target["body"], "health": target["health"], "outer": outer, "inner": inner}
+
+
 ## A StaticBody3D on the WORLD layer: a 20x0.2x20 slab whose top surface sits at `top_y`.
 static func floor_body(world: Node, top_y: float = 0.0) -> StaticBody3D:
 	var body := StaticBody3D.new()

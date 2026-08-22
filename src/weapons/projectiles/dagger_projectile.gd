@@ -9,6 +9,8 @@ signal released(projectile: DaggerProjectile)
 
 ## Absorbs float drift so N ticks of 1/N seconds expire a 1 s lifetime exactly.
 const LIFETIME_EPSILON := 0.0001
+## How many armoured hurtboxes one tick's sweep may pass through before giving up.
+const MAX_ARMOUR_PASSES := 3
 
 ## Optional one-shot effect instantiated (deferred) under this node's parent at the hit point.
 @export var hit_vfx: PackedScene
@@ -23,18 +25,17 @@ var target_provider: Callable = Callable()
 var active: bool = false
 var age: float = 0.0
 
+## The scene's material, shared by every instance (one tier look = one material,
+## so daggers batch); launch() only writes emission when the value changes.
 var _material: StandardMaterial3D
 
 
 func _ready() -> void:
 	var mesh := _find_mesh()
 	if mesh != null:
-		var shared := mesh.get_surface_override_material(0) as StandardMaterial3D
-		if shared == null:
-			shared = mesh.mesh.surface_get_material(0) as StandardMaterial3D if mesh.mesh != null else null
-		if shared != null:
-			_material = shared.duplicate() as StandardMaterial3D
-			mesh.set_surface_override_material(0, _material)
+		_material = mesh.get_surface_override_material(0) as StandardMaterial3D
+		if _material == null and mesh.mesh != null:
+			_material = mesh.mesh.surface_get_material(0) as StandardMaterial3D
 	if not active:
 		_deactivate()
 
@@ -52,7 +53,7 @@ func launch(origin: Vector3, direction: Vector3, p_params: ProjectileParams, p_s
 	velocity = dir * params.speed
 	global_position = origin
 	scale = Vector3.ONE * params.scale
-	if _material != null:
+	if _material != null and not is_equal_approx(_material.emission_energy_multiplier, params.emission_energy):
 		_material.emission_energy_multiplier = params.emission_energy
 	active = true
 	visible = true
@@ -90,6 +91,9 @@ func _deactivate() -> void:
 	set_physics_process(false)
 
 
+## Ray from `from` to `to`; armoured hurtboxes (effective multiplier 0) are passed
+## through by excluding them and sweeping on from the hit point, so armour never
+## eats a dagger that would reach a weak point behind it.
 func _sweep(from: Vector3, to: Vector3) -> Dictionary:
 	if not is_inside_tree() or from.is_equal_approx(to):
 		return {}
@@ -99,7 +103,26 @@ func _sweep(from: Vector3, to: Vector3) -> Dictionary:
 	var query := PhysicsRayQueryParameters3D.create(from, to, params.collision_mask)
 	query.collide_with_areas = true
 	query.collide_with_bodies = true
-	return world.direct_space_state.intersect_ray(query)
+	for _pass in MAX_ARMOUR_PASSES + 1:
+		var result := world.direct_space_state.intersect_ray(query)
+		if result.is_empty() or not _is_armoured(result) or _pass == MAX_ARMOUR_PASSES:
+			return result
+		var exclude := query.exclude
+		exclude.append(result["rid"])
+		query.exclude = exclude
+		query.from = result["position"]
+	return {}
+
+
+func _is_armoured(result: Dictionary) -> bool:
+	var collider: Object = result.get("collider")
+	if not collider is HurtboxComponent:
+		return false
+	var probe := HitInfo.new(
+		params.damage, result.get("position", global_position), velocity.normalized(),
+		result.get("normal", Vector3.UP), source, params.cause
+	)
+	return (collider as HurtboxComponent).effective_multiplier(probe) <= 0.0
 
 
 func _resolve(result: Dictionary) -> void:
@@ -124,7 +147,7 @@ func _steer(delta: float) -> void:
 	var target := _nearest_target()
 	if target == null:
 		return
-	var desired := (target.global_position - global_position).normalized()
+	var desired := (_aim_point(target) - global_position).normalized()
 	var forward := velocity.normalized()
 	var angle := forward.angle_to(desired)
 	if angle <= 0.0001:
@@ -145,13 +168,20 @@ func _nearest_target() -> Node3D:
 		if not is_instance_valid(candidate) or not candidate is Node3D:
 			continue
 		var node := candidate as Node3D
-		var offset := node.global_position - global_position
+		var offset := _aim_point(node) - global_position
 		var distance := offset.length()
 		if distance > best_distance or forward.dot(offset) <= 0.0:
 			continue
 		best = node
 		best_distance = distance
 	return best
+
+
+## Where to steer at: the target's aim_position() (a weak point) when it has one.
+static func _aim_point(target: Node3D) -> Vector3:
+	if target.has_method("aim_position"):
+		return target.call("aim_position")
+	return target.global_position
 
 
 func _orient() -> void:
@@ -162,18 +192,19 @@ func _orient() -> void:
 	global_basis = Basis.looking_at(forward, up).scaled(scale)
 
 
+## Instantiation happens inside the deferred call so a projectile freed before the
+## next idle frame (scene torn down) never strands an orphan instance.
 func _spawn_vfx(position: Vector3) -> void:
 	if hit_vfx == null or get_parent() == null:
 		return
-	var vfx := hit_vfx.instantiate()
-	_add_vfx.call_deferred(vfx, position)
+	_add_vfx.call_deferred(position)
 
 
-func _add_vfx(vfx: Node, position: Vector3) -> void:
+func _add_vfx(position: Vector3) -> void:
 	var parent := get_parent()
-	if parent == null:
-		vfx.queue_free()
+	if parent == null or hit_vfx == null:
 		return
+	var vfx := hit_vfx.instantiate()
 	parent.add_child(vfx)
 	if vfx is Node3D:
 		(vfx as Node3D).global_position = position
