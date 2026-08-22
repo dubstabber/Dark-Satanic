@@ -1,0 +1,111 @@
+[gd_scene load_steps=5 format=3 uid="uid://fmef9v41t92am"]
+
+[ext_resource type="Script" path="res://src/ui/death_screen/death_screen.gd" id="1_death"]
+[ext_resource type="Script" path="res://src/ui/death_screen/leaderboard_list.gd" id="2_list"]
+[ext_resource type="Theme" path="res://src/ui/theme/sad_satan_theme.tres" id="3_theme"]
+[ext_resource type="LabelSettings" path="res://src/ui/theme/title_label_settings.tres" id="4_title"]
+
+[node name="DeathScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_death")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Column" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "REQUIESCAT"
+label_settings = ExtResource("4_title")
+horizontal_alignment = 1
+
+[node name="Stats" type="HBoxContainer" parent="Center/Column"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TimeLabel" type="Label" parent="Center/Column/Stats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TIME 0.00"
+
+[node name="GemsLabel" type="Label" parent="Center/Column/Stats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "GEMS 0"
+
+[node name="KillsLabel" type="Label" parent="Center/Column/Stats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "KILLS 0"
+
+[node name="RankLabel" type="Label" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "UNRANKED"
+horizontal_alignment = 1
+
+[node name="NameBox" type="HBoxContainer" parent="Center/Column"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="NameEntry" type="LineEdit" parent="Center/Column/NameBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+text = "ANON"
+placeholder_text = "NAME"
+max_length = 12
+
+[node name="SubmitButton" type="Button" parent="Center/Column/NameBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "SUBMIT"
+
+[node name="LeaderboardList" type="VBoxContainer" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+script = ExtResource("2_list")
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Column"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="RetryButton" type="Button" parent="Center/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "RETRY"
+
+[node name="MenuButton" type="Button" parent="Center/Column/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "MENU"

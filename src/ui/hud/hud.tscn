@@ -1,0 +1,90 @@
+[gd_scene load_steps=4 format=3 uid="uid://j9g1hm2ahul9m"]
+
+[ext_resource type="Script" path="res://src/ui/hud/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://src/ui/hud/crosshair.gd" id="2_crosshair"]
+[ext_resource type="Theme" path="res://src/ui/theme/sad_satan_theme.tres" id="3_theme"]
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_hud")
+
+[node name="TimerLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
+offset_top = 16.0
+offset_right = 120.0
+offset_bottom = 72.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 44
+text = "0.00"
+horizontal_alignment = 1
+
+[node name="KillsLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 160.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 16
+text = "KILLS 0"
+
+[node name="GemsLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -56.0
+offset_right = 200.0
+offset_bottom = -16.0
+grow_vertical = 0
+text = "GEMS 0"
+
+[node name="TierLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -56.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 32
+text = "I"
+horizontal_alignment = 2
+
+[node name="Crosshair" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_crosshair")
