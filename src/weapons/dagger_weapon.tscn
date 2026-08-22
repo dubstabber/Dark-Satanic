@@ -1,0 +1,28 @@
+[gd_scene load_steps=7 format=3 uid="uid://vljithdinsffc"]
+
+[ext_resource type="Script" path="res://src/weapons/dagger_weapon.gd" id="1_weapon"]
+[ext_resource type="Script" path="res://src/weapons/projectile_spawner.gd" id="2_spawner"]
+[ext_resource type="Script" path="res://src/weapons/projectile_pool.gd" id="3_pool"]
+[ext_resource type="PackedScene" path="res://src/weapons/projectiles/dagger_projectile.tscn" id="4_projectile"]
+[ext_resource type="Script" path="res://src/weapons/fire_modes/stream_fire.gd" id="5_stream"]
+[ext_resource type="Script" path="res://src/weapons/fire_modes/shotgun_fire.gd" id="6_shotgun"]
+
+[node name="DaggerWeapon" type="Node3D"]
+script = ExtResource("1_weapon")
+
+[node name="ProjectileSpawner" type="Node" parent="."]
+script = ExtResource("2_spawner")
+pool = NodePath("ProjectilePool")
+
+[node name="ProjectilePool" type="Node" parent="ProjectileSpawner"]
+script = ExtResource("3_pool")
+projectile_scene = ExtResource("4_projectile")
+initial_size = 64
+
+[node name="StreamFire" type="Node" parent="."]
+script = ExtResource("5_stream")
+spawner = NodePath("../ProjectileSpawner")
+
+[node name="ShotgunFire" type="Node" parent="."]
+script = ExtResource("6_shotgun")
+spawner = NodePath("../ProjectileSpawner")
