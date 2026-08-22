@@ -1,0 +1,319 @@
+[gd_resource type="Resource" script_class="WaveTable" load_steps=57 format=3 uid="uid://mgxi9q60a09s7"]
+
+[ext_resource type="Script" path="res://src/spawning/resources/wave_table.gd" id="1_table"]
+[ext_resource type="Script" path="res://src/spawning/resources/spawn_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://src/spawning/patterns/ring_pattern.gd" id="3_ring"]
+[ext_resource type="Script" path="res://src/spawning/patterns/random_edge_pattern.gd" id="4_edge"]
+[ext_resource type="Script" path="res://src/spawning/patterns/opposite_player_pattern.gd" id="5_opposite"]
+[ext_resource type="PackedScene" path="res://src/enemies/archetypes/weeper.tscn" id="6_weeper"]
+[ext_resource type="PackedScene" path="res://src/enemies/archetypes/mourner.tscn" id="7_mourner"]
+[ext_resource type="PackedScene" path="res://src/enemies/archetypes/lament.tscn" id="8_lament"]
+[ext_resource type="PackedScene" path="res://src/enemies/archetypes/vesper.tscn" id="9_vesper"]
+[ext_resource type="PackedScene" path="res://src/enemies/archetypes/glutton.tscn" id="10_glutton"]
+
+[sub_resource type="Resource" id="RandomEdgePattern_1"]
+script = ExtResource("4_edge")
+min_radius_fraction = 0.7
+max_radius_fraction = 0.75
+height_min = 3.5
+height_max = 3.5
+
+[sub_resource type="Resource" id="SpawnEvent_1"]
+script = ExtResource("2_event")
+time = 3.0
+enemy_scene = ExtResource("8_lament")
+count = 1
+pattern = SubResource("RandomEdgePattern_1")
+stagger = 0.0
+label = "first nest"
+
+[sub_resource type="Resource" id="OppositePlayerPattern_2"]
+script = ExtResource("5_opposite")
+radius_fraction = 0.75
+
+[sub_resource type="Resource" id="SpawnEvent_2"]
+script = ExtResource("2_event")
+time = 39.0
+enemy_scene = ExtResource("8_lament")
+count = 1
+pattern = SubResource("OppositePlayerPattern_2")
+stagger = 0.0
+label = "second nest behind you"
+
+[sub_resource type="Resource" id="RandomEdgePattern_3"]
+script = ExtResource("4_edge")
+min_radius_fraction = 0.9
+max_radius_fraction = 0.95
+height_min = 3.0
+height_max = 3.0
+
+[sub_resource type="Resource" id="SpawnEvent_3"]
+script = ExtResource("2_event")
+time = 60.0
+enemy_scene = ExtResource("9_vesper")
+count = 1
+pattern = SubResource("RandomEdgePattern_3")
+stagger = 0.0
+label = "first vesper"
+
+[sub_resource type="Resource" id="RandomEdgePattern_4"]
+script = ExtResource("4_edge")
+
+[sub_resource type="Resource" id="SpawnEvent_4"]
+script = ExtResource("2_event")
+time = 75.0
+enemy_scene = ExtResource("8_lament")
+count = 1
+pattern = SubResource("RandomEdgePattern_4")
+stagger = 0.0
+label = "third nest"
+
+[sub_resource type="Resource" id="OppositePlayerPattern_5"]
+script = ExtResource("5_opposite")
+radius_fraction = 0.9
+
+[sub_resource type="Resource" id="SpawnEvent_5"]
+script = ExtResource("2_event")
+time = 90.0
+enemy_scene = ExtResource("7_mourner")
+count = 1
+pattern = SubResource("OppositePlayerPattern_5")
+stagger = 0.0
+label = "first mourner"
+
+[sub_resource type="Resource" id="RingPattern_6"]
+script = ExtResource("3_ring")
+radius_fraction = 0.85
+
+[sub_resource type="Resource" id="SpawnEvent_6"]
+script = ExtResource("2_event")
+time = 105.0
+enemy_scene = ExtResource("6_weeper")
+count = 8
+pattern = SubResource("RingPattern_6")
+stagger = 0.15
+label = "weeper ring"
+
+[sub_resource type="Resource" id="RingPattern_7"]
+script = ExtResource("3_ring")
+radius_fraction = 0.7
+
+[sub_resource type="Resource" id="SpawnEvent_7"]
+script = ExtResource("2_event")
+time = 120.0
+enemy_scene = ExtResource("8_lament")
+count = 2
+pattern = SubResource("RingPattern_7")
+stagger = 0.0
+label = "nest pair"
+
+[sub_resource type="Resource" id="RingPattern_8"]
+script = ExtResource("3_ring")
+radius_fraction = 0.9
+
+[sub_resource type="Resource" id="SpawnEvent_8"]
+script = ExtResource("2_event")
+time = 140.0
+enemy_scene = ExtResource("9_vesper")
+count = 2
+pattern = SubResource("RingPattern_8")
+stagger = 0.0
+label = "vesper pair"
+
+[sub_resource type="Resource" id="RingPattern_9"]
+script = ExtResource("3_ring")
+radius_fraction = 0.9
+
+[sub_resource type="Resource" id="SpawnEvent_9"]
+script = ExtResource("2_event")
+time = 150.0
+enemy_scene = ExtResource("7_mourner")
+count = 2
+pattern = SubResource("RingPattern_9")
+stagger = 0.0
+label = "mourner pair"
+
+[sub_resource type="Resource" id="RandomEdgePattern_10"]
+script = ExtResource("4_edge")
+
+[sub_resource type="Resource" id="SpawnEvent_10"]
+script = ExtResource("2_event")
+time = 165.0
+enemy_scene = ExtResource("8_lament")
+count = 1
+pattern = SubResource("RandomEdgePattern_10")
+stagger = 0.0
+label = "nest at the edge"
+
+[sub_resource type="Resource" id="RingPattern_11"]
+script = ExtResource("3_ring")
+radius_fraction = 0.85
+
+[sub_resource type="Resource" id="SpawnEvent_11"]
+script = ExtResource("2_event")
+time = 165.0
+enemy_scene = ExtResource("6_weeper")
+count = 10
+pattern = SubResource("RingPattern_11")
+stagger = 0.1
+label = "weeper ring II"
+
+[sub_resource type="Resource" id="OppositePlayerPattern_12"]
+script = ExtResource("5_opposite")
+
+[sub_resource type="Resource" id="SpawnEvent_12"]
+script = ExtResource("2_event")
+time = 180.0
+enemy_scene = ExtResource("10_glutton")
+count = 1
+pattern = SubResource("OppositePlayerPattern_12")
+stagger = 0.0
+label = "the glutton"
+
+[sub_resource type="Resource" id="RingPattern_13"]
+script = ExtResource("3_ring")
+
+[sub_resource type="Resource" id="SpawnEvent_13"]
+script = ExtResource("2_event")
+time = 195.0
+enemy_scene = ExtResource("9_vesper")
+count = 2
+pattern = SubResource("RingPattern_13")
+stagger = 0.0
+label = "vesper pair II"
+
+[sub_resource type="Resource" id="OppositePlayerPattern_14"]
+script = ExtResource("5_opposite")
+
+[sub_resource type="Resource" id="SpawnEvent_14"]
+script = ExtResource("2_event")
+time = 195.0
+enemy_scene = ExtResource("7_mourner")
+count = 1
+pattern = SubResource("OppositePlayerPattern_14")
+stagger = 0.0
+label = "mourner behind"
+
+[sub_resource type="Resource" id="RingPattern_15"]
+script = ExtResource("3_ring")
+radius_fraction = 0.65
+
+[sub_resource type="Resource" id="SpawnEvent_15"]
+script = ExtResource("2_event")
+time = 210.0
+enemy_scene = ExtResource("8_lament")
+count = 2
+pattern = SubResource("RingPattern_15")
+stagger = 0.0
+label = "inner nests"
+
+[sub_resource type="Resource" id="RingPattern_16"]
+script = ExtResource("3_ring")
+radius_fraction = 0.85
+
+[sub_resource type="Resource" id="SpawnEvent_16"]
+script = ExtResource("2_event")
+time = 225.0
+enemy_scene = ExtResource("6_weeper")
+count = 16
+pattern = SubResource("RingPattern_16")
+stagger = 0.1
+label = "weeper swarm"
+
+[sub_resource type="Resource" id="RingPattern_17"]
+script = ExtResource("3_ring")
+radius_fraction = 0.9
+
+[sub_resource type="Resource" id="SpawnEvent_17"]
+script = ExtResource("2_event")
+time = 240.0
+enemy_scene = ExtResource("7_mourner")
+count = 3
+pattern = SubResource("RingPattern_17")
+stagger = 0.0
+label = "mourner trio"
+
+[sub_resource type="Resource" id="RingPattern_18"]
+script = ExtResource("3_ring")
+radius_fraction = 0.7
+
+[sub_resource type="Resource" id="SpawnEvent_18"]
+script = ExtResource("2_event")
+time = 255.0
+enemy_scene = ExtResource("8_lament")
+count = 2
+pattern = SubResource("RingPattern_18")
+stagger = 0.0
+label = "nest pair II"
+
+[sub_resource type="Resource" id="RingPattern_19"]
+script = ExtResource("3_ring")
+radius_fraction = 0.9
+
+[sub_resource type="Resource" id="SpawnEvent_19"]
+script = ExtResource("2_event")
+time = 255.0
+enemy_scene = ExtResource("9_vesper")
+count = 2
+pattern = SubResource("RingPattern_19")
+stagger = 0.0
+label = "vesper pair III"
+
+[sub_resource type="Resource" id="OppositePlayerPattern_20"]
+script = ExtResource("5_opposite")
+radius_fraction = 0.8
+spread_deg = 60.0
+
+[sub_resource type="Resource" id="SpawnEvent_20"]
+script = ExtResource("2_event")
+time = 270.0
+enemy_scene = ExtResource("6_weeper")
+count = 20
+pattern = SubResource("OppositePlayerPattern_20")
+stagger = 0.05
+label = "weeper flood"
+
+[sub_resource type="Resource" id="RingPattern_21"]
+script = ExtResource("3_ring")
+
+[sub_resource type="Resource" id="SpawnEvent_21"]
+script = ExtResource("2_event")
+time = 285.0
+enemy_scene = ExtResource("7_mourner")
+count = 2
+pattern = SubResource("RingPattern_21")
+stagger = 0.0
+label = "mourner pair II"
+
+[sub_resource type="Resource" id="RingPattern_22"]
+script = ExtResource("3_ring")
+
+[sub_resource type="Resource" id="SpawnEvent_22"]
+script = ExtResource("2_event")
+time = 285.0
+enemy_scene = ExtResource("9_vesper")
+count = 3
+pattern = SubResource("RingPattern_22")
+stagger = 0.0
+label = "vesper trio"
+
+[sub_resource type="Resource" id="RingPattern_23"]
+script = ExtResource("3_ring")
+radius_fraction = 0.65
+
+[sub_resource type="Resource" id="SpawnEvent_23"]
+script = ExtResource("2_event")
+time = 300.0
+enemy_scene = ExtResource("8_lament")
+count = 3
+pattern = SubResource("RingPattern_23")
+stagger = 0.0
+label = "final nests"
+
+[resource]
+script = ExtResource("1_table")
+events = Array[ExtResource("2_event")]([SubResource("SpawnEvent_1"), SubResource("SpawnEvent_2"), SubResource("SpawnEvent_3"), SubResource("SpawnEvent_4"), SubResource("SpawnEvent_5"), SubResource("SpawnEvent_6"), SubResource("SpawnEvent_7"), SubResource("SpawnEvent_8"), SubResource("SpawnEvent_9"), SubResource("SpawnEvent_10"), SubResource("SpawnEvent_11"), SubResource("SpawnEvent_12"), SubResource("SpawnEvent_13"), SubResource("SpawnEvent_14"), SubResource("SpawnEvent_15"), SubResource("SpawnEvent_16"), SubResource("SpawnEvent_17"), SubResource("SpawnEvent_18"), SubResource("SpawnEvent_19"), SubResource("SpawnEvent_20"), SubResource("SpawnEvent_21"), SubResource("SpawnEvent_22"), SubResource("SpawnEvent_23")])
+loop_from_time = 240.0
+loop_count_multiplier = 1.25
+loop_interval_multiplier = 0.9
+max_alive = 120
