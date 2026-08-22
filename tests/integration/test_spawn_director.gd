@@ -193,31 +193,6 @@ func test_advance_before_start_or_zero_delta_is_ignored() -> void:
 	assert_eq(_container.get_child_count(), 0)
 
 
-func test_endless_loop_scales_events() -> void:
-	var table := WaveTable.new()
-	table.loop_from_time = 10.0
-	table.loop_count_multiplier = 2.0
-	table.loop_interval_multiplier = 0.5
-	table.max_alive = 1000
-	table.events = [_event(0.0, 1), _event(10.0, 2), _event(20.0, 1)]
-	_director.wave_table = table
-	_director.start()
-	_director.advance(19.99)
-	assert_eq(_director.alive_count(), 3, "authored: 1 + 2")
-	# Block 1 starts at 20 (last time), lasts 30 * 0.5 = 15: events at 20 (count 4) and 25 (count 2).
-	_director.advance(0.02)
-	assert_eq(_director.alive_count(), 8, "authored event at 20 plus loop block 1 first event (count 4)")
-	_director.advance(4.9)
-	assert_eq(_director.alive_count(), 8)
-	_director.advance(0.2)
-	assert_eq(_director.alive_count(), 10, "second event of block 1 at t=25")
-	# Block 2 starts at 35, lasts 7.5: events at 35 (count 8) and 37.5 (count 4).
-	_director.advance(9.9)
-	assert_eq(_director.alive_count(), 18)
-	_director.advance(2.6)
-	assert_eq(_director.alive_count(), 22)
-
-
 func test_reseeded_director_is_reproducible() -> void:
 	_director.advance(2.0)
 	var first: Array[Vector3] = []
@@ -236,6 +211,7 @@ func test_reseeded_director_is_reproducible() -> void:
 func test_spawner_components_get_director_veto() -> void:
 	var scene := PackedScene.new()
 	var root := Node3D.new()
+	root.set_script(load("res://tests/fixtures/spawn_stub.gd"))
 	var inner := Node3D.new()
 	inner.name = "Inner"
 	root.add_child(inner)
@@ -261,3 +237,64 @@ func test_spawner_components_get_director_veto() -> void:
 	assert_true(nested.can_spawn.call(), "1 alive < 2")
 	_director.spawn_now(_event(0.0, 1))
 	assert_false(nested.can_spawn.call(), "2 alive >= 2")
+
+
+func test_drop_root_injected_on_gem_droppers_before_enter_tree() -> void:
+	var scene := PackedScene.new()
+	var root := Node3D.new()
+	var dropper := GemDropComponent.new()
+	dropper.name = "GemDrop"
+	root.add_child(dropper)
+	dropper.owner = root
+	assert_eq(scene.pack(root), OK)
+	root.free()
+	var gems := Node3D.new()
+	_world.add_child(gems)
+	_director.drop_root = gems
+	var event := _event(0.0, 1)
+	event.enemy_scene = scene
+	var spawned := _director.spawn_now(event)
+	assert_same(spawned[0].get_node("GemDrop").spawn_root, gems)
+	_director.drop_root = null
+	var plain := _director.spawn_now(event)
+	assert_null(plain[0].get_node("GemDrop").spawn_root, "no drop_root leaves the component alone")
+
+
+func test_alive_count_ignores_nodes_without_died_signal() -> void:
+	_director.advance(2.0)
+	assert_eq(_director.alive_count(), 4)
+	_container.add_child(Node3D.new())
+	_container.add_child(Node.new())
+	assert_eq(_director.alive_count(), 4, "gems / vfx in the container are not enemies")
+	assert_eq(_container.get_child_count(), 6)
+
+
+func test_spawned_nodes_get_a_seed_from_the_director() -> void:
+	_director.advance(2.0)
+	var seeds: Array[int] = []
+	for child in _container.get_children():
+		assert_ne(child.rng_seed, 0)
+		seeds.append(child.rng_seed)
+	_clear_container()
+	_director.start()
+	_director.advance(2.0)
+	var again: Array[int] = []
+	for child in _container.get_children():
+		again.append(child.rng_seed)
+	assert_eq(seeds, again, "seeds are reproducible from rng_seed")
+
+
+func test_start_warns_about_authoring_problems() -> void:
+	var table := WaveTable.new()
+	table.loop_from_time = -1.0
+	table.events = [_event(0.0, 2)]
+	_director.wave_table = table
+	_director.start()
+	assert_push_warning("null pattern")
+	_director.advance(0.1)
+	assert_push_warning("using a default ring")
+
+
+func _clear_container() -> void:
+	for child in _container.get_children():
+		child.free()

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GameConfig" load_steps=4 format=3 uid=""]
+[gd_resource type="Resource" script_class="GameConfig" load_steps=4 format=3 uid="uid://x17set90aaksm"]
 
 [ext_resource type="Script" path="res://src/game/game_config.gd" id="1_config"]
 [ext_resource type="Resource" path="res://src/spawning/waves/milestone1.tres" id="2_waves"]

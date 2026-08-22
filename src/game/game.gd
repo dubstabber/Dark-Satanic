@@ -12,6 +12,7 @@ signal run_ended(result: RunResult)
 @onready var arena_shrinker: ArenaShrinker = $Arena/ArenaShrinker
 @onready var player: Player = $Player
 @onready var enemy_container: Node3D = $EnemyContainer
+@onready var gem_container: Node3D = $GemContainer
 @onready var projectile_container: Node3D = $ProjectileContainer
 @onready var spawn_director: SpawnDirector = $SpawnDirector
 @onready var hud: HUD = $HudLayer/HUD
@@ -47,10 +48,11 @@ func _physics_process(delta: float) -> void:
 	player_light.global_position = player.global_position + Vector3.UP * player_light_height
 
 
+## Live enemies (nodes with a `died` signal); the homing-dagger target provider.
 func enemies() -> Array[Node3D]:
 	var result: Array[Node3D] = []
 	for child in enemy_container.get_children():
-		if child is Node3D and not child.is_queued_for_deletion():
+		if SpawnDirector.is_enemy(child):
 			result.append(child)
 	return result
 
@@ -68,6 +70,7 @@ func _wire_player() -> void:
 func _wire_spawning() -> void:
 	spawn_director.wave_table = config.wave_table
 	spawn_director.enemy_container = enemy_container
+	spawn_director.drop_root = gem_container
 	spawn_director.arena = arena
 	spawn_director.target = player
 	spawn_director.difficulty_scale = config.difficulty_scale
