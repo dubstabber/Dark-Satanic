@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AudioCue" load_steps=3 format=3 uid="uid://etrzj0bxuwbzj"]
+
+[ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/ui_click.ogg" id="2_stream"]
+
+[resource]
+script = ExtResource("1_cue")
+streams = Array[AudioStream]([ExtResource("2_stream")])
+volume_db = -12.0
+pitch_min = 0.98
+pitch_max = 1.02
+bus = &"UI"
+max_distance = 40.0
