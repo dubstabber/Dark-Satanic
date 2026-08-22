@@ -1,6 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://vljithdinsffc"]
+[gd_scene load_steps=9 format=3 uid="uid://vljithdinsffc"]
 
 [ext_resource type="Script" path="res://src/weapons/dagger_weapon.gd" id="1_weapon"]
+[ext_resource type="Resource" uid="uid://j2cr76jyso7x9" path="res://assets/audio/cues/dagger_tick.tres" id="8_dagger_tick"]
+[ext_resource type="Resource" uid="uid://mc72x4cjgq9q8" path="res://assets/audio/cues/shotgun_thump.tres" id="9_shotgun_thump"]
 [ext_resource type="Script" path="res://src/weapons/projectile_spawner.gd" id="2_spawner"]
 [ext_resource type="Script" path="res://src/weapons/projectile_pool.gd" id="3_pool"]
 [ext_resource type="PackedScene" path="res://src/weapons/projectiles/dagger_projectile.tscn" id="4_projectile"]
@@ -9,6 +11,8 @@
 
 [node name="DaggerWeapon" type="Node3D"]
 script = ExtResource("1_weapon")
+stream_cue = ExtResource("8_dagger_tick")
+shotgun_cue = ExtResource("9_shotgun_thump")
 
 [node name="ProjectileSpawner" type="Node" parent="."]
 script = ExtResource("2_spawner")

@@ -1,12 +1,9 @@
 [gd_resource type="LabelSettings" load_steps=3 format=3 uid="uid://iyg47z9ebbleb"]
 
-[sub_resource type="SystemFont" id="SystemFont_title"]
-font_names = PackedStringArray("C059", "P052", "DejaVu Serif", "Liberation Serif")
-antialiasing = 0
-hinting = 0
+[ext_resource type="FontFile" path="res://assets/fonts/UnifrakturMaguntia-Book.ttf" id="1_unifraktur"]
 
 [sub_resource type="FontVariation" id="FontVariation_title"]
-base_font = SubResource("SystemFont_title")
+base_font = ExtResource("1_unifraktur")
 variation_embolden = 0.9
 variation_transform = Transform2D(1, 0, -0.14, 1, 0, 0)
 spacing_glyph = 4

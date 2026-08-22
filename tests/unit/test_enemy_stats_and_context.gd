@@ -56,7 +56,7 @@ func test_gem_stats_defaults_and_authored() -> void:
 	assert_eq(GemDefault.scatter_gravity, 12.0)
 	assert_eq(GemDefault.magnet_accel, 30.0)
 	assert_eq(GemDefault.magnet_max_speed, 25.0)
-	assert_null(GemDefault.collect_cue)
+	assert_true(GemDefault.collect_cue is AudioCue, "gem chime authored on the default gem")
 
 
 func test_context_target_position_is_safe_without_target() -> void:

@@ -59,3 +59,12 @@ func _apply_radius() -> void:
 	if torus != null:
 		torus.outer_radius = maxf(radius, RING_WIDTH + 0.1)
 		torus.inner_radius = torus.outer_radius - RING_WIDTH
+	_apply_floor_shader()
+
+
+## The floor may use the void_floor shader; keep its edge fade in sync with the radius.
+func _apply_floor_shader() -> void:
+	var material: Material = floor_mesh.mesh.material if floor_mesh.mesh != null else null
+	if material is ShaderMaterial:
+		material.set_shader_parameter(&"radius", radius)
+		material.set_shader_parameter(&"center", global_position if is_inside_tree() else position)

@@ -144,9 +144,13 @@ func test_target_provider_reaches_projectiles() -> void:
 	assert_same(projectile.target_provider.call()[0], candidate)
 
 
-func test_cues_may_be_null() -> void:
-	assert_null(_weapon.stream_cue)
-	assert_null(_weapon.shotgun_cue)
+func test_cues_are_authored_and_may_be_null() -> void:
+	assert_true(_weapon.stream_cue is AudioCue, "dagger tick authored in the scene")
+	assert_true(_weapon.shotgun_cue is AudioCue, "shotgun thump authored in the scene")
+	_weapon.stream_cue = null
+	_weapon.shotgun_cue = null
+	for mode in [_weapon.get_node("StreamFire"), _weapon.get_node("ShotgunFire")]:
+		mode.cue = null
 	assert_eq(_weapon.update_fire(true, true, DT), 13, "no crash without cues")
 	assert_eq(AudioManager.playing_count(), 0)
 

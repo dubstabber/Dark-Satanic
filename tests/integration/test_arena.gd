@@ -33,9 +33,10 @@ func test_scene_layout() -> void:
 	assert_almost_eq(_arena.floor_mesh.position.y, -1.0, 0.001)
 	assert_eq(_cylinder().height, 2.0)
 	assert_eq(_cylinder().radial_segments, 64)
-	assert_true(_cylinder().material is StandardMaterial3D)
-	assert_true((_cylinder().material as StandardMaterial3D).albedo_texture is NoiseTexture2D)
-	assert_true((_cylinder().material as StandardMaterial3D).uv1_triplanar)
+	var material := _cylinder().material as ShaderMaterial
+	assert_not_null(material, "floor uses the void_floor shader")
+	assert_true(material.get_shader_parameter(&"noise_tex") is NoiseTexture2D)
+	assert_almost_eq(float(material.get_shader_parameter(&"radius")), 30.0, 0.001)
 	assert_almost_eq(_arena.edge_ring.position.y, 0.05, 0.001)
 	var kill_zone: KillZone = _arena.get_node("KillZone")
 	assert_eq(kill_zone.collision_layer, PhysicsLayers.KILL_ZONE)

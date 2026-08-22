@@ -1,12 +1,9 @@
 [gd_resource type="Theme" load_steps=7 format=3 uid="uid://pjc70aos23a03"]
 
-[sub_resource type="SystemFont" id="SystemFont_base"]
-font_names = PackedStringArray("C059", "P052", "DejaVu Serif", "Liberation Serif")
-antialiasing = 0
-hinting = 0
+[ext_resource type="FontFile" path="res://assets/fonts/PirataOne-Regular.ttf" id="1_pirata"]
 
 [sub_resource type="FontVariation" id="FontVariation_main"]
-base_font = SubResource("SystemFont_base")
+base_font = ExtResource("1_pirata")
 variation_embolden = 0.7
 variation_transform = Transform2D(1, 0, -0.14, 1, 0, 0)
 spacing_glyph = 2
@@ -62,7 +59,7 @@ border_color = Color(1, 1, 1, 1)
 
 [resource]
 default_font = SubResource("FontVariation_main")
-default_font_size = 22
+default_font_size = 28
 Button/colors/font_color = Color(1, 1, 1, 1)
 Button/colors/font_focus_color = Color(1, 1, 1, 1)
 Button/colors/font_hover_color = Color(1, 1, 1, 1)

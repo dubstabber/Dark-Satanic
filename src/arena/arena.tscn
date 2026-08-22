@@ -1,6 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://a2yi9iev4m2dp"]
+[gd_scene load_steps=13 format=3 uid="uid://a2yi9iev4m2dp"]
 
 [ext_resource type="Script" path="res://src/arena/arena.gd" id="1_arena"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/void_floor.gdshader" id="4_void_floor"]
 [ext_resource type="Script" path="res://src/arena/arena_shrinker.gd" id="2_shrinker"]
 [ext_resource type="Script" path="res://src/arena/kill_zone.gd" id="3_killzone"]
 
@@ -16,15 +17,18 @@ height = 256
 seamless = true
 noise = SubResource("FastNoiseLite_floor")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
-albedo_color = Color(0.22, 0.22, 0.22, 1)
-albedo_texture = SubResource("NoiseTexture2D_floor")
-roughness = 0.95
-uv1_triplanar = true
-uv1_scale = Vector3(0.15, 0.15, 0.15)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
+shader = ExtResource("4_void_floor")
+shader_parameter/noise_tex = SubResource("NoiseTexture2D_floor")
+shader_parameter/center = Vector3(0, 0, 0)
+shader_parameter/radius = 30.0
+shader_parameter/fade_width = 8.0
+shader_parameter/texel_scale = 0.15
+shader_parameter/brightness = 0.85
+shader_parameter/dither_cell = 3.0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_floor"]
-material = SubResource("StandardMaterial3D_floor")
+material = SubResource("ShaderMaterial_floor")
 top_radius = 30.0
 bottom_radius = 30.0
 height = 2.0
