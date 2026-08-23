@@ -1,9 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://ji65c35ssfyys"]
+[gd_scene load_steps=10 format=3 uid="uid://ji65c35ssfyys"]
 
 [ext_resource type="PackedScene" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" path="res://src/enemies/resources/stats/glutton.tres" id="2_stats"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/gem_seek_behavior.gd" id="3_gem_seek"]
 [ext_resource type="Script" path="res://src/enemies/gem_eater_component.gd" id="4_eater"]
+[ext_resource type="ArrayMesh" uid="uid://bgjxkackrj4dy" path="res://assets/models/meshes/glutton.res" id="5_mesh"]
+[ext_resource type="Texture2D" uid="uid://b6xj5ssv2l5gx" path="res://assets/textures/glutton.png" id="6_tex"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_glutton"]
 radius = 1.0
@@ -13,20 +15,12 @@ height = 1.3
 radius = 1.1
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glutton"]
-albedo_color = Color(0.6, 0.58, 0.55, 1)
+albedo_color = Color(0.85, 0.83, 0.8, 1)
+albedo_texture = ExtResource("6_tex")
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 0.2
-
-[sub_resource type="SphereMesh" id="SphereMesh_glutton"]
-radius = 1.0
-height = 2.0
-radial_segments = 14
-rings = 7
-
-[sub_resource type="TorusMesh" id="TorusMesh_mouth"]
-inner_radius = 0.35
-outer_radius = 0.6
+emission_energy_multiplier = 0.25
+emission_texture = ExtResource("6_tex")
 
 [node name="Enemy" instance=ExtResource("1_base")]
 stats = ExtResource("2_stats")
@@ -42,14 +36,9 @@ script = ExtResource("3_gem_seek")
 idle_radius = 10.0
 
 [node name="Mesh" parent="Visual" index="0"]
-transform = Transform3D(1, 0, 0, 0, 0.65, 0, 0, 0, 1, 0, 0, 0)
+transform = Transform3D(-1, 0, 0, 0, 0.65, 0, 0, 0, -1, 0, 0, 0)
 material_override = SubResource("StandardMaterial3D_glutton")
-mesh = SubResource("SphereMesh_glutton")
-
-[node name="Mouth" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, -0.1, -0.85)
-material_override = SubResource("StandardMaterial3D_glutton")
-mesh = SubResource("TorusMesh_mouth")
+mesh = ExtResource("5_mesh")
 
 [node name="GemEater" type="Area3D" parent="."]
 collision_layer = 64

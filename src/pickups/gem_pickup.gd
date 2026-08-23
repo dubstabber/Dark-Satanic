@@ -44,6 +44,9 @@ func _ready() -> void:
 				mesh_instance = child
 				break
 	if mesh_instance != null and mesh_instance.mesh == null:
+		# The scene fits the crystal model with a scale and offset on this node; the fallback
+		# octahedron is built at its final size, so it starts from an identity transform.
+		mesh_instance.transform = Transform3D.IDENTITY
 		mesh_instance.mesh = GemMesh.octahedron(mesh_half_width, mesh_half_height)
 	_apply_magnet_radius()
 	area_entered.connect(_on_area_entered)

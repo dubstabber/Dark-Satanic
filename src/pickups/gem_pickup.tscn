@@ -1,7 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://r6pgaokpn3j4l"]
+[gd_scene load_steps=8 format=3 uid="uid://r6pgaokpn3j4l"]
 
 [ext_resource type="Script" path="res://src/pickups/gem_pickup.gd" id="1_gem"]
 [ext_resource type="Resource" path="res://src/pickups/resources/gem_default.tres" id="2_stats"]
+[ext_resource type="ArrayMesh" uid="uid://mvx6ops1wcj1" path="res://assets/models/meshes/gem.res" id="3_mesh"]
+[ext_resource type="Texture2D" uid="uid://5qmsa2byfcu7" path="res://assets/textures/gem.png" id="4_tex"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
 radius = 0.45
@@ -11,6 +13,7 @@ radius = 4.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gem"]
 albedo_color = Color(0.9, 0.9, 0.9, 1)
+albedo_texture = ExtResource("4_tex")
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 2.0
@@ -34,4 +37,6 @@ monitorable = false
 shape = SubResource("SphereShape3D_magnet")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.52, 0, 0, 0, 0.52, 0, 0, 0, 0.52, 0, 0.05, 0)
 material_override = SubResource("StandardMaterial3D_gem")
+mesh = ExtResource("3_mesh")

@@ -60,9 +60,9 @@ jobs:
       - name: Script size and autoload rules
         run: tools/check_script_sizes.sh
 
-      - name: Fail if import generated uncommitted files (.uid / .import)
+      - name: Fail if import generated uncommitted files (.uid / .import / .res)
         run: |
-          git status --porcelain -- '*.uid' '*.import' | tee /tmp/dirty.txt
+          git status --porcelain -- '*.uid' '*.import' 'assets/models/meshes/*.res' | tee /tmp/dirty.txt
           test ! -s /tmp/dirty.txt
 
       - name: Upload test results

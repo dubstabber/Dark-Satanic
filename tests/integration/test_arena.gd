@@ -38,7 +38,9 @@ func test_scene_layout() -> void:
 	assert_eq(_arena.floor_mesh.scale, Vector3(30, 1, 30))
 	var material := _cylinder().material as ShaderMaterial
 	assert_not_null(material, "floor uses the void_floor shader")
-	assert_true(material.get_shader_parameter(&"noise_tex") is NoiseTexture2D)
+	var floor_tex := material.get_shader_parameter(&"noise_tex") as Texture2D
+	assert_not_null(floor_tex, "floor albedo is the baked bone flagstone texture")
+	assert_eq(floor_tex.resource_path, "res://assets/textures/floor_bone.png")
 	assert_almost_eq(float(material.get_shader_parameter(&"radius")), 30.0, 0.001)
 	assert_almost_eq(_arena.edge_ring.position.y, 0.05, 0.001)
 	var kill_zone: KillZone = _arena.get_node("KillZone")

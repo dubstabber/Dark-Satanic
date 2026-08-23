@@ -3,13 +3,16 @@
 [ext_resource type="PackedScene" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" path="res://src/enemies/resources/stats/vesper.tres" id="2_stats"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/orbit_dive_behavior.gd" id="3_orbit_dive"]
+[ext_resource type="ArrayMesh" uid="uid://lcjhdedkx62p" path="res://assets/models/meshes/vesper.res" id="4_mesh"]
+[ext_resource type="Texture2D" uid="uid://4ggv0fwa54r8" path="res://assets/textures/vesper.png" id="5_tex"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vesper"]
 radius = 0.3
 height = 1.6
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vesper"]
-albedo_color = Color(0.08, 0.08, 0.08, 1)
+albedo_color = Color(0.9, 0.9, 0.9, 1)
+albedo_texture = ExtResource("5_tex")
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 0.05
@@ -19,9 +22,6 @@ albedo_color = Color(1, 1, 1, 1)
 emission_enabled = true
 emission = Color(1, 1, 1, 1)
 emission_energy_multiplier = 2.5
-
-[sub_resource type="PrismMesh" id="PrismMesh_vesper"]
-size = Vector3(0.6, 1.6, 0.6)
 
 [sub_resource type="SphereMesh" id="SphereMesh_tip"]
 radius = 0.12
@@ -44,9 +44,9 @@ shape = SubResource("CapsuleShape3D_vesper")
 script = ExtResource("3_orbit_dive")
 
 [node name="Mesh" parent="Visual" index="0"]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+transform = Transform3D(0.852858, 0.0516789, -0.1639, 0.0516789, 0.714205, 0.494106, 0.1639, -0.494106, 0.697062, 0.0876457, -0.0897144, -0.251601)
 material_override = SubResource("StandardMaterial3D_vesper")
-mesh = SubResource("PrismMesh_vesper")
+mesh = ExtResource("4_mesh")
 
 [node name="Tip" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.85)

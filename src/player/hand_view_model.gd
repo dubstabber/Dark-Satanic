@@ -1,8 +1,8 @@
 class_name HandViewModel
 extends Node3D
-## First-person hands: placeholder finger meshes that sway with the mouse and kick
+## First-person hand: the view-model mesh that sways with the mouse and kicks
 ## back when firing. The `Muzzle` Marker3D child is where daggers leave from.
-## Meshes and materials live in player.tscn so a designer can swap them.
+## The mesh and material live in player.tscn so a designer can swap them.
 
 ## Metres of sway per pixel of look delta.
 @export_range(0.0, 0.01, 0.0001) var sway_per_pixel: float = 0.0006

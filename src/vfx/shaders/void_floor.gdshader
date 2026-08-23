@@ -5,7 +5,7 @@ render_mode cull_back, depth_draw_opaque;
 
 #include "res://src/vfx/shaders/includes/dither.gdshaderinc"
 
-uniform sampler2D noise_tex : repeat_enable, filter_nearest;
+uniform sampler2D noise_tex : repeat_enable, filter_nearest_mipmap;
 uniform vec3 center = vec3(0.0, 0.0, 0.0);
 uniform float radius : hint_range(1.0, 200.0, 0.5) = 30.0;
 uniform float fade_width : hint_range(0.1, 50.0, 0.1) = 8.0;

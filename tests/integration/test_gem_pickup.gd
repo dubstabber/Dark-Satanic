@@ -64,8 +64,13 @@ func test_scene_layout_and_value() -> void:
 	var magnet_shape: CollisionShape3D = gem.magnet_area.get_node("CollisionShape3D")
 	assert_almost_eq(magnet_shape.shape.radius, 4.0, 0.001)
 	assert_eq(gem.magnet_area.collision_mask, PhysicsLayers.PICKUP)
-	assert_not_null(gem.mesh_instance.mesh, "octahedron built in _ready")
-	assert_eq(gem.mesh_instance.mesh.get_faces().size(), 24, "8 triangles")
+	assert_not_null(gem.mesh_instance.mesh, "scene ships the crystal model")
+	assert_eq(gem.mesh_instance.mesh.resource_path, "res://assets/models/meshes/gem.res")
+	var gem_material := gem.mesh_instance.material_override as StandardMaterial3D
+	assert_eq(gem_material.albedo_texture.resource_path, "res://assets/textures/gem.png")
+	var aabb: AABB = gem.mesh_instance.transform * gem.mesh_instance.get_aabb()
+	assert_almost_eq(aabb.size.x, 0.6, 0.05, "model fits the 0.6 m wide drop-in spec")
+	assert_almost_eq(aabb.size.y, 0.9, 0.05, "model fits the 0.9 m tall drop-in spec")
 
 
 func test_value_and_magnet_radius_come_from_stats() -> void:
@@ -271,12 +276,15 @@ func test_consume_spawns_collect_vfx_next_to_the_gem() -> void:
 	assert_eq((sparkles[0] as Node3D).position, Vector3(1, 0.35, 2))
 
 
-func test_mesh_dimensions_are_exported() -> void:
+func test_octahedron_fallback_uses_exported_dimensions() -> void:
 	var gem: GemPickup = GemScene.instantiate()
+	(gem.get_node("Mesh") as MeshInstance3D).mesh = null
 	gem.mesh_half_width = 0.6
 	gem.mesh_half_height = 0.9
 	_world.add_child(gem)
 	gem.set_physics_process(false)
-	var aabb := gem.mesh_instance.mesh.get_aabb()
+	assert_eq(gem.mesh_instance.mesh.get_faces().size(), 24, "octahedron built when the mesh is empty")
+	assert_eq(gem.mesh_instance.transform, Transform3D.IDENTITY, "the model's fit transform is dropped with it")
+	var aabb: AABB = gem.mesh_instance.transform * gem.mesh_instance.mesh.get_aabb()
 	assert_almost_eq(aabb.size.x, 1.2, 0.001)
 	assert_almost_eq(aabb.size.y, 1.8, 0.001)

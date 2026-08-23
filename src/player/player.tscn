@@ -11,25 +11,21 @@
 [ext_resource type="Script" path="res://src/components/health_component.gd" id="9_health"]
 [ext_resource type="PackedScene" path="res://src/components/hurtbox_component.tscn" id="10_hurtbox"]
 [ext_resource type="Script" path="res://src/player/pickup_collector.gd" id="11_pickup"]
+[ext_resource type="ArrayMesh" uid="uid://bhduj5w0amnvh" path="res://assets/models/meshes/hand.res" id="12_hand_mesh"]
+[ext_resource type="Texture2D" uid="uid://domlb3tkm6bfs" path="res://assets/textures/hand.png" id="13_hand_tex"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.4
 height = 1.7
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bone"]
-albedo_color = Color(0.88, 0.86, 0.8, 1)
+albedo_color = Color(0.92, 0.9, 0.85, 1)
+albedo_texture = ExtResource("13_hand_tex")
 roughness = 0.9
 emission_enabled = true
 emission = Color(0.88, 0.86, 0.8, 1)
-emission_energy_multiplier = 0.3
-
-[sub_resource type="BoxMesh" id="BoxMesh_finger_l"]
-material = SubResource("StandardMaterial3D_bone")
-size = Vector3(0.05, 0.05, 0.3)
-
-[sub_resource type="BoxMesh" id="BoxMesh_finger_r"]
-material = SubResource("StandardMaterial3D_bone")
-size = Vector3(0.05, 0.05, 0.26)
+emission_energy_multiplier = 0.22
+emission_texture = ExtResource("13_hand_tex")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurt"]
 radius = 0.35
@@ -73,16 +69,13 @@ fov = 100.0
 near = 0.05
 
 [node name="HandViewModel" type="Node3D" parent="CameraRig/Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, -0.22, -0.45)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, -0.2, -0.42)
 script = ExtResource("7_hands")
 
-[node name="FingerL" type="MeshInstance3D" parent="CameraRig/Camera3D/HandViewModel"]
-transform = Transform3D(0.996195, 0, -0.0871557, 0, 1, 0, 0.0871557, 0, 0.996195, -0.035, 0, 0)
-mesh = SubResource("BoxMesh_finger_l")
-
-[node name="FingerR" type="MeshInstance3D" parent="CameraRig/Camera3D/HandViewModel"]
-transform = Transform3D(0.996195, 0, 0.0871557, 0, 1, 0, -0.0871557, 0, 0.996195, 0.035, 0, 0.02)
-mesh = SubResource("BoxMesh_finger_r")
+[node name="Hand" type="MeshInstance3D" parent="CameraRig/Camera3D/HandViewModel"]
+transform = Transform3D(0.126154, 0.069492, -0.041906, -0.0431478, 0.123045, 0.0741506, 0.0687278, -0.0503082, 0.123473, 0.0149711, 0.0163661, -0.0100012)
+material_override = SubResource("StandardMaterial3D_bone")
+mesh = ExtResource("12_hand_mesh")
 
 [node name="Muzzle" type="Marker3D" parent="CameraRig/Camera3D/HandViewModel"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.2)

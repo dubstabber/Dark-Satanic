@@ -1,8 +1,18 @@
 # Asset generation prompts — Dark Satanic
 
-Everything in the game is currently a procedural placeholder (primitive meshes, noise textures, sox audio). This
-file lists every asset worth replacing, the prompt to generate it with an external service, and the technical
+This file lists every asset worth replacing, the prompt to generate it with an external service, and the technical
 constraints it must meet to drop straight into the existing scenes (paths, sizes, orientation, formats).
+
+Status (2026-08-23): sections 1–3.1 and 6 are in — the five enemy models, dagger, gem, hand, the floor texture and
+all audio ship as real assets; `base_enemy.tscn`, the VFX sprites (4), the UI art (5), the edge ring (3.2) and the
+extras (7) are still procedural placeholders.
+
+Drop-in workflow for a replaced `.glb`: copy it over the file in `assets/models/` (keep the name), run
+`tools/bake_textures.py <name>` for its greyscale albedo (names: weeper, mourner, lament, vesper, glutton, gem,
+dagger, hand, floor), then `tools/run_tests.sh` — the import regenerates `assets/models/meshes/<name>.res`. If the
+mesh name *inside* the new export differs from the old one, update the key under `_subresources/meshes` in the
+`.glb.import` (or re-tick "Save to File" in the editor's Advanced Import dialog) or the `.res` silently stops being
+regenerated. Finally re-fit the `Mesh` node transform in the scene named below and commit the regenerated `.res`.
 
 ## Global style sheet (prepend to every visual prompt)
 
@@ -23,9 +33,11 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
 - Budget: 300–3000 triangles per enemy, ≤ 500 for props. Single 512² or 1024² greyscale albedo (PNG) is plenty;
   an emissive mask (white = glows) is the one map that reads well through the dither.
 - Drop `.glb` files into `assets/models/` and textures into `assets/textures/` (both are LFS-tracked by
-  extension). Then open the scene named in each entry and swap the `mesh` of the `Visual` MeshInstance3D (or
-  replace the MeshInstance3D with the imported scene). Keep the collision shapes as they are — the listed sizes
-  are the shapes the gameplay is tuned to; the model should fill them.
+  extension). Then open the scene named in each entry and swap the `mesh` of the `Visual` MeshInstance3D (the
+  current scenes point it at the `assets/models/meshes/*.res` Godot saves from the `.glb` on import). Keep the
+  collision shapes as they are — the listed sizes are the shapes the gameplay is tuned to; the model should fill
+  them. Generated models tend to come as a ±1 cube facing +Z (the Tripo weeper faced +X), so expect to set a
+  scale and a yaw on the `Mesh` node; the `Transform3D(...)` literal in a `.tscn` lists the basis **rows**.
 - Materials: keep `StandardMaterial3D` with `albedo_color` near white/grey and `emission` as in the scene, or
   `MaterialFactory.toon(...)` (`src/vfx/procedural/material_factory.gd`).
 

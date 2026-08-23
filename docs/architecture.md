@@ -157,7 +157,35 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
 - `src/vfx/particles/*` + `OneShotVfx` are wired: `death_burst.tscn` is the `DeathHandler.death_vfx` of
   `base_enemy.tscn`, `hit_spark.tscn` the default `DaggerProjectile.hit_vfx`, `gem_sparkle.tscn` the
   `GemStats.collect_vfx`. `MeshFactory` / `MaterialFactory` (static, cached builders) are a tested toolkit for
-  future procedural meshes (the archetype scenes still use primitive meshes).
+  procedural meshes (`base_enemy.tscn` and the `GemPickup` octahedron fallback still use primitives).
+
+### Models and textures (`assets/models`, `assets/textures`)
+- Source models are the Tripo `.glb` exports in `assets/models/` (LFS). Their `.import` files discard the
+  embedded 2048² RGB albedos (`gltf/embedded_image_handling=0`) and save each mesh to
+  `assets/models/meshes/<name>.res` (`_subresources/meshes/<mesh name>/save_to_file`, regenerated
+  deterministically on import, committed through LFS). The key under `_subresources/meshes` is the mesh name
+  *inside* that `.glb` (a Tripo temp name), so a replacement export needs its key updated — or the `.res`
+  silently stops being regenerated; CI's uncommitted-files gate covers `*.res` for exactly that reason.
+  Scenes reference those `.res` meshes from a plain `MeshInstance3D` (`Visual/Mesh` in the archetypes, `Mesh`
+  in `dagger_projectile.tscn` / `gem_pickup.tscn`, `Hand` under `HandViewModel`), so `EnemyVisual`,
+  `GemPickup.mesh_instance` and `DaggerProjectile` keep working unchanged; the node transform does the fit to
+  the collision shapes (every export is a ±1 cube, the weeper mesh is Z-up and faces +X, the others face +Z).
+  A `.tscn` `Transform3D(...)` literal lists the basis **rows**, not the axis columns.
+- `tools/bake_textures.py` writes the in-game greyscale albedos to `assets/textures/*.png` (1024², 512² for
+  gem/dagger) from the images embedded in the `.glb`s, lifting the dark ones to a target mean so they survive
+  the black crush, and builds `floor_bone.png` from `assets/source/floor1.jpg`. ImageMagick only decodes and
+  encodes; the pixel work (gamma LUT, seamless wrap) happens in the script, so re-baking is byte-identical.
+  The floor is made to tile by rolling it half a turn — which moves the mismatched borders to the middle —
+  and cross-fading a quarter-turn copy over that middle seam, once per axis; the blend band never reaches
+  the border, so the wrap stays exact.
+- Materials use the baked texture as `albedo_texture`, and the enemy/hand ones also as `emission_texture`.
+  Godot's default `EMISSION_OP_ADD` makes emission `(colour + texel) * energy`, so the texture *lifts* the
+  bright texels rather than masking the dark ones; the archetype energies are set for that, and the hit flash
+  stays at `EnemyVisual.flash_emission`'s default 2.0 (anything above it clips to the same white silhouette,
+  since `void_environment.tres` has no glow and a linear tonemap). The dagger material is `shading_mode = 0`
+  (unshaded), which makes its emission — including `DaggerProjectile`'s per-tier `emission_energy` — inert;
+  only its `albedo_color`/`albedo_texture` are visible.
+- `assets/source/` (`.gdignore`d) holds non-imported originals: `weeper.blend`, `floor1.jpg`.
 
 ### Audio (`assets/audio`)
 - `tools/gen_audio.sh` generates `assets/audio/sfx/*.ogg` (LFS). `assets/audio/cues/*.tres` are `AudioCue`

@@ -1,26 +1,15 @@
-[gd_scene format=3 uid="uid://2yjaiev4m2dp"]
+[gd_scene load_steps=12 format=3 uid="uid://2yjaiev4m2dp"]
 
 [ext_resource type="Script" path="res://src/arena/arena.gd" id="1_arena"]
 [ext_resource type="Shader" path="res://src/vfx/shaders/void_floor.gdshader" id="4_void_floor"]
 [ext_resource type="Script" path="res://src/arena/arena_shrinker.gd" id="2_shrinker"]
 [ext_resource type="Script" path="res://src/arena/kill_zone.gd" id="3_killzone"]
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_floor"]
-noise_type = 2
-seed = 7
-frequency = 0.08
-fractal_octaves = 3
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_floor"]
-width = 256
-height = 256
-seamless = true
-noise = SubResource("FastNoiseLite_floor")
+[ext_resource type="Texture2D" uid="uid://b54vq4rtu3l4h" path="res://assets/textures/floor_bone.png" id="5_floor_tex"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 resource_local_to_scene = true
 shader = ExtResource("4_void_floor")
-shader_parameter/noise_tex = SubResource("NoiseTexture2D_floor")
+shader_parameter/noise_tex = ExtResource("5_floor_tex")
 shader_parameter/center = Vector3(0, 0, 0)
 shader_parameter/radius = 30.0
 shader_parameter/fade_width = 8.0

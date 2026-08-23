@@ -37,3 +37,6 @@ Thumbs.db
 
 # Claude Code worktrees / local state
 .claude/
+
+# Blender autosave backups next to assets/source/*.blend
+*.blend1
