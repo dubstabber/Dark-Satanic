@@ -111,11 +111,11 @@ func test_lament_spawner_emits_weepers_after_initial_delay() -> void:
 	var lament := _spawn(Lament)
 	var spawner: SpawnerComponent = lament.get_node("Spawner")
 	assert_true(spawner.autonomous)
-	assert_eq(spawner.interval, 8.0)
+	assert_eq(spawner.interval, 5.0)
 	assert_eq(spawner.max_alive, 12)
 	assert_eq(spawner.max_emissions, 12)
 	spawner.autonomous = false
-	assert_eq(spawner.advance(2.9), 0)
+	assert_eq(spawner.advance(2.4), 0)
 	assert_eq(spawner.advance(0.2), 3)
 	await wait_process_frames(2)
 	assert_eq(_count(Enemy), 4, "3 weepers next to the lament")
@@ -123,8 +123,22 @@ func test_lament_spawner_emits_weepers_after_initial_delay() -> void:
 		if child is Enemy and child != lament:
 			assert_same(child.target, _target, "weepers inherit the target")
 			assert_eq(child.stats.display_name, "Weeper")
+			assert_between(child.global_position.y, 1.2, 3.5, "released from the crown, not the floor")
 	spawner.can_spawn = func() -> bool: return false
 	assert_eq(spawner.advance(8.0), 0, "director veto respected")
+
+
+func test_lament_eye_flares_when_a_burst_releases() -> void:
+	var lament := _spawn(Lament)
+	lament.set_physics_process(false)
+	var spawner: SpawnerComponent = lament.get_node("Spawner")
+	spawner.autonomous = false
+	var eye: Node3D = lament.get_node("Visual/Eye")
+	assert_lt(eye.scale.x, 0.5, "eye starts closed while the nest wakes")
+	spawner.spawn_burst(1)
+	await wait_process_frames(3)
+	assert_gt(eye.scale.x, 1.0, "eye flares open on release")
+	await wait_process_frames(2)
 
 
 func test_mourner_bursts_weepers_on_death() -> void:
@@ -215,7 +229,7 @@ func test_lament_weak_point_is_not_shadowed_by_its_armour() -> void:
 	assert_eq(lament.aim_position(), weak_point.global_position, "homing aims at the eye")
 
 
-func test_lament_weepers_spawn_on_the_floor() -> void:
+func test_lament_weepers_release_from_the_crown() -> void:
 	var arena := Node.new()
 	var script := GDScript.new()
 	script.source_code = "extends Node\nfunc info() -> ArenaInfo:\n\treturn ArenaInfo.new(Vector3.ZERO, 30.0, 1.0)\n"
@@ -229,19 +243,22 @@ func test_lament_weepers_spawn_on_the_floor() -> void:
 	_world.add_child(lament)
 	lament.set_physics_process(false)
 	var spawner: SpawnerComponent = lament.get_node("Spawner")
-	assert_true(spawner.spawn_on_floor)
+	assert_false(spawner.spawn_on_floor, "weepers no longer drop to the floor")
 	spawner.autonomous = false
-	assert_eq(spawner.advance(3.1), 3)
+	assert_eq(spawner.advance(2.6), 3)
 	await wait_process_frames(2)
 	var weepers := 0
 	for child in _world.get_children():
 		if child is Enemy and child != lament:
 			weepers += 1
 			child.set_physics_process(false)
-			assert_almost_eq(child.global_position.y, 1.45, 0.1, "floor_y 1.0 + weeper min_height 0.45 (bob may have ticked)")
-			for i in 30:
+			assert_almost_eq(child.global_position.y, 6.6, 0.7, "released at the crown: nest 4.5 + SpawnPoint 2.1 (bob may have ticked)")
+			var flat: Vector3 = child.global_position - lament.global_position
+			flat.y = 0.0
+			assert_lt(flat.length(), 1.0, "clustered on the crown, not scattered under the nest")
+			for i in 90:
 				child.advance(1.0 / 60.0)
-			assert_true(child.global_position.y <= 1.0 + 1.65, "stays within the player's reach")
+			assert_lt(child.global_position.y, 5.5, "dives down toward the player after release")
 	assert_eq(weepers, 3)
 
 

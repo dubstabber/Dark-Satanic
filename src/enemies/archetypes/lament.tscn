@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://y0ex29vkgx8mr"]
+[gd_scene load_steps=18 format=3 uid="uid://y0ex29vkgx8mr"]
 
 [ext_resource type="PackedScene" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" path="res://src/enemies/resources/stats/lament.tres" id="2_stats"]
@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://c3vqpqytvyusw" path="res://assets/textures/lament.png" id="8_tex"]
 [ext_resource type="Resource" path="res://assets/audio/cues/spawner_groan.tres" id="9_groan"]
 [ext_resource type="Texture2D" path="res://assets/textures/lament_eye.png" id="10_eye_tex"]
+[ext_resource type="Script" path="res://src/enemies/spawner_visual.gd" id="11_spawner_visual"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_lament"]
 radius = 1.3
@@ -80,16 +81,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, 0)
 [node name="CollisionShape3D" parent="WeakPoint" index="0"]
 shape = SubResource("SphereShape3D_weak")
 
-[node name="Spawner" type="Node" parent="."]
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)
+
+[node name="Spawner" type="Node" parent="." node_paths=PackedStringArray("spawn_point")]
 script = ExtResource("4_spawner")
 scene = ExtResource("5_weeper")
-interval = 8.0
+interval = 5.0
 burst = 3
-initial_delay = 3.0
+initial_delay = 2.5
 max_alive = 12
 max_emissions = 12
-spawn_radius = 2.0
-spawn_on_floor = true
+spawn_radius = 0.6
+spawn_point = NodePath("../SpawnPoint")
 enabled = true
 autonomous = true
 emit_cue = ExtResource("9_groan")
+
+[node name="SpawnerVisual" type="Node" parent="." node_paths=PackedStringArray("spawner", "eye")]
+script = ExtResource("11_spawner_visual")
+spawner = NodePath("../Spawner")
+eye = NodePath("../Visual/Eye")
