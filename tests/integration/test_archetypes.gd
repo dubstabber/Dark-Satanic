@@ -281,9 +281,12 @@ func test_glutton_colliders_match_the_squashed_body() -> void:
 	assert_almost_eq(eater_shape.radius, 1.1, 0.001, "reach volume untouched")
 
 
-func test_weeper_has_no_spawn_cue_and_death_vfx_is_wired() -> void:
+func test_weeper_spawn_cue_is_soft_and_death_vfx_is_wired() -> void:
 	var weeper := _spawn(Weeper)
-	assert_null(weeper.stats.spawn_cue, "a skull ring must not sound like a massacre")
+	var spawn_cue: AudioCue = weeper.stats.spawn_cue
+	assert_not_null(spawn_cue, "weepers announce themselves with the soft skull_arrive cue")
+	assert_eq(spawn_cue.resource_path, "res://assets/audio/cues/skull_arrive.tres")
+	assert_lte(spawn_cue.volume_db, -12.0, "a skull ring must not sound like a massacre")
 	assert_not_null(weeper.stats.death_cue)
 	for scene: PackedScene in [Weeper, Mourner, Lament, Vesper, Glutton]:
 		var enemy := _spawn(scene)

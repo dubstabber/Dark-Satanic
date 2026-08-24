@@ -4,9 +4,11 @@ extends GameTest
 const CUE_DIR := "res://assets/audio/cues"
 const SFX_NAMES: Array[String] = [
 	"dagger_tick", "shotgun_thump", "hit", "skull_screech", "spawner_groan",
-	"gem_chime", "tier_up", "death_stinger", "ui_click",
+	"gem_chime", "tier_up", "death_stinger", "ui_click", "skull_arrive", "whispers",
 ]
 const LOOP_NAMES: Array[String] = ["amb_drone", "menu_hum"]
+## Cues holding several takes that pick_stream() randomizes between.
+const MULTI_TAKE_NAMES: Array[String] = ["whispers"]
 const VALID_BUSES: Array[StringName] = [&"SFX", &"UI", &"Music"]
 
 
@@ -21,6 +23,11 @@ func _stream(cue_name: String) -> AudioStreamOggVorbis:
 	if cue == null or cue.streams.is_empty():
 		return null
 	return cue.streams[0] as AudioStreamOggVorbis
+
+
+func _streams(cue_name: String) -> Array[AudioStream]:
+	var cue := _cue(cue_name)
+	return [] as Array[AudioStream] if cue == null else cue.streams
 
 
 func test_every_expected_cue_file_exists() -> void:
@@ -43,10 +50,14 @@ func test_every_cue_is_playable_with_an_ogg_stream() -> void:
 	for cue_name in SFX_NAMES + LOOP_NAMES:
 		var cue := _cue(cue_name)
 		assert_true(cue.is_playable(), "%s is playable" % cue_name)
-		assert_eq(cue.streams.size(), 1, "%s has exactly one stream" % cue_name)
-		var stream := _stream(cue_name)
-		assert_not_null(stream, "%s stream is AudioStreamOggVorbis" % cue_name)
-		assert_gt(stream.get_length(), 0.0, "%s has a length" % cue_name)
+		if MULTI_TAKE_NAMES.has(cue_name):
+			assert_gt(cue.streams.size(), 1, "%s has several takes" % cue_name)
+		else:
+			assert_eq(cue.streams.size(), 1, "%s has exactly one stream" % cue_name)
+		for stream in _streams(cue_name):
+			var ogg := stream as AudioStreamOggVorbis
+			assert_not_null(ogg, "%s stream is AudioStreamOggVorbis" % cue_name)
+			assert_gt(ogg.get_length(), 0.0, "%s has a length" % cue_name)
 
 
 func test_cue_ranges_are_sane() -> void:
@@ -62,9 +73,10 @@ func test_cue_ranges_are_sane() -> void:
 
 func test_sfx_are_short_and_not_looping() -> void:
 	for cue_name in SFX_NAMES:
-		var stream := _stream(cue_name)
-		assert_lt(stream.get_length(), 4.0, "%s shorter than 4 s" % cue_name)
-		assert_false(stream.loop, "%s does not loop" % cue_name)
+		for raw in _streams(cue_name):
+			var stream := raw as AudioStreamOggVorbis
+			assert_lt(stream.get_length(), 4.0, "%s shorter than 4 s" % cue_name)
+			assert_false(stream.loop, "%s does not loop" % cue_name)
 		assert_true(_cue(cue_name).bus in [&"SFX", &"UI"], "%s on SFX/UI" % cue_name)
 
 
@@ -106,4 +118,6 @@ func test_loops_are_stereo_and_sfx_are_mono_sized() -> void:
 	for cue_name in LOOP_NAMES:
 		shortest_loop = minf(shortest_loop, _stream(cue_name).get_length())
 	for cue_name in SFX_NAMES:
-		assert_lt(_stream(cue_name).get_length(), shortest_loop, cue_name)
+		for raw in _streams(cue_name):
+			var stream := raw as AudioStreamOggVorbis
+			assert_lt(stream.get_length(), shortest_loop, cue_name)
