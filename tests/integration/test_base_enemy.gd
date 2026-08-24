@@ -268,3 +268,31 @@ func test_contact_hitbox_waits_while_the_mover_is_rising() -> void:
 		enemy.advance(0.05)
 	assert_false(enemy.mover.is_rising())
 	assert_true(enemy.contact_hitbox.active)
+
+
+func test_the_hit_flash_does_not_retrigger_while_it_is_still_playing() -> void:
+	var enemy := _spawn()
+	var visual := enemy.visual
+	visual.flash()
+	assert_true(visual.is_flashing())
+	var lit: float = visual.material().emission_energy_multiplier
+	# A tier-IV stream lands ~40 hits a second; without the guard this pinned the mesh white.
+	for i in 20:
+		visual.flash()
+	assert_almost_eq(visual.material().emission_energy_multiplier, lit, 0.0001, "still the same flash")
+	await wait_seconds(visual.flash_duration + 0.05)
+	assert_false(visual.is_flashing(), "and it finishes")
+	visual.flash()
+	assert_true(visual.is_flashing(), "then a new hit can flash again")
+
+
+func test_the_death_burst_is_sized_by_what_died() -> void:
+	var enemy := _spawn()
+	assert_almost_eq(enemy.death_handler.vfx_scale, Enemy.death_burst_scale(enemy.stats), 0.0001)
+	var weeper: EnemyStats = load("res://src/enemies/resources/stats/weeper.tres")
+	var mourner: EnemyStats = load("res://src/enemies/resources/stats/mourner.tres")
+	var boss: EnemyStats = load("res://src/enemies/resources/stats/tenebrae.tres")
+	assert_lt(Enemy.death_burst_scale(weeper), Enemy.death_burst_scale(mourner), "1 HP pops smaller than 12")
+	assert_lt(Enemy.death_burst_scale(mourner), Enemy.death_burst_scale(boss))
+	assert_between(Enemy.death_burst_scale(boss), 1.0, 3.0, "but never fills the arena")
+	assert_eq(Enemy.death_burst_scale(null), 1.0)

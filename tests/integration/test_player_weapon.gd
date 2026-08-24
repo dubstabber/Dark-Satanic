@@ -68,3 +68,22 @@ func test_camera_rig_height_comes_from_movement_stats() -> void:
 	(other.get_node("MovementController") as MovementController).stats = stats
 	_world.add_child(other)
 	assert_almost_eq(other.camera_rig.position.y, 2.25, 0.0001, "stat applied, not the scene's transform")
+
+
+func test_the_shotgun_shakes_the_camera_and_the_stream_does_not() -> void:
+	assert_eq(_player.camera_rig.trauma(), 0.0)
+	_input.push(FakeInputReader.frame(Vector3.ZERO, false, false, true, false))
+	_player.advance(DT)
+	# One stream dagger adds less trauma than a tick of decay removes, on purpose: a
+	# 15-shots-a-second stream that shook the screen would be unplayable.
+	assert_eq(_player.camera_rig.trauma(), 0.0, "the stream does not shake")
+	_input.push(FakeInputReader.frame(Vector3.ZERO, false, false, false, true))
+	_player.advance(DT)
+	assert_gt(_player.camera_rig.trauma(), 0.0, "the volley is a real shove")
+	assert_gt(_player.weapon_holder.shotgun_kick, _player.weapon_holder.stream_kick)
+
+
+func test_a_hard_landing_shakes_the_camera() -> void:
+	_player.movement.landed.emit(12.0)
+	assert_gt(_player.camera_rig.trauma(), 0.0)
+	assert_gt(_player.camera_rig.dip(), 0.0, "the dip is still there too")

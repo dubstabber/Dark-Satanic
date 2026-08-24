@@ -15,6 +15,9 @@ signal handled
 ## points this at VfxContainer, because a burst left in EnemyContainer would be
 ## counted as an enemy ("is this an enemy" means "does it live in there").
 @export var vfx_root: Node
+## Uniform scale applied to the death VFX. Enemy sets it from stats, so a 1 HP skull
+## does not pop like a 12 HP tank.
+@export_range(0.1, 6.0, 0.05) var vfx_scale: float = 1.0
 
 var _free_target: Node
 var _free_remaining: float = -1.0
@@ -59,6 +62,7 @@ func handle_death() -> void:
 		var vfx := death_vfx.instantiate()
 		if vfx is Node3D:
 			vfx.position = root.to_local(position) if root is Node3D and root.is_inside_tree() else position
+			(vfx as Node3D).scale = Vector3.ONE * vfx_scale
 		root.add_child.call_deferred(vfx)
 	if death_cue != null:
 		AudioManager.play(death_cue, position)

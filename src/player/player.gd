@@ -17,6 +17,12 @@ signal died(cause: StringName)
 @onready var camera_rig: CameraRig = $CameraRig
 @onready var camera: Camera3D = $CameraRig/Camera3D
 @onready var hands: HandViewModel = $CameraRig/Camera3D/HandViewModel
+## Screen shake added per unit of weapon kick; a shotgun volley kicks several times harder
+## than one stream dagger, so the shake scales itself.
+@export_range(0.0, 1.0, 0.005) var shake_per_kick: float = 0.03
+## Screen shake per m/s of fall speed on landing.
+@export_range(0.0, 0.2, 0.001) var shake_per_fall_speed: float = 0.012
+
 @onready var self_knockback: SelfKnockback = get_node_or_null("SelfKnockback") as SelfKnockback
 @onready var player_audio: PlayerAudio = get_node_or_null("PlayerAudio") as PlayerAudio
 
@@ -31,6 +37,8 @@ func _ready() -> void:
 	movement.landed.connect(camera_rig.on_landed)
 	weapon_holder.kicked.connect(camera_rig.kick)
 	weapon_holder.kicked.connect(hands.kick)
+	weapon_holder.kicked.connect(_on_kicked)
+	movement.landed.connect(_on_landed_shake)
 	if self_knockback != null:
 		weapon_holder.weapon_fired.connect(self_knockback.on_fired)
 	if movement.stats != null:
@@ -62,6 +70,14 @@ func advance(delta: float) -> void:
 	camera_rig.advance(delta)
 	hands.set_motion(local_velocity(), movement.is_on_floor())
 	hands.advance(delta)
+
+
+func _on_kicked(strength: float) -> void:
+	camera_rig.add_trauma(strength * shake_per_kick)
+
+
+func _on_landed_shake(fall_speed: float) -> void:
+	camera_rig.add_trauma(fall_speed * shake_per_fall_speed)
 
 
 ## This tick's velocity in body space (x = right, z = back), which is what the hands

@@ -18,6 +18,7 @@ var base_scale: Vector3 = Vector3.ONE
 var _material: StandardMaterial3D
 var _base_emission: float = 0.0
 var _tween: Tween
+var _flash_tween: Tween
 var _death_tween: Tween
 
 
@@ -38,6 +39,7 @@ func material() -> StandardMaterial3D:
 ## Scales from zero to the resting scale over `duration` seconds (instant when 0).
 func spawn_in(duration: float) -> void:
 	_kill(_tween)
+	_kill(_flash_tween)
 	if duration <= 0.0:
 		scale = base_scale
 		return
@@ -47,31 +49,49 @@ func spawn_in(duration: float) -> void:
 
 
 ## Brief emission bump (or a scale bump when there is no material).
+##
+## A flash already in flight is left alone rather than restarted: a tier-IV stream lands
+## about forty hits a second, and re-triggering on every one pinned high-health enemies
+## permanently white. Ignoring the extras turns that into a ~8 Hz pulse you can read.
 func flash() -> void:
 	if _death_tween != null and _death_tween.is_valid():
 		return
-	_kill(_tween)
-	_tween = create_tween()
+	if is_flashing():
+		return
+	_flash_tween = create_tween()
 	if _material != null:
+		# Emission is the flash's own channel, so it can play over the spawn-in scale tween
+		# instead of aborting it and leaving a half-materialised enemy at 5% size.
 		_material.emission_enabled = true
 		_material.emission_energy_multiplier = flash_emission
-		_tween.tween_property(_material, "emission_energy_multiplier", _base_emission, flash_duration)
+		_flash_tween.tween_property(_material, "emission_energy_multiplier", _base_emission, flash_duration)
 	else:
+		# No material: the flash has to borrow scale, which is what spawn_in animates.
+		_kill(_tween)
 		scale = base_scale * flash_scale
-		_tween.tween_property(self, "scale", base_scale, flash_duration)
+		_flash_tween.tween_property(self, "scale", base_scale, flash_duration)
 
 
 ## Pops then shrinks to nothing.
 func death() -> void:
 	_kill(_tween)
+	_kill(_flash_tween)
 	_kill(_death_tween)
 	_death_tween = create_tween()
 	_death_tween.tween_property(self, "scale", base_scale * death_pop_scale, death_duration * death_pop_fraction)
 	_death_tween.tween_property(self, "scale", Vector3.ONE * 0.001, death_duration * (1.0 - death_pop_fraction))
 
 
+## True while a hit flash is still playing out. Deliberately its own tween: the spawn-in
+## scale tween lives in `_tween`, and conflating them meant an enemy shot while it was
+## still materialising could never flash.
+func is_flashing() -> bool:
+	return _flash_tween != null and _flash_tween.is_valid() and _flash_tween.is_running()
+
+
 func is_animating() -> bool:
 	return (_tween != null and _tween.is_valid() and _tween.is_running()) \
+		or is_flashing() \
 		or (_death_tween != null and _death_tween.is_valid() and _death_tween.is_running())
 
 

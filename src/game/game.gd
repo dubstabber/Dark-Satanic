@@ -21,6 +21,11 @@ signal run_ended(result: RunResult)
 @onready var player_light: OmniLight3D = $PlayerLight
 @onready var whisper_scheduler: WhisperScheduler = $WhisperScheduler
 
+## Screen shake from an enemy dying right next to you (0 disables).
+@export_range(0.0, 1.0, 0.005) var death_shake: float = 0.1
+## Distance at which a death stops shaking the camera at all.
+@export_range(1.0, 80.0, 0.5) var death_shake_range: float = 14.0
+
 var run_state: RunState
 var _injected_state: RunState
 
@@ -107,7 +112,23 @@ func _route_death_vfx(node: Node) -> void:
 
 func _on_enemy_died(enemy: Node3D, _last_hit: HitInfo) -> void:
 	run_state.add_kill()
+	_shake_for_death(enemy)
 	EventBus.enemy_died.emit(enemy, enemy.global_position)
+
+
+## A kill you are standing next to should be felt. Weighted by the enemy's health so a
+## swarm of 1 HP skulls stays a rumble and the boss going out is an event, and by distance
+## so a nest dying across the arena is not.
+func _shake_for_death(enemy: Node3D) -> void:
+	if death_shake <= 0.0 or player == null or not is_instance_valid(enemy):
+		return
+	var distance := player.global_position.distance_to(enemy.global_position)
+	var falloff := clampf(1.0 - distance / death_shake_range, 0.0, 1.0)
+	if falloff <= 0.0:
+		return
+	var health: Variant = enemy.get("stats")
+	var weight := clampf((health as EnemyStats).max_health / 12.0, 0.15, 4.0) if health is EnemyStats else 1.0
+	player.camera_rig.add_trauma(death_shake * falloff * weight)
 
 
 func _on_tier_changed(tier: DaggerUpgradeTier, index: int) -> void:

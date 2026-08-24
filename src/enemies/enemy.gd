@@ -88,6 +88,14 @@ func is_spawned() -> bool:
 	return _spawned
 
 
+## How big a death should look. Square-rooted so the range from a 1 HP skull to an 84 HP
+## boss reads as "small / normal / huge" instead of the burst vanishing or filling the arena.
+static func death_burst_scale(p_stats: EnemyStats) -> float:
+	if p_stats == null:
+		return 1.0
+	return clampf(sqrt(p_stats.max_health / 3.0), 0.6, 3.0)
+
+
 ## True while the enemy is still materialising and its stats say to stay put.
 func is_holding() -> bool:
 	return not _spawned and stats != null and stats.hold_during_spawn
@@ -116,6 +124,8 @@ func _apply_stats() -> void:
 		gem_drop.count = stats.gem_count
 	if death_handler != null and death_handler.death_cue == null:
 		death_handler.death_cue = stats.death_cue
+	if death_handler != null:
+		death_handler.vfx_scale = death_burst_scale(stats)
 
 
 func _spawn_duration() -> float:
