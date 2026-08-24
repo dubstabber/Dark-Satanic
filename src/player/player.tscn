@@ -73,7 +73,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, -0.2, -0.42)
 script = ExtResource("7_hands")
 
 [node name="Hand" type="MeshInstance3D" parent="CameraRig/Camera3D/HandViewModel"]
-transform = Transform3D(0.126154, 0.069492, -0.041906, -0.0431478, 0.123045, 0.0741506, 0.0687278, -0.0503082, 0.123473, 0.0149711, 0.0163661, -0.0100012)
+transform = Transform3D(-0.202753, 0.259514, 0.29269, 0.352451, 0.264205, 0.00989328, -0.169686, 0.238688, -0.329179, 0.10159, -0.138904, 0.00736453)
 material_override = SubResource("StandardMaterial3D_bone")
 mesh = ExtResource("12_hand_mesh")
 

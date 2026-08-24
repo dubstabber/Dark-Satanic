@@ -92,7 +92,8 @@ func test_dagger_projectile_mesh_is_the_bone_dagger() -> void:
 	var material := mesh.get_surface_override_material(0) as StandardMaterial3D
 	assert_not_null(material, "tier material is the surface override DaggerProjectile reads")
 	assert_not_null(material.albedo_texture)
-	assert_null(material.emission_texture, "unshaded material ignores emission; no dead texture reference")
+	assert_ne(material.shading_mode, BaseMaterial3D.SHADING_MODE_UNSHADED, "shaded, so the tier glow's emission renders")
+	assert_null(material.emission_texture, "tier glow is a flat emission colour; a texture would tint it per-texel")
 
 
 func test_player_hand_model_replaces_the_finger_boxes() -> void:
@@ -106,6 +107,6 @@ func test_player_hand_model_replaces_the_finger_boxes() -> void:
 	var box := _fitted_aabb(hand)
 	assert_lt(box.position.z, -0.15, "fingers reach forward (-Z)")
 	assert_gt(box.end.z, 0.1, "forearm trails back toward the camera")
-	assert_lt(box.size.length(), 0.6, "about half a metre of hand and forearm")
+	assert_lt(box.size.length(), 1.3, "a full arm, its elbow half reaching off-screen")
 	assert_almost_eq(hands.muzzle().position.z, -0.2, 0.001, "Muzzle unchanged")
 	assert_not_null((hand.material_override as StandardMaterial3D).albedo_texture)
