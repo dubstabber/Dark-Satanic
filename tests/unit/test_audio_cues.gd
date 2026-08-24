@@ -1,15 +1,42 @@
 extends GameTest
-## Every authored AudioCue in assets/audio/cues loads and points at a usable ogg stream.
+## Every authored AudioCue in assets/audio/cues loads and points at usable streams.
+##
+## Two stream flavours live side by side: the sox-synthesised set in tools/gen_audio.sh
+## is Ogg Vorbis, while the fire / jump / land / rift takes generated with the local
+## moss-sfx server stay uncompressed WAV (they are all well under a second). Both are
+## AudioStream, so the cues themselves do not care — these tests do.
 
 const CUE_DIR := "res://assets/audio/cues"
-const SFX_NAMES: Array[String] = [
-	"dagger_tick", "shotgun_thump", "hit", "skull_screech", "spawner_groan",
-	"gem_chime", "tier_up", "death_stinger", "ui_click", "skull_arrive", "whispers",
-]
+## One-shot cue -> the number of interchangeable takes pick_stream() randomises between.
+const SFX_TAKES := {
+	"dagger_tick": 3,
+	"shotgun_thump": 3,
+	"jump": 2,
+	"land": 2,
+	"spawn_rift": 2,
+	"whispers": 9,
+	"hit": 1,
+	"skull_screech": 1,
+	"spawner_groan": 1,
+	"gem_chime": 1,
+	"tier_up": 1,
+	"death_stinger": 1,
+	"ui_click": 1,
+	"skull_arrive": 1,
+}
 const LOOP_NAMES: Array[String] = ["amb_drone", "menu_hum"]
-## Cues holding several takes that pick_stream() randomizes between.
-const MULTI_TAKE_NAMES: Array[String] = ["whispers"]
 const VALID_BUSES: Array[StringName] = [&"SFX", &"UI", &"Music"]
+
+
+func _sfx_names() -> Array[String]:
+	var names: Array[String] = []
+	for key: String in SFX_TAKES:
+		names.append(key)
+	return names
+
+
+func _all_names() -> Array[String]:
+	return _sfx_names() + LOOP_NAMES
 
 
 func _cue(cue_name: String) -> AudioCue:
@@ -18,20 +45,27 @@ func _cue(cue_name: String) -> AudioCue:
 	return cue
 
 
-func _stream(cue_name: String) -> AudioStreamOggVorbis:
-	var cue := _cue(cue_name)
-	if cue == null or cue.streams.is_empty():
-		return null
-	return cue.streams[0] as AudioStreamOggVorbis
-
-
 func _streams(cue_name: String) -> Array[AudioStream]:
 	var cue := _cue(cue_name)
 	return [] as Array[AudioStream] if cue == null else cue.streams
 
 
+func _first(cue_name: String) -> AudioStream:
+	var streams := _streams(cue_name)
+	return null if streams.is_empty() else streams[0]
+
+
+## Ogg and WAV spell "loops" differently; both are used in this project.
+static func _loops(stream: AudioStream) -> bool:
+	if stream is AudioStreamWAV:
+		return (stream as AudioStreamWAV).loop_mode != AudioStreamWAV.LOOP_DISABLED
+	if stream is AudioStreamOggVorbis:
+		return (stream as AudioStreamOggVorbis).loop
+	return false
+
+
 func test_every_expected_cue_file_exists() -> void:
-	for cue_name in SFX_NAMES + LOOP_NAMES:
+	for cue_name in _all_names():
 		assert_true(ResourceLoader.exists("%s/%s.tres" % [CUE_DIR, cue_name]), cue_name)
 
 
@@ -41,27 +75,27 @@ func test_no_stray_cue_files() -> void:
 		if file.ends_with(".tres"):
 			found.append(file.get_basename())
 	found.sort()
-	var expected: Array[String] = SFX_NAMES + LOOP_NAMES
+	var expected := _all_names()
 	expected.sort()
 	assert_eq(found, expected)
 
 
-func test_every_cue_is_playable_with_an_ogg_stream() -> void:
-	for cue_name in SFX_NAMES + LOOP_NAMES:
+func test_every_cue_is_playable_with_the_expected_take_count() -> void:
+	for cue_name in _all_names():
 		var cue := _cue(cue_name)
 		assert_true(cue.is_playable(), "%s is playable" % cue_name)
-		if MULTI_TAKE_NAMES.has(cue_name):
-			assert_gt(cue.streams.size(), 1, "%s has several takes" % cue_name)
-		else:
-			assert_eq(cue.streams.size(), 1, "%s has exactly one stream" % cue_name)
-		for stream in _streams(cue_name):
-			var ogg := stream as AudioStreamOggVorbis
-			assert_not_null(ogg, "%s stream is AudioStreamOggVorbis" % cue_name)
-			assert_gt(ogg.get_length(), 0.0, "%s has a length" % cue_name)
+		var expected: int = SFX_TAKES.get(cue_name, 1)
+		assert_eq(cue.streams.size(), expected, "%s take count" % cue_name)
+		for stream in cue.streams:
+			assert_true(
+				stream is AudioStreamOggVorbis or stream is AudioStreamWAV,
+				"%s stream is ogg or wav, got %s" % [cue_name, stream]
+			)
+			assert_gt(stream.get_length(), 0.0, "%s has a length" % cue_name)
 
 
 func test_cue_ranges_are_sane() -> void:
-	for cue_name in SFX_NAMES + LOOP_NAMES:
+	for cue_name in _all_names():
 		var cue := _cue(cue_name)
 		assert_true(VALID_BUSES.has(cue.bus), "%s bus %s" % [cue_name, cue.bus])
 		assert_between(cue.volume_db, -30.0, 0.0, "%s volume" % cue_name)
@@ -72,19 +106,33 @@ func test_cue_ranges_are_sane() -> void:
 
 
 func test_sfx_are_short_and_not_looping() -> void:
-	for cue_name in SFX_NAMES:
-		for raw in _streams(cue_name):
-			var stream := raw as AudioStreamOggVorbis
+	for cue_name in _sfx_names():
+		for stream in _streams(cue_name):
 			assert_lt(stream.get_length(), 4.0, "%s shorter than 4 s" % cue_name)
-			assert_false(stream.loop, "%s does not loop" % cue_name)
+			assert_false(_loops(stream), "%s does not loop" % cue_name)
 		assert_true(_cue(cue_name).bus in [&"SFX", &"UI"], "%s on SFX/UI" % cue_name)
+
+
+## The stream fires 15 times a second and the shotgun every 0.6 s; a take longer than
+## its own fire interval would pile up into mush.
+func test_fire_takes_stay_inside_their_fire_interval() -> void:
+	for stream in _streams("dagger_tick"):
+		assert_lt(stream.get_length(), 0.25, "one stream dagger")
+	for stream in _streams("shotgun_thump"):
+		assert_lt(stream.get_length(), 1.1, "one shotgun volley")
+
+
+func test_generated_takes_are_uncompressed_wav() -> void:
+	for cue_name in ["dagger_tick", "shotgun_thump", "jump", "land", "spawn_rift"]:
+		for stream in _streams(cue_name):
+			assert_true(stream is AudioStreamWAV, "%s take is a WAV" % cue_name)
 
 
 func test_loops_loop_on_music_bus_with_fixed_pitch() -> void:
 	for cue_name in LOOP_NAMES:
 		var cue := _cue(cue_name)
-		var stream := _stream(cue_name)
-		assert_true(stream.loop, "%s loops" % cue_name)
+		var stream := _first(cue_name)
+		assert_true(_loops(stream), "%s loops" % cue_name)
 		assert_eq(cue.bus, &"Music", cue_name)
 		assert_almost_eq(cue.pitch_min, 1.0, 0.0001, cue_name)
 		assert_almost_eq(cue.pitch_max, 1.0, 0.0001, cue_name)
@@ -100,24 +148,37 @@ func test_pick_helpers_work_on_authored_cues() -> void:
 		assert_between(cue.pick_pitch(rng), 0.7, 1.3)
 
 
+func test_multi_take_cues_actually_rotate_between_takes() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	for cue_name in ["dagger_tick", "shotgun_thump", "jump", "land", "spawn_rift"]:
+		var cue := _cue(cue_name)
+		var seen: Array[AudioStream] = []
+		for i in 60:
+			var stream := cue.pick_stream(rng)
+			if stream not in seen:
+				seen.append(stream)
+		assert_eq(seen.size(), cue.streams.size(), "%s reaches every take" % cue_name)
+
+
 func test_specified_tunings() -> void:
 	var tick := _cue("dagger_tick")
-	assert_almost_eq(tick.volume_db, -8.0, 0.001)
-	assert_almost_eq(tick.pitch_min, 0.9, 0.001)
-	assert_almost_eq(tick.pitch_max, 1.15, 0.001)
+	assert_almost_eq(tick.volume_db, -15.0, 0.001, "quiet: it fires 15 times a second")
+	assert_almost_eq(tick.pitch_min, 0.92, 0.001)
+	assert_almost_eq(tick.pitch_max, 1.12, 0.001)
+	assert_gt(_cue("shotgun_thump").volume_db, tick.volume_db, "the volley is the loud one")
 	var screech := _cue("skull_screech")
 	assert_almost_eq(screech.pitch_min, 0.7, 0.001)
 	assert_almost_eq(screech.pitch_max, 1.3, 0.001)
 	assert_eq(_cue("ui_click").bus, &"UI")
-	assert_eq(_cue("dagger_tick").bus, &"SFX")
+	assert_eq(tick.bus, &"SFX")
 
 
-func test_loops_are_stereo_and_sfx_are_mono_sized() -> void:
+func test_loops_are_longer_than_every_one_shot() -> void:
 	# Loops are longer than every one-shot; guards against a swapped stream reference.
 	var shortest_loop := 1e9
 	for cue_name in LOOP_NAMES:
-		shortest_loop = minf(shortest_loop, _stream(cue_name).get_length())
-	for cue_name in SFX_NAMES:
-		for raw in _streams(cue_name):
-			var stream := raw as AudioStreamOggVorbis
+		shortest_loop = minf(shortest_loop, _first(cue_name).get_length())
+	for cue_name in _sfx_names():
+		for stream in _streams(cue_name):
 			assert_lt(stream.get_length(), shortest_loop, cue_name)

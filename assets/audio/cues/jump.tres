@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AudioCue" load_steps=4 format=3 uid="uid://ba1hyx6q7v3kd"]
+
+[ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
+[ext_resource type="AudioStreamWAV" uid="uid://dc2eia3wxt1h0" path="res://assets/audio/sfx/jump_01.wav" id="2_jump01"]
+[ext_resource type="AudioStreamWAV" uid="uid://1y7pgfegjh63" path="res://assets/audio/sfx/jump_02.wav" id="3_jump02"]
+
+[resource]
+script = ExtResource("1_cue")
+streams = Array[AudioStream]([ExtResource("2_jump01"), ExtResource("3_jump02")])
+volume_db = -13.0
+pitch_min = 0.94
+pitch_max = 1.1
+bus = &"SFX"
+max_distance = 20.0

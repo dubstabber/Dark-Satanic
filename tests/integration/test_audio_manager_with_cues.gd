@@ -29,9 +29,10 @@ func test_positional_sfx_cue_plays_on_sfx_bus() -> void:
 	assert_true(player.playing)
 	assert_eq(player.bus, &"SFX")
 	assert_eq(player.global_position, Vector3.ZERO)
-	assert_is(player.stream, AudioStreamOggVorbis)
-	assert_almost_eq(player.volume_db, -8.0, 0.001)
-	assert_between(player.pitch_scale, 0.9, 1.15)
+	assert_is(player.stream, AudioStreamWAV, "the generated fire takes are uncompressed")
+	assert_true(player.stream in _cue("dagger_tick").streams, "one of the cue's takes")
+	assert_almost_eq(player.volume_db, -15.0, 0.001)
+	assert_between(player.pitch_scale, 0.92, 1.12)
 	assert_almost_eq(player.max_distance, 30.0, 0.001)
 
 

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="AudioCue" load_steps=4 format=3 uid="uid://dq5v8jt0ye2mn"]
+
+[ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
+[ext_resource type="AudioStreamWAV" uid="uid://dr0op22dd2yp8" path="res://assets/audio/sfx/spawn_rift_01.wav" id="2_rift01"]
+[ext_resource type="AudioStreamWAV" uid="uid://b50mfyymbob78" path="res://assets/audio/sfx/spawn_rift_02.wav" id="3_rift02"]
+
+[resource]
+script = ExtResource("1_cue")
+streams = Array[AudioStream]([ExtResource("2_rift01"), ExtResource("3_rift02")])
+volume_db = -10.0
+pitch_min = 0.9
+pitch_max = 1.12
+bus = &"SFX"
+max_distance = 55.0

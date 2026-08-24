@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="AudioCue" load_steps=3 format=3 uid="uid://j2cr76jyso7x9"]
+[gd_resource type="Resource" script_class="AudioCue" load_steps=5 format=3 uid="uid://j2cr76jyso7x9"]
 
 [ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
-[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/dagger_tick.ogg" id="2_stream"]
+[ext_resource type="AudioStreamWAV" uid="uid://chf61wsseu8sc" path="res://assets/audio/sfx/dagger_shot_01.wav" id="2_shot01"]
+[ext_resource type="AudioStreamWAV" uid="uid://b38g4k8pid2v8" path="res://assets/audio/sfx/dagger_shot_02.wav" id="3_shot02"]
+[ext_resource type="AudioStreamWAV" uid="uid://d07dqwjdsv010" path="res://assets/audio/sfx/dagger_shot_03.wav" id="4_shot03"]
 
 [resource]
 script = ExtResource("1_cue")
-streams = Array[AudioStream]([ExtResource("2_stream")])
-volume_db = -8.0
-pitch_min = 0.9
-pitch_max = 1.15
+streams = Array[AudioStream]([ExtResource("2_shot01"), ExtResource("3_shot02"), ExtResource("4_shot03")])
+volume_db = -15.0
+pitch_min = 0.92
+pitch_max = 1.12
 bus = &"SFX"
 max_distance = 30.0

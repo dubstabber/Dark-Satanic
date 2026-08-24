@@ -161,14 +161,25 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
 
 ## 6. Audio
 
-Services: a text-to-SFX model (ElevenLabs SFX, Stable Audio) for one-shots; a music model (Suno/Udio/Stable
-Audio) for the two loops. All prompts should end with: *"lo-fi, recorded to worn VHS tape, slightly slowed,
-no music, no voice"* (for SFX) and be rendered dry so the in-game reverb can sit on top.
+Services: a text-to-SFX model for one-shots; a music model (Suno/Udio/Stable Audio) for the two loops. All
+prompts should end with: *"lo-fi, recorded to worn VHS tape, slightly slowed, no music, no voice"* (for SFX) and
+be rendered dry so the in-game reverb can sit on top.
+
+The player-action set below is generated **locally** with the `moss-sfx` MCP server (48 kHz mono WAV) instead of
+sox, and each cue holds several interchangeable takes so a repeated action never sounds identical twice. Two
+things about that model matter when regenerating: it centres the event inside the window it is given (so ask for
+a window comfortably longer than the sound and trim the head yourself), and takes vary wildly in level, so render
+`variations=3` and throw away the quiet ones. The trim/normalise pass is: cut from ~6 ms before the first frame
+within 26 dB of the peak to the last frame within 40 dB of it, 2 ms fade in, 50 ms fade out, `sox gain -n -3`.
+`tools/gen_audio.sh` deliberately does **not** synthesise these — running it must not overwrite them.
 
 | File (`assets/audio/sfx/`) | Length | Used by (cue) | Runtime pitch | Prompt |
 |---|---|---|---|---|
-| `dagger_tick.ogg` | 0.08 s | every stream shot (`dagger_tick`, −8 dB) | 0.9–1.15 | "very short dry bone click with a faint air hiss, like a tooth snapping, one hit" |
-| `shotgun_thump.ogg` | 0.4 s | shotgun burst (`shotgun_thump`) | 0.9–1.1 | "deep muffled thump of a coffin lid dropping with a brittle crackle of splintering bone, one hit" |
+| `dagger_shot_01..03.wav` | 0.07–0.18 s | every stream shot (`dagger_tick`, −15 dB, 3 takes) | 0.92–1.12 | "one knife thrown hard: a crisp dry percussive snap immediately followed by a short whip of the blade slicing through air. Recorded very close, anechoic, no reverb, the whole sound over instantly" (plus a "single bone dagger launch" take) |
+| `shotgun_blast_01..03.wav` | 0.95 s | shotgun burst (`shotgun_thump`, −7 dB, 3 takes) | 0.94–1.06 | "a heavy occult shotgun blast firing a burst of bone shards: a deep punchy low thump with a gritty crackling spray of splintering bone, close-up, dry with a short dark cavernous tail" |
+| `jump_01..02.wav` | 0.45 s | player jump (`jump`, −13 dB, 2 takes) | 0.94–1.10 | "a single athletic jump takeoff: boots scuff and push off hard from stone, a short sharp grunt of exertion and a quick rustle of cloth. Close mic, dry, indoors" |
+| `land_01..02.wav` | 0.37–0.55 s | player lands hard (`land`, −12 dB, 2 takes) | 0.90–1.08 | "boots landing hard on cold stone after a fall: one dull heavy thud with a faint gritty scrape of dust. Close-up, dry, short, no music" |
+| `spawn_rift_01..02.wav` | 1.6 s | directed spawn telegraph (`spawn_rift`, −10 dB, 2 takes) | 0.90–1.12 | "a demonic summoning portal opening: a low ominous rising swell out of silence, hissing rush of air, dark occult rumble and a faint chorus of whispers, ending in a soft dry crack as something arrives" |
 | `hit.ogg` | 0.07 s | dagger hits an enemy (`hit`) | 0.9–1.2 | "tiny wet crack, knife into chalk, one hit, very short" |
 | `skull_screech.ogg` | 0.5 s | enemy death (`skull_screech`, −6 dB) | 0.7–1.3 | "short strangled shriek of a choir of tiny voices cut off abruptly, distorted, tape-warped" |
 | `spawner_groan.ogg` | 2.7 s | nest rises / emits (`spawner_groan`) | 0.9–1.1 | "long low groan of stone grinding and a slowed-down church organ pedal note, rising then sinking" |

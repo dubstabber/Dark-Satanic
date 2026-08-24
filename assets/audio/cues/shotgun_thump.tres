@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="AudioCue" load_steps=3 format=3 uid="uid://mc72x4cjgq9q8"]
+[gd_resource type="Resource" script_class="AudioCue" load_steps=5 format=3 uid="uid://mc72x4cjgq9q8"]
 
 [ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
-[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/shotgun_thump.ogg" id="2_stream"]
+[ext_resource type="AudioStreamWAV" uid="uid://kv7mqmvfh6ft" path="res://assets/audio/sfx/shotgun_blast_01.wav" id="2_blast01"]
+[ext_resource type="AudioStreamWAV" uid="uid://bx7xdiotwqopm" path="res://assets/audio/sfx/shotgun_blast_02.wav" id="3_blast02"]
+[ext_resource type="AudioStreamWAV" uid="uid://bsjfhj2gnggoe" path="res://assets/audio/sfx/shotgun_blast_03.wav" id="4_blast03"]
 
 [resource]
 script = ExtResource("1_cue")
-streams = Array[AudioStream]([ExtResource("2_stream")])
-volume_db = -4.0
-pitch_min = 0.9
-pitch_max = 1.1
+streams = Array[AudioStream]([ExtResource("2_blast01"), ExtResource("3_blast02"), ExtResource("4_blast03")])
+volume_db = -7.0
+pitch_min = 0.94
+pitch_max = 1.06
 bus = &"SFX"
-max_distance = 40.0
+max_distance = 45.0

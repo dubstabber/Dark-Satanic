@@ -51,19 +51,10 @@ encode() {
 
 echo "==> Generating sfx into $OUT ($ENCODER)"
 
-# dagger_tick: 60 ms noise transient + falling blip, overdriven.
-synth "$TMP/tick_noise.wav" 1 synth 0.06 whitenoise fade t 0 0.06 0.05 bandpass 2500 1.2q
-synth "$TMP/tick_blip.wav" 1 synth 0.08 sine 1400:420 fade t 0.002 0.08 0.06
-mix "$TMP/tick_mix.wav" "$TMP/tick_noise.wav" "$TMP/tick_blip.wav"
-fx "$TMP/tick_mix.wav" "$TMP/tick.wav" overdrive 18 norm -3
-encode dagger_tick "$TMP/tick.wav"
-
-# shotgun_thump: low sine sweep 130->35 + brown noise, overdrive, lowpass.
-synth "$TMP/thump_sine.wav" 1 synth 0.4 sine 130:35 fade t 0 0.4 0.32
-synth "$TMP/thump_noise.wav" 1 synth 0.4 brownnoise fade t 0 0.4 0.3
-mix "$TMP/thump_mix.wav" "$TMP/thump_sine.wav" "$TMP/thump_noise.wav"
-fx "$TMP/thump_mix.wav" "$TMP/thump.wav" overdrive 20 lowpass 650 norm -3
-encode shotgun_thump "$TMP/thump.wav"
+# NOTE: the fire, jump, land and spawn-rift sounds are NOT synthesised here — they are
+# recorded takes generated with the local moss-sfx MCP server and trimmed into
+# assets/audio/sfx/{dagger_shot,shotgun_blast,jump,land,spawn_rift}_NN.wav. Do not add
+# sox versions of them back: this script would overwrite the generated assets.
 
 # hit: short 1400->500 sine click.
 synth "$TMP/hit.wav" 1 synth 0.07 sine 1400:500 fade t 0.001 0.07 0.05 norm -4
