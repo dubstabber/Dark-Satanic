@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://a7yh7fjmb40co"]
+[gd_scene load_steps=11 format=3 uid="uid://a7yh7fjmb40co"]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" uid="uid://x17set90aaksm" path="res://src/game/default_game.tres" id="2_config"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" path="res://src/weapons/dagger_weapon.tscn" id="6_weapon"]
 [ext_resource type="Script" path="res://src/spawning/spawn_director.gd" id="7_director"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/hud.tscn" id="8_hud"]
+[ext_resource type="Script" path="res://src/game/whisper_scheduler.gd" id="9_whispers"]
+[ext_resource type="Resource" uid="uid://btt3vo5bm2yvq" path="res://assets/audio/cues/whispers.tres" id="10_whisper_cue"]
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_game")
@@ -39,6 +41,10 @@ enemy_container = NodePath("../EnemyContainer")
 drop_root = NodePath("../GemContainer")
 arena = NodePath("../Arena")
 target = NodePath("../Player")
+
+[node name="WhisperScheduler" type="Node" parent="."]
+script = ExtResource("9_whispers")
+cue = ExtResource("10_whisper_cue")
 
 [node name="PlayerLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)

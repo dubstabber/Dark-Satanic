@@ -17,6 +17,7 @@ signal run_ended(result: RunResult)
 @onready var spawn_director: SpawnDirector = $SpawnDirector
 @onready var hud: HUD = $HudLayer/HUD
 @onready var player_light: OmniLight3D = $PlayerLight
+@onready var whisper_scheduler: WhisperScheduler = $WhisperScheduler
 
 var run_state: RunState
 var _injected_state: RunState
@@ -44,6 +45,7 @@ func _physics_process(delta: float) -> void:
 		return
 	run_state.tick(delta)
 	spawn_director.advance(delta)
+	whisper_scheduler.advance(delta)
 	arena_shrinker.advance(run_state.elapsed)
 	player_light.global_position = player.global_position + Vector3.UP * player_light_height
 

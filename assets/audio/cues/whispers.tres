@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://btt3vo5bm2yvq"]
+
+[ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_01.ogg" id="2_w01"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_02.ogg" id="3_w02"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_03.ogg" id="4_w03"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_04.ogg" id="5_w04"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_05.ogg" id="6_w05"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_06.ogg" id="7_w06"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_07.ogg" id="8_w07"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_08.ogg" id="9_w08"]
+[ext_resource type="AudioStreamOggVorbis" path="res://assets/audio/sfx/whisper_09.ogg" id="10_w09"]
+
+[resource]
+script = ExtResource("1_cue")
+streams = Array[AudioStream]([ExtResource("2_w01"), ExtResource("3_w02"), ExtResource("4_w03"), ExtResource("5_w04"), ExtResource("6_w05"), ExtResource("7_w06"), ExtResource("8_w07"), ExtResource("9_w08"), ExtResource("10_w09")])
+volume_db = -14.0
+pitch_min = 0.95
+pitch_max = 1.05
+bus = &"SFX"
+max_distance = 40.0
