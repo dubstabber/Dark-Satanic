@@ -39,6 +39,11 @@ func test_scene_wiring() -> void:
 	assert_same(_game.spawn_director.target, _game.player)
 	assert_same(_game.spawn_director.wave_table, _game.config.wave_table)
 	assert_eq(_game.spawn_director.rng_seed, 1)
+	assert_true(_game.spawn_director.telegraph_scene is PackedScene, "the scene ships a warning effect")
+	assert_true(_game.spawn_director.telegraph_cue is AudioCue, "and its cue")
+	assert_gt(_game.spawn_director.telegraph_lead(), 0.0, "so spawns really are announced early")
+	assert_same(_game.spawn_director.vfx_root, _game.vfx_container)
+	assert_not_same(_game.spawn_director.vfx_root, _game.enemy_container, "never the enemy container")
 	assert_same(_game.arena.target, _game.player)
 	assert_true(_game.hud.is_bound())
 	assert_almost_eq(_game.player.look.sensitivity, SettingsManager.mouse_sensitivity, 0.00001)
@@ -129,3 +134,19 @@ func test_uses_run_manager_when_no_state_injected() -> void:
 	assert_true(RunManager.is_running())
 	assert_same(game.run_state, RunManager.current)
 	assert_same(game.run_state.ladder, game.config.ladder)
+
+
+func test_directed_spawns_raise_a_warning_into_the_vfx_container() -> void:
+	await wait_physics_frames(60)
+	assert_gt(_game.vfx_container.get_child_count(), 0, "the ring at 0.5 s was announced first")
+	for child in _game.vfx_container.get_children():
+		assert_true(child is OneShotVfx, "%s is not a one-shot effect" % child.name)
+	for child in _game.enemy_container.get_children():
+		assert_true(SpawnDirector.is_enemy(child), "%s is not an enemy" % child.name)
+
+
+func test_death_effects_are_routed_out_of_the_enemy_container() -> void:
+	var enemy: Enemy = WeeperScene.instantiate()
+	_game.enemy_container.add_child(enemy)
+	await wait_physics_frames(1)
+	assert_same(enemy.death_handler.vfx_root, _game.vfx_container)

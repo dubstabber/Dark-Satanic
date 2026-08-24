@@ -4,6 +4,7 @@ const SCENES := {
 	"hit_spark": preload("res://src/vfx/particles/hit_spark.tscn"),
 	"death_burst": preload("res://src/vfx/particles/death_burst.tscn"),
 	"gem_sparkle": preload("res://src/vfx/particles/gem_sparkle.tscn"),
+	"spawn_rift": preload("res://src/vfx/particles/spawn_rift.tscn"),
 }
 
 var _world: Node3D
@@ -21,23 +22,67 @@ func _particles(vfx: OneShotVfx) -> GPUParticles3D:
 	return null
 
 
-func test_scenes_are_one_shot_explosive_and_emitting() -> void:
+func _all_particles(vfx: OneShotVfx) -> Array[GPUParticles3D]:
+	var found: Array[GPUParticles3D] = []
+	for child in vfx.get_children():
+		if child is GPUParticles3D:
+			found.append(child)
+	return found
+
+
+func test_scenes_are_one_shot_and_emitting() -> void:
 	for scene_name in SCENES:
 		var vfx: OneShotVfx = SCENES[scene_name].instantiate()
 		_world.add_child(vfx)
-		var particles := _particles(vfx)
-		assert_not_null(particles, scene_name)
-		assert_true(particles.one_shot, "%s one_shot" % scene_name)
-		assert_true(particles.emitting, "%s emitting" % scene_name)
-		assert_eq(particles.explosiveness, 1.0, "%s explosiveness" % scene_name)
-		assert_lte(particles.lifetime, 1.0, "%s short lifetime" % scene_name)
-		assert_not_null(particles.process_material, scene_name)
-		assert_not_null(particles.draw_pass_1, scene_name)
-		var mat := particles.draw_pass_1.material as StandardMaterial3D
-		assert_not_null(mat, "%s draw mesh material" % scene_name)
-		assert_eq(mat.shading_mode, BaseMaterial3D.SHADING_MODE_UNSHADED, scene_name)
+		var emitters := _all_particles(vfx)
+		assert_gt(emitters.size(), 0, scene_name)
+		for particles in emitters:
+			var tag := "%s/%s" % [scene_name, particles.name]
+			assert_true(particles.one_shot, "%s one_shot" % tag)
+			assert_true(particles.emitting, "%s emitting" % tag)
+			assert_lte(particles.lifetime, 1.5, "%s short lifetime" % tag)
+			assert_not_null(particles.process_material, tag)
+			assert_not_null(particles.draw_pass_1, tag)
+			var mat := particles.draw_pass_1.material as StandardMaterial3D
+			assert_not_null(mat, "%s draw mesh material" % tag)
+			assert_eq(mat.shading_mode, BaseMaterial3D.SHADING_MODE_UNSHADED, tag)
 		assert_false(vfx.is_released())
 		vfx.free()
+
+
+## GPUParticles3D.finished never fires headless (and, in 4.7.1, not reliably with a
+## renderer either), so the safety timer is the only release path and total_lifetime()
+## has to be an upper bound on what is still drawing.
+func test_total_lifetime_covers_every_emitter_including_slow_ones() -> void:
+	for scene_name in SCENES:
+		var vfx: OneShotVfx = SCENES[scene_name].instantiate()
+		_world.add_child(vfx)
+		for particles in _all_particles(vfx):
+			var born_last := particles.lifetime * (1.0 - particles.explosiveness)
+			var last_death := (born_last + particles.lifetime) / maxf(particles.speed_scale, 0.001)
+			assert_true(
+				vfx.total_lifetime() >= last_death,
+				"%s/%s: freed at %f but still drawing until %f" % [scene_name, particles.name, vfx.total_lifetime(), last_death]
+			)
+		vfx.free()
+
+
+## A trickling emitter is the case the old "lifetime + margin" formula got wrong.
+func test_a_non_explosive_emitter_extends_the_lifetime() -> void:
+	var vfx := OneShotVfx.new()
+	vfx.safety_margin = 0.0
+	var particles := GPUParticles3D.new()
+	particles.lifetime = 1.0
+	particles.explosiveness = 0.0
+	particles.one_shot = true
+	vfx.add_child(particles)
+	_world.add_child(vfx)
+	assert_almost_eq(vfx.total_lifetime(), 2.0, 0.0001, "births spread over 1 s, then a 1 s life")
+	particles.explosiveness = 1.0
+	assert_almost_eq(vfx.total_lifetime(), 1.0, 0.0001, "all at once: unchanged")
+	particles.explosiveness = 0.5
+	assert_almost_eq(vfx.total_lifetime(), 1.5, 0.0001)
+	vfx.free()
 
 
 func test_total_lifetime_is_lifetime_plus_margin() -> void:
@@ -62,15 +107,15 @@ func test_advance_releases_after_total_lifetime() -> void:
 	assert_eq(_world.get_child_count(), 0)
 
 
-func test_every_scene_frees_itself_within_lifetime_plus_one_second() -> void:
+func test_every_scene_frees_itself_within_its_total_lifetime() -> void:
 	var longest := 0.0
 	for scene_name in SCENES:
 		var vfx: OneShotVfx = SCENES[scene_name].instantiate()
 		vfx.name = scene_name
 		_world.add_child(vfx)
-		longest = maxf(longest, _particles(vfx).lifetime)
-	assert_eq(_world.get_child_count(), 3)
-	await wait_seconds(longest + 1.0)
+		longest = maxf(longest, vfx.total_lifetime())
+	assert_eq(_world.get_child_count(), SCENES.size())
+	await wait_seconds(longest + 0.3)
 	assert_eq(_world.get_child_count(), 0, "all scenes freed themselves")
 
 
@@ -114,3 +159,28 @@ func test_root_without_particles_frees_itself() -> void:
 	assert_true(vfx.is_released())
 	await wait_process_frames(2)
 	assert_eq(_world.get_child_count(), 0)
+
+
+## A billboarded quad has its model basis replaced by the camera's, which throws away
+## the per-particle scale unless keep_scale is set — silently discarding scale_min /
+## scale_max / scale_curve. Every emitter here authors a scale, so every one needs it.
+func test_billboarded_emitters_that_scale_keep_their_scale() -> void:
+	var checked := 0
+	for scene_name in SCENES:
+		var vfx: OneShotVfx = SCENES[scene_name].instantiate()
+		_world.add_child(vfx)
+		for particles in _all_particles(vfx):
+			var process := particles.process_material as ParticleProcessMaterial
+			var mat := particles.draw_pass_1.material as StandardMaterial3D
+			var varies := (
+				process.scale_curve != null or not is_equal_approx(process.scale_min, process.scale_max)
+			)
+			if not varies or mat.billboard_mode == BaseMaterial3D.BILLBOARD_DISABLED:
+				continue
+			checked += 1
+			assert_true(
+				mat.get_flag(BaseMaterial3D.FLAG_BILLBOARD_KEEP_SCALE),
+				"%s/%s billboards and scales, so it needs billboard_keep_scale" % [scene_name, particles.name]
+			)
+		vfx.free()
+	assert_gt(checked, 0, "the invariant found something to check")

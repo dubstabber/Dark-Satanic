@@ -24,6 +24,7 @@ albedo_color = Color(1, 1, 1, 1)
 albedo_texture = ExtResource("2_tex")
 texture_filter = 2
 billboard_mode = 3
+billboard_keep_scale = true
 
 [sub_resource type="QuadMesh" id="QuadMesh_chunk"]
 material = SubResource("StandardMaterial3D_white")

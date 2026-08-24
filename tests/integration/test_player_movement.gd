@@ -161,3 +161,36 @@ func test_last_frame_is_kept_for_inspection() -> void:
 	_input.push(FakeInputReader.frame(FORWARD, true))
 	await wait_physics_frames(2)
 	assert_true(_player.last_frame.jump_held)
+
+
+func test_hands_are_fed_body_space_velocity_not_world_space() -> void:
+	# Yawed 90 degrees, "forward" in world space is -X. If the hands were handed world
+	# velocity they would read that as a hard strafe and lean; body space reads it as a
+	# straight run and does not.
+	_player.rotation.y = deg_to_rad(90.0)
+	_input.push_repeated(FakeInputReader.frame(Vector3.LEFT), 120)
+	await wait_physics_frames(120)
+	assert_gt(_player.hands.speed(), 5.0, "the hands can tell it is moving")
+	assert_almost_eq(_player.local_velocity().z, -_player.movement.horizontal_speed(), 0.2, "running forward")
+	assert_almost_eq(_player.local_velocity().x, 0.0, 0.2, "not strafing")
+	assert_almost_eq(_player.hands.lean(), 0.0, 0.005, "so the hands do not lean")
+
+
+func test_strafing_leans_the_hands_through_the_real_player() -> void:
+	_player.rotation.y = deg_to_rad(90.0)
+	_input.push_repeated(FakeInputReader.frame(Vector3.FORWARD), 120)  # world -Z = body right
+	await wait_physics_frames(120)
+	assert_gt(_player.local_velocity().x, 5.0, "strafing right in body space")
+	assert_lt(_player.hands.lean(), -0.01, "the hands trail the other way")
+	assert_gt(_player.hands.rotation.z, 0.0, "and roll with it")
+
+
+func test_hands_stop_bobbing_when_the_player_leaves_the_floor() -> void:
+	_input.push_repeated(FakeInputReader.frame(FORWARD), 60)
+	await wait_physics_frames(60)
+	assert_gt(_player.hands.bob_weight(), 0.5, "bobbing along the ground")
+	_player.global_position = Vector3(0, 12, 0)
+	_input.push_repeated(FakeInputReader.frame(FORWARD), 30)
+	await wait_physics_frames(30)
+	assert_false(_player.movement.is_on_floor())
+	assert_almost_eq(_player.hands.bob_weight(), 0.0, 0.02, "airborne: nothing to bob against")

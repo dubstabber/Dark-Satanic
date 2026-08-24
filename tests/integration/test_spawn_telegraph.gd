@@ -181,3 +181,49 @@ func test_restarting_forgets_pending_warnings() -> void:
 	_director.start()
 	_director.advance(1.1)
 	assert_eq(_director.alive_count(), 0, "the schedule restarted from zero")
+
+
+## The endless loop appends its next block lazily, so the block has to be appended early
+## enough that its opening event still gets its full lead. milestone1.tres has an event
+## sitting exactly on loop_from_time, which is the case that catches a missing term.
+func test_the_first_arrival_of_every_endless_loop_block_is_warned_too() -> void:
+	var pattern := PointPattern.new()
+	pattern.point = Vector3(0, 1, 5)
+	var opener := SpawnEvent.new()
+	opener.time = 4.0
+	opener.count = 1
+	opener.enemy_scene = SpawnStub
+	opener.pattern = pattern
+	opener.label = "opener"
+	var closer := SpawnEvent.new()
+	closer.time = 8.0
+	closer.count = 1
+	closer.enemy_scene = SpawnStub
+	closer.pattern = pattern
+	closer.label = "closer"
+	var table := WaveTable.new()
+	table.events = [opener, closer]
+	table.loop_from_time = 4.0
+	table.min_loop_block = 8.0
+	table.loop_count_multiplier = 1.0
+	table.loop_interval_multiplier = 1.0
+	_director.wave_table = table
+	_director.start()
+
+	var warned: Array[float] = []
+	var arrived: Array[float] = []
+	_director.telegraphed.connect(func(_p: Vector3) -> void: warned.append(_director.elapsed()))
+	_director.enemy_spawned.connect(
+		func(_n: Node3D, _e: SpawnEvent) -> void: arrived.append(_director.elapsed())
+	)
+	for i in 60 * 30:
+		_director.advance(1.0 / 60.0)
+
+	assert_gt(arrived.size(), 3, "the table looped")
+	assert_eq(warned.size(), arrived.size(), "one warning per arrival")
+	for i in arrived.size():
+		var lead: float = arrived[i] - warned[i]
+		assert_almost_eq(
+			lead, _director.telegraph_lead(), 0.02,
+			"arrival %d at t=%.2f got %.2f s of warning" % [i, arrived[i], lead]
+		)

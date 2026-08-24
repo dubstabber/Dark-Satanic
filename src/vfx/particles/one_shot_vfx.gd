@@ -44,11 +44,17 @@ func advance(delta: float) -> void:
 		_release()
 
 
-## Longest child lifetime (scaled by speed) plus the safety margin.
+## How long the longest emitter can still be drawing, plus the safety margin.
+##
+## An emitter with `explosiveness` below 1 spreads its births over
+## `lifetime * (1 - explosiveness)`, and the last particle born still lives a full
+## lifetime after that — so the visible span is up to `lifetime * (2 - explosiveness)`.
+## Fully explosive emitters (every other VFX scene here) are unaffected.
 func total_lifetime() -> float:
 	var longest := 0.0
 	for particles in _particles:
-		longest = maxf(longest, particles.lifetime / maxf(particles.speed_scale, 0.001))
+		var span := particles.lifetime * (2.0 - clampf(particles.explosiveness, 0.0, 1.0))
+		longest = maxf(longest, span / maxf(particles.speed_scale, 0.001))
 	return longest + safety_margin
 
 

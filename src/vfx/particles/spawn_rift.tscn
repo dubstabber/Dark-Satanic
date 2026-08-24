@@ -39,6 +39,7 @@ albedo_color = Color(1, 1, 1, 1)
 albedo_texture = ExtResource("2_sigil")
 texture_filter = 3
 billboard_mode = 1
+billboard_keep_scale = true
 
 [sub_resource type="QuadMesh" id="QuadMesh_sigil"]
 material = SubResource("StandardMaterial3D_sigil")
@@ -67,6 +68,7 @@ albedo_color = Color(1, 1, 1, 1)
 albedo_texture = ExtResource("3_chip")
 texture_filter = 2
 billboard_mode = 3
+billboard_keep_scale = true
 
 [sub_resource type="QuadMesh" id="QuadMesh_mote"]
 material = SubResource("StandardMaterial3D_mote")
