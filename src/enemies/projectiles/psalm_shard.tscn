@@ -1,0 +1,59 @@
+[gd_scene load_steps=8 format=3 uid="uid://sv6aahzlkmp2g"]
+
+[ext_resource type="Script" path="res://src/enemies/projectiles/psalm_shard.gd" id="1_shard"]
+[ext_resource type="Script" path="res://src/components/health_component.gd" id="2_health"]
+[ext_resource type="Script" path="res://src/components/hurtbox_component.gd" id="3_hurtbox"]
+[ext_resource type="Script" path="res://src/components/hitbox_component.gd" id="4_hitbox"]
+[ext_resource type="Script" path="res://src/components/death_handler_component.gd" id="5_death"]
+[ext_resource type="PackedScene" uid="uid://xlmg9gtguasrj" path="res://src/vfx/particles/hit_spark.tscn" id="6_spark"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_shard"]
+radius = 0.32
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shard"]
+albedo_color = Color(0.9, 0.88, 0.84, 1)
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 2.2
+
+[sub_resource type="PrismMesh" id="PrismMesh_shard"]
+material = SubResource("StandardMaterial3D_shard")
+size = Vector3(0.22, 0.5, 0.22)
+
+[node name="PsalmShard" type="Node3D"]
+script = ExtResource("1_shard")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+max_health = 1.0
+
+[node name="Hurtbox" type="Area3D" parent="."]
+collision_layer = 16
+collision_mask = 0
+monitoring = false
+script = ExtResource("3_hurtbox")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox"]
+shape = SubResource("SphereShape3D_shard")
+
+[node name="ContactHitbox" type="Area3D" parent="."]
+collision_layer = 32
+collision_mask = 4
+monitorable = false
+script = ExtResource("4_hitbox")
+cause = &"psalm"
+one_shot = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ContactHitbox"]
+shape = SubResource("SphereShape3D_shard")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Mesh" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+mesh = SubResource("PrismMesh_shard")
+
+[node name="DeathHandler" type="Node" parent="."]
+script = ExtResource("5_death")
+death_vfx = ExtResource("6_spark")
+free_delay = 0.05

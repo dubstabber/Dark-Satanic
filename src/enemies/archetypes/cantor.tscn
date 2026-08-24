@@ -1,0 +1,92 @@
+[gd_scene load_steps=13 format=3 uid="uid://tnylpbae0vhsm"]
+
+[ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
+[ext_resource type="Resource" uid="uid://yup4jnn0enbl8" path="res://src/enemies/resources/stats/cantor.tres" id="2_stats"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/seek_behavior.gd" id="3_seek"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/separation_behavior.gd" id="4_separation"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/bob_behavior.gd" id="5_bob"]
+[ext_resource type="ArrayMesh" uid="uid://c76bvr3r66crh" path="res://assets/models/meshes/cantor.res" id="6_mesh"]
+[ext_resource type="Texture2D" uid="uid://p5t4v0h5m64g" path="res://assets/textures/cantor.png" id="7_tex"]
+[ext_resource type="Script" path="res://src/enemies/ranged_attack_component.gd" id="8_ranged"]
+[ext_resource type="Script" path="res://src/enemies/windup_visual.gd" id="9_windup"]
+[ext_resource type="PackedScene" uid="uid://sv6aahzlkmp2g" path="res://src/enemies/projectiles/psalm_shard.tscn" id="10_shard"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_cantor"]
+radius = 0.55
+height = 2.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cantor"]
+albedo_color = Color(0.9, 0.88, 0.84, 1)
+albedo_texture = ExtResource("7_tex")
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.42
+emission_texture = ExtResource("7_tex")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mouth"]
+albedo_color = Color(1, 1, 1, 1)
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.7
+
+[sub_resource type="SphereMesh" id="SphereMesh_mouth"]
+material = SubResource("StandardMaterial3D_mouth")
+radius = 0.22
+height = 0.44
+radial_segments = 8
+rings = 4
+
+[node name="Enemy" instance=ExtResource("1_base")]
+stats = ExtResource("2_stats")
+
+[node name="CollisionShape3D" parent="Hurtbox" index="0"]
+shape = SubResource("CapsuleShape3D_cantor")
+
+[node name="CollisionShape3D" parent="ContactHitbox" index="0"]
+shape = SubResource("CapsuleShape3D_cantor")
+
+[node name="Seek" type="Node" parent="Behaviors"]
+script = ExtResource("3_seek")
+speed = 5.0
+vertical = true
+
+[node name="Separation" type="Node" parent="Behaviors"]
+script = ExtResource("4_separation")
+radius = 3.5
+strength = 5.0
+
+[node name="Bob" type="Node" parent="Behaviors"]
+script = ExtResource("5_bob")
+amplitude = 0.3
+frequency = 0.7
+
+[node name="Mesh" parent="Visual" index="0"]
+transform = Transform3D(1.25, 0, 0, 0, 1.25, 0, 0, 0, 1.25, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_cantor")
+mesh = ExtResource("6_mesh")
+
+[node name="Mouth" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -0.42)
+material_override = SubResource("StandardMaterial3D_mouth")
+mesh = SubResource("SphereMesh_mouth")
+
+[node name="Muzzle" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -0.6)
+
+[node name="RangedAttack" type="Node" parent="." node_paths=PackedStringArray("muzzle")]
+script = ExtResource("8_ranged")
+projectile_scene = ExtResource("10_shard")
+muzzle = NodePath("../Muzzle")
+interval = 3.2
+initial_delay = 2.0
+windup = 0.9
+autonomous = true
+min_range = 6.0
+max_range = 45.0
+lead_time = 0.35
+
+[node name="WindupVisual" type="Node" parent="." node_paths=PackedStringArray("attack", "glow")]
+script = ExtResource("9_windup")
+attack = NodePath("../RangedAttack")
+glow = NodePath("../Visual/Mouth")
+charged_emission = 3.0

@@ -39,7 +39,7 @@ projectile_root = NodePath("../../ProjectileContainer")
 
 [node name="VfxContainer" type="Node3D" parent="."]
 
-[node name="SpawnDirector" type="Node" parent="." node_paths=PackedStringArray("enemy_container", "drop_root", "arena", "target", "vfx_root")]
+[node name="SpawnDirector" type="Node" parent="." node_paths=PackedStringArray("enemy_container", "drop_root", "arena", "target", "vfx_root", "projectile_root")]
 script = ExtResource("7_director")
 enemy_container = NodePath("../EnemyContainer")
 drop_root = NodePath("../GemContainer")
@@ -48,6 +48,7 @@ target = NodePath("../Player")
 telegraph_scene = ExtResource("11_spawn_rift")
 telegraph_cue = ExtResource("12_rift_cue")
 vfx_root = NodePath("../VfxContainer")
+projectile_root = NodePath("../ProjectileContainer")
 
 [node name="WhisperScheduler" type="Node" parent="."]
 script = ExtResource("9_whispers")

@@ -10,10 +10,12 @@ edge ring strip included), VFX sprites (4), UI art (5, plus the app icon), audio
 override, and tests instantiate it directly.
 
 Drop-in workflow for a replaced `.glb`: copy it over the file in `assets/models/` (keep the name), run
-`tools/bake_textures.py <name>` for its greyscale albedo (names: weeper, mourner, lament, vesper, glutton, gem,
-dagger, hand, floor), then `tools/run_tests.sh` — the import regenerates `assets/models/meshes/<name>.res`. If the
+`tools/bake_textures.py <name>` for its greyscale albedo (names: weeper, mourner, lament, vesper, glutton,
+cantor, sexton, thurible, tenebrae, gem, dagger, hand, floor), then `tools/run_tests.sh` — the import regenerates `assets/models/meshes/<name>.res`. If the
 mesh name *inside* the new export differs from the old one, update the key under `_subresources/meshes` in the
-`.glb.import` (or re-tick "Save to File" in the editor's Advanced Import dialog) or the `.res` silently stops being
+`.glb.import` — note the key is the **imported resource name** (`<file>_<sanitised glTF name>`, e.g.
+`cantor_tmprzjq4x4j_ply`), not the raw glTF name, and Godot assigns its own uid to the saved `.res`, so read it
+back with `ResourceLoader.get_resource_uid()` rather than inventing one (or re-tick "Save to File" in the editor's Advanced Import dialog) or the `.res` silently stops being
 regenerated. Finally re-fit the `Mesh` node transform in the scene named below and commit the regenerated `.res`.
 
 ## Global style sheet (prepend to every visual prompt)
@@ -94,6 +96,21 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
 - Prompt: *"Squat bloated low-poly creature, a flattened sack of grey flesh with a round puckered maw ringed by
   pale teeth at the front, no eyes, stitched seams, breathing slowly, medieval bestiary grotesque, PS1 game model,
   greyscale texture, facing forward, isolated on black."*
+
+### 1.6 Cantor — ranged singer
+- Scene: `src/enemies/archetypes/cantor.tscn`, stats `src/enemies/resources/stats/cantor.tres`.
+- Fits: capsule r 0.55 m, height 2.6 m, origin at the centre, hovers at 3.6 m. The `Visual/Mouth`
+  sphere is the wind-up tell — `WindupVisual` swells its emission 0.7 → 3.0 over the 0.9 s before
+  each shot, so keep the mouth a separate mesh.
+- The first enemy that attacks from range: it holds off at 6–45 m and sings homing `PsalmShard`s
+  (`src/enemies/projectiles/psalm_shard.tscn`) that lead the player by 0.35 s and can be shot down.
+- Prompt: *"a tall gaunt low-poly cantor — a hooded choir singer with no legs, its lower body
+  trailing away into ragged funeral cloth, thin arms folded around an open songbook held at its
+  chest, the head a featureless bone mask split by one wide singing mouth, faint pale light inside
+  the mouth, stiff ash-grey robes in flat low-poly folds, small iron bells sewn along the hem.
+  Single subject, upright, symmetrical, facing forward, neutral pose, arms and hem fully in frame
+  with margin on all sides, PS1-era game model, isolated on a pure black background."*
+- Generated with forge-image (Flux, 768×1024) → hunyuan3d `image_to_3d` at `max_facenum=1800`.
 
 ## 2. Weapon and pickups
 

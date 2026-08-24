@@ -37,6 +37,10 @@ signal telegraphed(position: Vector3)
 ## "does it live in there", so a stray effect would be counted against max_alive.
 ## When null the enemy container's own parent is used.
 @export var vfx_root: Node
+## Where enemy projectiles are parented, for the same reason: Game treats every child
+## entering the enemy container as a spawned enemy and announces it, so a Cantor's shards
+## would each be reported as an arrival.
+@export var projectile_root: Node
 
 var rng := RandomNumberGenerator.new()
 ## Individuals dropped because max_alive was reached (capped at scheduling or at spawn time).
@@ -222,13 +226,21 @@ func _spawn_one(event: SpawnEvent, position: Vector3) -> Node3D:
 	return node
 
 
-## Before the enemy enters the tree: nested spawners get the alive-cap veto and gem
-## droppers get drop_root (duck-typed on the `spawn_root` property).
+## Before the enemy enters the tree: nested spawners get the alive-cap veto, gem droppers
+## get drop_root, and anything that launches things gets a container to launch them into.
+## All duck-typed on property names, so a new component only has to declare them.
 func _wire_children(node: Node) -> void:
 	if node is SpawnerComponent:
 		node.can_spawn = func() -> bool: return alive_count() < max_alive()
 	if drop_root != null and node.has_method("drop") and "spawn_root" in node:
 		node.set("spawn_root", drop_root)
+	if projectile_root != null and "projectile_root" in node:
+		node.set("projectile_root", projectile_root)
+	# Deliberately NOT injecting `target` here. It reads like the obvious sibling of the
+	# lines above, but DeathHandlerComponent.target is *the node it disables and frees* —
+	# handing it the player means the first enemy death queue_free()s the player. The
+	# enemy root gets `target` in _spawn_one(); components that need it read it off their
+	# parent (see RangedAttackComponent._inherited_target).
 	for child in node.get_children():
 		_wire_children(child)
 

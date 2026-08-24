@@ -121,19 +121,19 @@ func test_test_tiny_resource_loads() -> void:
 
 
 func test_milestone1_table_when_archetypes_exist() -> void:
-	for archetype in ["weeper", "mourner", "lament", "vesper", "glutton"]:
+	for archetype in ["weeper", "mourner", "lament", "vesper", "glutton", "cantor"]:
 		if not ResourceLoader.exists("res://src/enemies/archetypes/%s.tscn" % archetype):
 			pending("enemy archetype scenes are not present yet")
 			return
 	var table: WaveTable = load("res://src/spawning/waves/milestone1.tres")
 	assert_not_null(table)
 	assert_eq(table.validate().size(), 0)
-	assert_eq(table.events.size(), 24)
+	assert_eq(table.events.size(), 27)
 	assert_eq(table.loop_from_time, 160.0)
 	assert_eq(table.max_alive, 120)
 	assert_eq(table.last_time(), 200.0)
 	assert_true(table.loops())
-	assert_eq(table.loop_events(1).size(), 7)
+	assert_eq(table.loop_events(1).size(), 8, "everything from loop_from_time on, cantor choir included")
 	var times: Array[float] = []
 	for event in table.expanded():
 		times.append(event.time)
