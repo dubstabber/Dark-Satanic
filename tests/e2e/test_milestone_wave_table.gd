@@ -25,6 +25,6 @@ func test_milestone1_is_valid_and_spawns() -> void:
 	for i in 45 * 10:
 		director.advance(0.1)
 	await wait_physics_frames(3)
-	assert_true(director.alive_count() >= 2, "first two laments are out by 39 s")
+	assert_true(director.alive_count() >= 2, "first two laments are out by 20 s")
 	for enemy in container.get_children():
 		assert_true(enemy is Enemy, "%s is an Enemy" % enemy.name)

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="WaveTable" load_steps=57 format=3 uid="uid://mgxi9q60a09s7"]
+[gd_resource type="Resource" script_class="WaveTable" load_steps=59 format=3 uid="uid://mgxi9q60a09s7"]
 
 [ext_resource type="Script" path="res://src/spawning/resources/wave_table.gd" id="1_table"]
 [ext_resource type="Script" path="res://src/spawning/resources/spawn_event.gd" id="2_event"]
@@ -33,7 +33,7 @@ radius_fraction = 0.75
 
 [sub_resource type="Resource" id="SpawnEvent_2"]
 script = ExtResource("2_event")
-time = 39.0
+time = 20.0
 enemy_scene = ExtResource("8_lament")
 count = 1
 pattern = SubResource("OppositePlayerPattern_2")
@@ -49,7 +49,7 @@ height_max = 3.0
 
 [sub_resource type="Resource" id="SpawnEvent_3"]
 script = ExtResource("2_event")
-time = 60.0
+time = 32.0
 enemy_scene = ExtResource("9_vesper")
 count = 1
 pattern = SubResource("RandomEdgePattern_3")
@@ -61,7 +61,7 @@ script = ExtResource("4_edge")
 
 [sub_resource type="Resource" id="SpawnEvent_4"]
 script = ExtResource("2_event")
-time = 75.0
+time = 45.0
 enemy_scene = ExtResource("8_lament")
 count = 1
 pattern = SubResource("RandomEdgePattern_4")
@@ -74,7 +74,7 @@ radius_fraction = 0.9
 
 [sub_resource type="Resource" id="SpawnEvent_5"]
 script = ExtResource("2_event")
-time = 90.0
+time = 55.0
 enemy_scene = ExtResource("7_mourner")
 count = 1
 pattern = SubResource("OppositePlayerPattern_5")
@@ -87,7 +87,7 @@ radius_fraction = 0.85
 
 [sub_resource type="Resource" id="SpawnEvent_6"]
 script = ExtResource("2_event")
-time = 105.0
+time = 65.0
 enemy_scene = ExtResource("6_weeper")
 count = 8
 pattern = SubResource("RingPattern_6")
@@ -100,7 +100,7 @@ radius_fraction = 0.7
 
 [sub_resource type="Resource" id="SpawnEvent_7"]
 script = ExtResource("2_event")
-time = 120.0
+time = 78.0
 enemy_scene = ExtResource("8_lament")
 count = 2
 pattern = SubResource("RingPattern_7")
@@ -113,7 +113,7 @@ radius_fraction = 0.9
 
 [sub_resource type="Resource" id="SpawnEvent_8"]
 script = ExtResource("2_event")
-time = 140.0
+time = 90.0
 enemy_scene = ExtResource("9_vesper")
 count = 2
 pattern = SubResource("RingPattern_8")
@@ -126,7 +126,7 @@ radius_fraction = 0.9
 
 [sub_resource type="Resource" id="SpawnEvent_9"]
 script = ExtResource("2_event")
-time = 150.0
+time = 100.0
 enemy_scene = ExtResource("7_mourner")
 count = 2
 pattern = SubResource("RingPattern_9")
@@ -138,7 +138,7 @@ script = ExtResource("4_edge")
 
 [sub_resource type="Resource" id="SpawnEvent_10"]
 script = ExtResource("2_event")
-time = 165.0
+time = 110.0
 enemy_scene = ExtResource("8_lament")
 count = 1
 pattern = SubResource("RandomEdgePattern_10")
@@ -151,7 +151,7 @@ radius_fraction = 0.85
 
 [sub_resource type="Resource" id="SpawnEvent_11"]
 script = ExtResource("2_event")
-time = 165.0
+time = 110.0
 enemy_scene = ExtResource("6_weeper")
 count = 10
 pattern = SubResource("RingPattern_11")
@@ -163,7 +163,7 @@ script = ExtResource("5_opposite")
 
 [sub_resource type="Resource" id="SpawnEvent_12"]
 script = ExtResource("2_event")
-time = 180.0
+time = 120.0
 enemy_scene = ExtResource("10_glutton")
 count = 1
 pattern = SubResource("OppositePlayerPattern_12")
@@ -175,7 +175,7 @@ script = ExtResource("3_ring")
 
 [sub_resource type="Resource" id="SpawnEvent_13"]
 script = ExtResource("2_event")
-time = 195.0
+time = 130.0
 enemy_scene = ExtResource("9_vesper")
 count = 2
 pattern = SubResource("RingPattern_13")
@@ -187,7 +187,7 @@ script = ExtResource("5_opposite")
 
 [sub_resource type="Resource" id="SpawnEvent_14"]
 script = ExtResource("2_event")
-time = 195.0
+time = 130.0
 enemy_scene = ExtResource("7_mourner")
 count = 1
 pattern = SubResource("OppositePlayerPattern_14")
@@ -200,7 +200,7 @@ radius_fraction = 0.65
 
 [sub_resource type="Resource" id="SpawnEvent_15"]
 script = ExtResource("2_event")
-time = 210.0
+time = 140.0
 enemy_scene = ExtResource("8_lament")
 count = 2
 pattern = SubResource("RingPattern_15")
@@ -213,7 +213,7 @@ radius_fraction = 0.85
 
 [sub_resource type="Resource" id="SpawnEvent_16"]
 script = ExtResource("2_event")
-time = 225.0
+time = 150.0
 enemy_scene = ExtResource("6_weeper")
 count = 16
 pattern = SubResource("RingPattern_16")
@@ -226,7 +226,7 @@ radius_fraction = 0.9
 
 [sub_resource type="Resource" id="SpawnEvent_17"]
 script = ExtResource("2_event")
-time = 240.0
+time = 160.0
 enemy_scene = ExtResource("7_mourner")
 count = 3
 pattern = SubResource("RingPattern_17")
@@ -239,7 +239,7 @@ radius_fraction = 0.7
 
 [sub_resource type="Resource" id="SpawnEvent_18"]
 script = ExtResource("2_event")
-time = 255.0
+time = 170.0
 enemy_scene = ExtResource("8_lament")
 count = 2
 pattern = SubResource("RingPattern_18")
@@ -252,7 +252,7 @@ radius_fraction = 0.9
 
 [sub_resource type="Resource" id="SpawnEvent_19"]
 script = ExtResource("2_event")
-time = 255.0
+time = 170.0
 enemy_scene = ExtResource("9_vesper")
 count = 2
 pattern = SubResource("RingPattern_19")
@@ -266,7 +266,7 @@ spread_deg = 60.0
 
 [sub_resource type="Resource" id="SpawnEvent_20"]
 script = ExtResource("2_event")
-time = 270.0
+time = 180.0
 enemy_scene = ExtResource("6_weeper")
 count = 20
 pattern = SubResource("OppositePlayerPattern_20")
@@ -278,7 +278,7 @@ script = ExtResource("3_ring")
 
 [sub_resource type="Resource" id="SpawnEvent_21"]
 script = ExtResource("2_event")
-time = 285.0
+time = 190.0
 enemy_scene = ExtResource("7_mourner")
 count = 2
 pattern = SubResource("RingPattern_21")
@@ -290,7 +290,7 @@ script = ExtResource("3_ring")
 
 [sub_resource type="Resource" id="SpawnEvent_22"]
 script = ExtResource("2_event")
-time = 285.0
+time = 190.0
 enemy_scene = ExtResource("9_vesper")
 count = 3
 pattern = SubResource("RingPattern_22")
@@ -303,17 +303,30 @@ radius_fraction = 0.65
 
 [sub_resource type="Resource" id="SpawnEvent_23"]
 script = ExtResource("2_event")
-time = 300.0
+time = 200.0
 enemy_scene = ExtResource("8_lament")
 count = 3
 pattern = SubResource("RingPattern_23")
 stagger = 0.0
 label = "final nests"
 
+[sub_resource type="Resource" id="RingPattern_24"]
+script = ExtResource("3_ring")
+radius_fraction = 0.8
+
+[sub_resource type="Resource" id="SpawnEvent_24"]
+script = ExtResource("2_event")
+time = 8.0
+enemy_scene = ExtResource("6_weeper")
+count = 6
+pattern = SubResource("RingPattern_24")
+stagger = 0.15
+label = "first skulls"
+
 [resource]
 script = ExtResource("1_table")
-events = Array[ExtResource("2_event")]([SubResource("SpawnEvent_1"), SubResource("SpawnEvent_2"), SubResource("SpawnEvent_3"), SubResource("SpawnEvent_4"), SubResource("SpawnEvent_5"), SubResource("SpawnEvent_6"), SubResource("SpawnEvent_7"), SubResource("SpawnEvent_8"), SubResource("SpawnEvent_9"), SubResource("SpawnEvent_10"), SubResource("SpawnEvent_11"), SubResource("SpawnEvent_12"), SubResource("SpawnEvent_13"), SubResource("SpawnEvent_14"), SubResource("SpawnEvent_15"), SubResource("SpawnEvent_16"), SubResource("SpawnEvent_17"), SubResource("SpawnEvent_18"), SubResource("SpawnEvent_19"), SubResource("SpawnEvent_20"), SubResource("SpawnEvent_21"), SubResource("SpawnEvent_22"), SubResource("SpawnEvent_23")])
-loop_from_time = 240.0
+events = Array[ExtResource("2_event")]([SubResource("SpawnEvent_1"), SubResource("SpawnEvent_2"), SubResource("SpawnEvent_3"), SubResource("SpawnEvent_4"), SubResource("SpawnEvent_5"), SubResource("SpawnEvent_6"), SubResource("SpawnEvent_7"), SubResource("SpawnEvent_8"), SubResource("SpawnEvent_9"), SubResource("SpawnEvent_10"), SubResource("SpawnEvent_11"), SubResource("SpawnEvent_12"), SubResource("SpawnEvent_13"), SubResource("SpawnEvent_14"), SubResource("SpawnEvent_15"), SubResource("SpawnEvent_16"), SubResource("SpawnEvent_17"), SubResource("SpawnEvent_18"), SubResource("SpawnEvent_19"), SubResource("SpawnEvent_20"), SubResource("SpawnEvent_21"), SubResource("SpawnEvent_22"), SubResource("SpawnEvent_23"), SubResource("SpawnEvent_24")])
+loop_from_time = 160.0
 loop_count_multiplier = 1.15
 loop_interval_multiplier = 0.95
 max_alive = 120

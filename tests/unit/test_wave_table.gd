@@ -128,10 +128,10 @@ func test_milestone1_table_when_archetypes_exist() -> void:
 	var table: WaveTable = load("res://src/spawning/waves/milestone1.tres")
 	assert_not_null(table)
 	assert_eq(table.validate().size(), 0)
-	assert_eq(table.events.size(), 23)
-	assert_eq(table.loop_from_time, 240.0)
+	assert_eq(table.events.size(), 24)
+	assert_eq(table.loop_from_time, 160.0)
 	assert_eq(table.max_alive, 120)
-	assert_eq(table.last_time(), 300.0)
+	assert_eq(table.last_time(), 200.0)
 	assert_true(table.loops())
 	assert_eq(table.loop_events(1).size(), 7)
 	var times: Array[float] = []
@@ -139,7 +139,7 @@ func test_milestone1_table_when_archetypes_exist() -> void:
 		times.append(event.time)
 		assert_ne(event.label, "")
 	assert_eq(times[0], 3.0)
-	assert_eq(times[times.size() - 1], 300.0)
+	assert_eq(times[times.size() - 1], 200.0)
 
 
 func test_loop_time_scale_is_floored_and_count_scale_capped() -> void:
