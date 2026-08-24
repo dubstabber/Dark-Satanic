@@ -8,6 +8,6 @@ script = ExtResource("1_cue")
 streams = Array[AudioStream]([ExtResource("2_stream")])
 volume_db = -4.0
 pitch_min = 0.9
-pitch_max = 1.05
+pitch_max = 1.1
 bus = &"SFX"
 max_distance = 40.0
