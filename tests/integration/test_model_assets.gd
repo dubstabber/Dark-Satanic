@@ -108,5 +108,10 @@ func test_player_hand_model_replaces_the_finger_boxes() -> void:
 	assert_lt(box.position.z, -0.15, "fingers reach forward (-Z)")
 	assert_gt(box.end.z, 0.1, "forearm trails back toward the camera")
 	assert_lt(box.size.length(), 1.3, "a full arm, its elbow half reaching off-screen")
-	assert_almost_eq(hands.muzzle().position.z, -0.2, 0.001, "Muzzle unchanged")
+	var muzzle := hands.muzzle().position
+	assert_lt(muzzle.z, box.position.z, "daggers leave from past the fingertips, not out of the palm")
+	assert_gt(muzzle.z, box.position.z - 0.15, "but only just past them")
+	var lined_up := box.grow(0.1)
+	assert_between(muzzle.x, lined_up.position.x, lined_up.end.x, "muzzle lines up with the hand in x")
+	assert_between(muzzle.y, lined_up.position.y, lined_up.end.y, "and in y")
 	assert_not_null((hand.material_override as StandardMaterial3D).albedo_texture)

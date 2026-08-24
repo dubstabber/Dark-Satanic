@@ -77,8 +77,11 @@ transform = Transform3D(-0.202753, 0.259514, 0.29269, 0.352451, 0.264205, 0.0098
 material_override = SubResource("StandardMaterial3D_bone")
 mesh = ExtResource("12_hand_mesh")
 
+; Just past the fingertips (the hand's own vertices reach z = -0.457 here, tips
+; around x = -0.08, y = 0.08); the old (0, 0, -0.2) sat inside the palm, so
+; daggers appeared out of the middle of the hand.
 [node name="Muzzle" type="Marker3D" parent="CameraRig/Camera3D/HandViewModel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.065, 0.03, -0.52)
 
 [node name="WeaponHolder" type="Node" parent="." node_paths=PackedStringArray("aim_source", "muzzle")]
 script = ExtResource("8_weapon")

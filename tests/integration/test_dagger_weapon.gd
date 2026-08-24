@@ -222,4 +222,49 @@ func test_aim_direction_without_setup_uses_own_basis() -> void:
 	weapon.rotation_degrees = Vector3(0, -90, 0)
 	_world.add_child(weapon)
 	assert_almost_eq(weapon.aim_direction(), Vector3.RIGHT, Vector3.ONE * 0.001)
+	assert_almost_eq(weapon.forward(), Vector3.RIGHT, Vector3.ONE * 0.001)
 	assert_eq(weapon.muzzle_position(), weapon.global_position)
+
+
+func test_aim_converges_at_convergence_distance_over_open_ground() -> void:
+	_weapon.convergence_distance = 30.0
+	var direction := _weapon.aim_direction()
+	assert_almost_ne(direction, _weapon.forward(), Vector3.ONE * 0.001, "not parallel to the crosshair")
+	var arrival := _muzzle.global_position + direction * _muzzle.global_position.distance_to(Vector3(0, 0, -30))
+	assert_almost_eq(arrival, Vector3(0, 0, -30), Vector3.ONE * 0.001, "meets the crosshair line 30 m out")
+
+
+func test_crosshair_ray_pulls_the_convergence_onto_what_is_aimed_at() -> void:
+	WeaponTargets.hurtbox_target(_world, Vector3(0, 0, -8), 1.0)
+	await wait_physics_frames(3)
+	var distance := _weapon.crosshair_distance(_aim.global_position, _weapon.forward())
+	assert_almost_eq(distance, 7.5, 0.01, "front of the r=0.5 hurtbox")
+	var arrival := _muzzle.global_position + _weapon.aim_direction() * _muzzle.global_position.distance_to(Vector3(0, 0, -7.5))
+	assert_almost_eq(arrival, Vector3(0, 0, -7.5), Vector3.ONE * 0.001)
+
+
+func test_crosshair_distance_is_negative_over_open_ground() -> void:
+	assert_eq(_weapon.crosshair_distance(_aim.global_position, _weapon.forward()), -1.0)
+
+
+func test_offset_muzzle_still_hits_what_the_crosshair_is_on() -> void:
+	# 1.5 m to the right of the camera: parallel-to-forward daggers would sail past
+	# the r=0.5 hurtbox entirely, converged ones land on it.
+	_muzzle.position = Vector3(1.5, 0.0, -0.3)
+	var target := WeaponTargets.hurtbox_target(_world, Vector3(0, 0, -8), 1.0)
+	await wait_physics_frames(3)
+	assert_gt(absf(_muzzle.global_position.x - target.body.global_position.x), 0.5, "a parallel shot misses")
+	assert_eq(_weapon.update_fire(true, false, DT), 1)
+	await wait_physics_frames(16)
+	assert_true(target.health.is_dead(), "converged dagger hit the crosshair target")
+
+
+func test_wall_against_the_face_does_not_swing_the_aim_sideways() -> void:
+	_muzzle.position = Vector3(1.5, 0.0, -0.3)
+	_weapon.min_convergence_distance = 2.0
+	WeaponTargets.hurtbox_target(_world, Vector3(0, 0, -0.6), 100.0)
+	await wait_physics_frames(3)
+	var direction := _weapon.aim_direction()
+	var arrival := _muzzle.global_position + direction * _muzzle.global_position.distance_to(Vector3(0, 0, -2))
+	assert_almost_eq(arrival, Vector3(0, 0, -2), Vector3.ONE * 0.001, "clamped to min_convergence_distance")
+	assert_lt(direction.z, -0.5, "still fires broadly forward")
