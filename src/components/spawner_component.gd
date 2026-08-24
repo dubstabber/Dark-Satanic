@@ -31,6 +31,8 @@ signal spawned(node: Node3D)
 @export var rng_seed: int = 0
 ## Properties copied from the anchor onto each child when both declare them.
 @export var inherited_properties: Array[StringName] = [&"target", &"arena"]
+## Played at the spawn origin whenever a burst actually emits (no-op when null).
+@export var emit_cue: AudioCue
 
 var rng := RandomNumberGenerator.new()
 var emissions: int = 0
@@ -103,6 +105,7 @@ func spawn_burst(amount: int) -> Array[Node3D]:
 		spawned.emit(node)
 	if not nodes.is_empty():
 		emissions += 1
+		AudioManager.play(emit_cue, origin.global_position)
 	return nodes
 
 

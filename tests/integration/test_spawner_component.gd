@@ -78,6 +78,12 @@ func test_max_emissions_and_enabled() -> void:
 	await wait_process_frames(1)
 
 
+func test_spawn_burst_without_emit_cue_stays_silent() -> void:
+	_spawner.emit_cue = null
+	assert_eq(_spawner.spawn_burst(1).size(), 1, "null cue: AudioManager.play no-ops, burst still spawns")
+	await wait_process_frames(1)
+
+
 func test_director_veto() -> void:
 	_spawner.can_spawn = func() -> bool: return false
 	assert_eq(_spawner.advance(2.0), 0)
