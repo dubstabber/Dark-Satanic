@@ -3,6 +3,10 @@ extends PanelContainer
 ## One leaderboard line: rank, name, time, gems, tier. `highlighted` inverts the colours.
 
 const HIGHLIGHT_STYLE := preload("res://src/ui/death_screen/leaderboard_row_highlight.tres")
+## The row's resting frame. Assigned rather than removed when un-highlighting: the
+## scene sets it as a theme override too, so removing the override would fall back to
+## the theme's ornate 96 px PanelContainer frame instead of restoring this.
+const NORMAL_STYLE := preload("res://src/ui/death_screen/leaderboard_row_normal.tres")
 
 @onready var rank_label: Label = %RankLabel
 @onready var name_label: Label = %NameLabel
@@ -31,7 +35,4 @@ func set_highlighted(value: bool) -> void:
 	for label: Label in [rank_label, name_label, time_label, gems_label, tier_label]:
 		label.add_theme_color_override("font_color", text_color)
 		label.add_theme_color_override("font_outline_color", outline)
-	if value:
-		add_theme_stylebox_override("panel", HIGHLIGHT_STYLE)
-	else:
-		remove_theme_stylebox_override("panel")
+	add_theme_stylebox_override("panel", HIGHLIGHT_STYLE if value else NORMAL_STYLE)

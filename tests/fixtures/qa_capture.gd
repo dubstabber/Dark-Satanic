@@ -26,6 +26,7 @@ func _capture_all() -> void:
 	add_child(main)
 	await _frames(30)
 	await _shot("menu")
+	await _menu_leaderboard_shot(main)
 
 	var flow: Node = main.get_node("GameFlow")
 	flow.config = _posed_config()
@@ -67,7 +68,59 @@ func _capture_all() -> void:
 	await _frames(5)
 	await _shot("edge_ring")
 
+	await _rift_shot(main, player)
+
 	main.queue_free()
+	await _frames(3)
+	await _death_screen_shot()
+
+
+## The menu's own copy of the board, opened with a full ten entries.
+func _menu_leaderboard_shot(main: Node) -> void:
+	var menu: MainMenu = main.find_child("MainMenu", true, false)
+	if menu == null:
+		print("qa skip (no menu): menu_leaderboard")
+		return
+	menu.show_leaderboard(_full_board())
+	menu.toggle_leaderboard()
+	await _frames(5)
+	await _shot("menu_leaderboard")
+	menu.toggle_leaderboard()
+	await _frames(3)
+
+
+## Ten plausible entries, the case that used to overflow both boards.
+func _full_board() -> LeaderboardData:
+	var data := LeaderboardData.new()
+	for i in 10:
+		data.insert(LeaderboardEntry.make("PILGRIM%d" % i, float(60 - i * 4), 40 - i * 3, 3 - i / 4, 20 - i))
+	return data
+
+
+## The summoning sigil a directed spawn raises, framed from 5 m away.
+func _rift_shot(main: Node, player: Node3D) -> void:
+	var director: SpawnDirector = main.find_child("SpawnDirector", true, false)
+	if director == null:
+		print("qa skip (no director): spawn_rift")
+		return
+	var at := Vector3(0, 1.6, -14)
+	_aim(player, at + Vector3(0, -1.4, 5.0), at)
+	director.telegraph_at(at)
+	await _frames(25)  # partway through the sigil's swell
+	await _shot("spawn_rift")
+
+
+## The post-run screen with a full ten-entry board, the case that used to push the
+## RETRY / MENU buttons off the bottom of the window.
+func _death_screen_shot() -> void:
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var screen: DeathScreen = load("res://src/ui/death_screen/death_screen.tscn").instantiate()
+	layer.add_child(screen)
+	screen.show_result(RunResult.new(38.5, 27, 19, 2, &"enemy", 0), _full_board(), 3)
+	await _frames(5)
+	await _shot("death_screen")
+	layer.queue_free()
 	await _frames(3)
 
 

@@ -1,9 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://k04rzwdk51cpj"]
+[gd_scene load_steps=4 format=3 uid="uid://k04rzwdk51cpj"]
 
 [ext_resource type="Script" path="res://src/ui/death_screen/leaderboard_row.gd" id="1_row"]
+[ext_resource type="StyleBox" uid="uid://n6uhvp2olp19t" path="res://src/ui/death_screen/leaderboard_row_normal.tres" id="2_normal"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cell"]
 
 [node name="LeaderboardRow" type="PanelContainer"]
 custom_minimum_size = Vector2(520, 0)
+theme_override_styles/panel = ExtResource("2_normal")
 script = ExtResource("1_row")
 
 [node name="Columns" type="HBoxContainer" parent="."]
@@ -14,12 +18,14 @@ theme_override_constants/separation = 12
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_cell")
 text = "#1"
 
 [node name="NameLabel" type="Label" parent="Columns"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxEmpty_cell")
 text = "ANON"
 text_overrun_behavior = 3
 
@@ -27,6 +33,7 @@ text_overrun_behavior = 3
 unique_name_in_owner = true
 custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_cell")
 text = "0.00"
 horizontal_alignment = 2
 
@@ -34,6 +41,7 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_cell")
 text = "0"
 horizontal_alignment = 2
 
@@ -41,5 +49,6 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_cell")
 text = "I"
 horizontal_alignment = 2

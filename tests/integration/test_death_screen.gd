@@ -3,13 +3,25 @@ extends GameTest
 const DeathScene := preload("res://src/ui/death_screen/death_screen.tscn")
 
 var _screen: DeathScreen
+var _frame: Control
 
 
 func before_each() -> void:
 	super.before_each()
+	# The screen fills whatever it is parented to, and the GUT tree is not the game
+	# window. Pin it to the real viewport size so the layout tests below mean something.
+	_frame = Control.new()
+	_frame.name = "Viewport1280x720"
+	add_child_autofree(_frame)
+	_frame.size = Vector2(1280, 720)
 	_screen = DeathScene.instantiate()
-	add_child_autofree(_screen)
+	_frame.add_child(_screen)
 	watch_signals(_screen)
+
+
+func test_the_fixture_really_is_window_sized() -> void:
+	await wait_process_frames(2)
+	assert_almost_eq(_screen.size, Vector2(1280, 720), Vector2.ONE * 0.5)
 
 
 func _board(count: int) -> LeaderboardData:
@@ -68,8 +80,8 @@ func test_ranked_row_is_highlighted() -> void:
 	for i in rows.size():
 		assert_eq(rows[i].highlighted, i == rank, "only row %d highlighted" % rank)
 	assert_eq(rows[rank].name_label.text, "ME")
-	assert_true(rows[rank].has_theme_stylebox_override("panel"))
-	assert_false(rows[0].has_theme_stylebox_override("panel"))
+	assert_same(rows[rank].get_theme_stylebox("panel"), LeaderboardRow.HIGHLIGHT_STYLE)
+	assert_same(rows[0].get_theme_stylebox("panel"), LeaderboardRow.NORMAL_STYLE)
 
 
 func test_row_shows_every_column() -> void:
@@ -112,3 +124,46 @@ func test_show_result_resets_name_and_rerenders() -> void:
 	assert_eq(_screen.name_entry.text, "ANON")
 	assert_false(_screen.name_box.visible)
 	assert_eq(_screen.leaderboard_list.rows().size(), 5)
+
+
+func test_highlighting_a_row_does_not_change_its_height() -> void:
+	_screen.show_result(_result(), _board(4), -1)
+	await wait_process_frames(2)
+	var rows := _screen.leaderboard_list.rows()
+	var plain := rows[0].size.y
+	rows[0].set_highlighted(true)
+	await wait_process_frames(2)
+	assert_almost_eq(rows[0].size.y, plain, 0.5, "the list must not jump when a row lights up")
+
+
+func test_the_board_lives_in_a_vertical_only_scroll_container() -> void:
+	assert_not_null(_screen.board_scroll)
+	assert_eq(_screen.board_scroll.horizontal_scroll_mode, ScrollContainer.SCROLL_MODE_DISABLED)
+	assert_same(_screen.leaderboard_list.get_parent(), _screen.board_scroll)
+
+
+func test_a_full_board_scrolls_instead_of_growing_the_column() -> void:
+	_screen.show_result(_result(), _board(10), -1)
+	await wait_process_frames(2)
+	var list: Control = _screen.leaderboard_list
+	assert_eq(list.rows().size(), 10)
+	assert_gt(list.size.y, _screen.board_scroll.size.y, "ten rows overflow the viewport")
+	assert_true(_screen.board_scroll.get_v_scroll_bar().visible, "so the scrollbar appears")
+
+
+func test_a_short_board_needs_no_scrollbar() -> void:
+	_screen.show_result(_result(), _board(2), -1)
+	await wait_process_frames(2)
+	assert_false(_screen.board_scroll.get_v_scroll_bar().visible)
+
+
+func test_a_full_board_never_pushes_the_buttons_off_screen() -> void:
+	_screen.show_result(_result(), _board(10), 0)
+	await wait_process_frames(2)
+	var screen_rect := _screen.get_global_rect()
+	assert_gt(screen_rect.size.y, 0.0, "the screen has been laid out")
+	for button: Button in [_screen.retry_button, _screen.menu_button, _screen.submit_button]:
+		assert_true(
+			screen_rect.encloses(button.get_global_rect()),
+			"%s at %s escaped %s" % [button.name, button.get_global_rect(), screen_rect]
+		)

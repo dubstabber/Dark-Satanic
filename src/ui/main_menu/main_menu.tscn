@@ -83,13 +83,22 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "QUIT"
 
+; The board scrolls inside a fixed frame: ten rows are taller than the menu column,
+; and a CenterContainer would happily push the whole thing off screen.
 [node name="LeaderboardPanel" type="PanelContainer" parent="Center/Row"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="LeaderboardList" type="VBoxContainer" parent="Center/Row/LeaderboardPanel"]
+[node name="LeaderboardScroll" type="ScrollContainer" parent="Center/Row/LeaderboardPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 300)
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="LeaderboardList" type="VBoxContainer" parent="Center/Row/LeaderboardPanel/LeaderboardScroll"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 2
 script = ExtResource("2_list")

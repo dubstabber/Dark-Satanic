@@ -1,0 +1,15 @@
+[gd_resource type="StyleBoxFlat" format=3 uid="uid://n6uhvp2olp19t"]
+
+; Rows are compact and quiet so ten of them fit: the ornate PanelContainer frame from
+; the theme is a 96 px 9-slice and cannot survive at this size. Vertical margins match
+; leaderboard_row_highlight.tres exactly, so highlighting never changes a row's height.
+[resource]
+content_margin_left = 12.0
+content_margin_top = 4.0
+content_margin_right = 12.0
+content_margin_bottom = 4.0
+; Opaque, not tinted: a row can scroll across the frame's bright ornament, and a
+; translucent background lets that bleed through and wash the text out.
+bg_color = Color(0, 0, 0, 1)
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.4, 1)

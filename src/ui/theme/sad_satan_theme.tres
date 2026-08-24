@@ -10,11 +10,14 @@ variation_transform = Transform2D(1, 0, -0.14, 1, 0, 0)
 spacing_glyph = 2
 spacing_space = 3
 
+; The frame texture is a 96 px 9-slice with 32 px corners, so its painted bar reaches
+; well inside the box. Content margins have to clear that or the first and last rows of
+; a scrolling board sit under the ornament.
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_panel"]
-content_margin_left = 20.0
-content_margin_top = 16.0
-content_margin_right = 20.0
-content_margin_bottom = 16.0
+content_margin_left = 24.0
+content_margin_top = 26.0
+content_margin_right = 24.0
+content_margin_bottom = 26.0
 texture = ExtResource("2_frame")
 texture_margin_left = 32.0
 texture_margin_top = 32.0
@@ -57,6 +60,37 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(1, 1, 1, 1)
 
+; Scrollbars: a hairline black gutter with a bone grabber, sized by their own content
+; margins (a ScrollBar's width is the widest of its styleboxes, so zero margins would
+; make it invisible).
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scroll_track"]
+content_margin_left = 3.0
+content_margin_top = 3.0
+content_margin_right = 3.0
+content_margin_bottom = 3.0
+bg_color = Color(0, 0, 0, 0.8)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.45, 0.45, 0.45, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_grabber"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.72, 0.72, 0.72, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_grabber_bright"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_scroll_panel"]
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_label"]
 content_margin_left = 4.0
 content_margin_top = 2.0
@@ -95,3 +129,14 @@ LineEdit/constants/outline_size = 6
 LineEdit/styles/focus = SubResource("StyleBoxFlat_button_hover")
 LineEdit/styles/normal = SubResource("StyleBoxFlat_panel")
 PanelContainer/styles/panel = SubResource("StyleBoxTexture_panel")
+ScrollContainer/styles/panel = SubResource("StyleBoxEmpty_scroll_panel")
+HScrollBar/styles/grabber = SubResource("StyleBoxFlat_grabber")
+HScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_grabber_bright")
+HScrollBar/styles/grabber_pressed = SubResource("StyleBoxFlat_grabber_bright")
+HScrollBar/styles/scroll = SubResource("StyleBoxFlat_scroll_track")
+HScrollBar/styles/scroll_focus = SubResource("StyleBoxFlat_scroll_track")
+VScrollBar/styles/grabber = SubResource("StyleBoxFlat_grabber")
+VScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_grabber_bright")
+VScrollBar/styles/grabber_pressed = SubResource("StyleBoxFlat_grabber_bright")
+VScrollBar/styles/scroll = SubResource("StyleBoxFlat_scroll_track")
+VScrollBar/styles/scroll_focus = SubResource("StyleBoxFlat_scroll_track")

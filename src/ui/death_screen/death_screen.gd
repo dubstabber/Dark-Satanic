@@ -18,6 +18,9 @@ const DEFAULT_NAME := LeaderboardEntry.DEFAULT_NAME
 @onready var submit_button: Button = %SubmitButton
 @onready var name_box: Control = %NameBox
 @onready var leaderboard_list: LeaderboardList = %LeaderboardList
+## The board's viewport. It is the only thing in the column that expands, which is what
+## keeps RETRY / MENU on screen no matter how many rows the board holds.
+@onready var board_scroll: ScrollContainer = %BoardScroll
 @onready var retry_button: Button = %RetryButton
 @onready var menu_button: Button = %MenuButton
 
