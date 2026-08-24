@@ -9,7 +9,8 @@ at these files. Re-run after replacing a .glb or the floor source:
     tools/bake_textures.py                 # bake everything
     tools/bake_textures.py weeper floor    # bake named entries only
 
-Names: weeper, mourner, lament, vesper, glutton, gem, dagger, hand, floor.
+Names: weeper, mourner, lament, vesper, glutton, cantor, sexton, thurible, tenebrae, gem,
+dagger, hand, floor.
 
 ImageMagick 7 (`magick`) does the decode/encode; every pixel operation happens here on raw
 8-bit grey bytes so a re-run is byte-for-byte reproducible (no repeated re-quantisation and
@@ -44,6 +45,10 @@ MODEL_TEXTURES = {
     "gem": ("gem.glb", 512, None),
     "dagger": ("dagger-projectile.glb", 512, None),
     "hand": ("hand.glb", 1024, None),
+    "cantor": ("cantor.glb", 1024, 0.45),
+    "sexton": ("sexton.glb", 1024, 0.45),
+    "thurible": ("thurible.glb", 1024, 0.40),
+    "tenebrae": ("tenebrae.glb", 1024, 0.38),
 }
 FLOOR = ("floor1.jpg", 1024, 0.42)
 
@@ -129,9 +134,13 @@ def lift_to_mean(pixels: bytes, target: float) -> bytes:
     def mean_for(gamma: float) -> float:
         return sum(count * (i / 255.0) ** (1.0 / gamma) for i, count in enumerate(histogram) if count) / total
 
-    low, high = 0.25, 4.0
+    # Wide enough for the very dark Hunyuan bakes: at 4.0 the sexton topped out at 0.178
+    # against a 0.45 target and was silently left almost invisible against the void.
+    low, high = 0.25, 12.0
     if not mean_for(low) <= target <= mean_for(high):
-        return pixels  # target out of reach; leave the source levels alone
+        print("  note: target mean %.2f out of reach (%.3f..%.3f); leaving source levels"
+              % (target, mean_for(low), mean_for(high)))
+        return pixels
     for _ in range(40):
         mid = (low + high) / 2.0
         if mean_for(mid) < target:

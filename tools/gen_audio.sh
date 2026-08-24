@@ -51,19 +51,10 @@ encode() {
 
 echo "==> Generating sfx into $OUT ($ENCODER)"
 
-# NOTE: the fire, jump, land and spawn-rift sounds are NOT synthesised here — they are
+# NOTE: the fire, jump, land, spawn-rift, enemy-death, hit and gem sounds are NOT synthesised here — they are
 # recorded takes generated with the local moss-sfx MCP server and trimmed into
-# assets/audio/sfx/{dagger_shot,shotgun_blast,jump,land,spawn_rift}_NN.wav. Do not add
+# assets/audio/sfx/{dagger_shot,shotgun_blast,jump,land,spawn_rift,death_screech,hit,gem_chime}_NN.wav. Do not add
 # sox versions of them back: this script would overwrite the generated assets.
-
-# hit: short 1400->500 sine click.
-synth "$TMP/hit.wav" 1 synth 0.07 sine 1400:500 fade t 0.001 0.07 0.05 norm -4
-encode hit "$TMP/hit.wav"
-
-# skull_screech: 0.5 s clashing square/saw sweeps, tremolo, overdrive, bandpass.
-synth "$TMP/screech_raw.wav" 1 synth 0.5 square 820:310 saw mix 851:265 fade t 0.01 0.5 0.12
-fx "$TMP/screech_raw.wav" "$TMP/screech.wav" tremolo 38 75 overdrive 22 bandpass 1300 1.5q norm -3
-encode skull_screech "$TMP/screech.wav"
 
 # spawner_groan: 1.6 s sawtooth 70->44 + sine, speed 0.6, overdrive, lowpass, tremolo, reverb.
 synth "$TMP/groan_raw.wav" 1 synth 1.6 saw 70:44 sine mix 141:88 fade t 0.05 1.6 0.5
@@ -71,12 +62,6 @@ fx "$TMP/groan_raw.wav" "$TMP/groan.wav" speed 0.6 rate "$RATE" overdrive 16 gai
   gain -8 tremolo 5.5 55 reverb 60 60 90 channels 1
 finish "$TMP/groan.wav" "$TMP/groan_out.wav" fade t 0 0 0.1 norm -3
 encode spawner_groan "$TMP/groan_out.wav"
-
-# gem_chime: detuned sine pair 1760/1793 + triangle octave, reversed swell, pitch -40, reverb.
-synth "$TMP/chime_raw.wav" 1 synth 0.55 sine 1760 sine mix 1793 triangle mix 3520 fade t 0.005 0.55 0.45
-fx "$TMP/chime_raw.wav" "$TMP/chime.wav" reverse pitch -40 gain -6 reverb 45 50 80 channels 1
-finish "$TMP/chime.wav" "$TMP/chime_out.wav" fade t 0 0 0.03 norm -6
-encode gem_chime "$TMP/chime_out.wav"
 
 # tier_up: rising detuned chord with a reversed (swelling) reverb tail.
 synth "$TMP/tier_raw.wav" 1 synth 1.1 sine 220:440 sine mix 223:446 sine mix 330:660 triangle mix 441:880 \

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://f227p1jj4hbud"]
+[gd_scene format=3 uid="uid://b7oc4ymbkaf3l"]
 
 [ext_resource type="Script" path="res://src/vfx/particles/one_shot_vfx.gd" id="1_vfx"]
 [ext_resource type="Texture2D" path="res://assets/textures/spawn_sigil.png" id="2_sigil"]

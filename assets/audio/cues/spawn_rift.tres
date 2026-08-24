@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AudioCue" load_steps=4 format=3 uid="uid://dq5v8jt0ye2mn"]
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://dq5v8jt0ye2mn"]
 
 [ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
 [ext_resource type="AudioStreamWAV" uid="uid://dr0op22dd2yp8" path="res://assets/audio/sfx/spawn_rift_01.wav" id="2_rift01"]

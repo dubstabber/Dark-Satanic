@@ -175,8 +175,8 @@ Services: a text-to-SFX model for one-shots; a music model (Suno/Udio/Stable Aud
 prompts should end with: *"lo-fi, recorded to worn VHS tape, slightly slowed, no music, no voice"* (for SFX) and
 be rendered dry so the in-game reverb can sit on top.
 
-The player-action set below is generated **locally** with the `moss-sfx` MCP server (48 kHz mono WAV) instead of
-sox, and each cue holds several interchangeable takes so a repeated action never sounds identical twice. Two
+The player-action and combat-feedback set below is generated **locally** with the `moss-sfx` MCP server
+(48 kHz mono WAV) instead of sox, and each cue holds several interchangeable takes so a repeated action never sounds identical twice. Two
 things about that model matter when regenerating: it centres the event inside the window it is given (so ask for
 a window comfortably longer than the sound and trim the head yourself), and takes vary wildly in level, so render
 `variations=3` and throw away the quiet ones. The trim/normalise pass is: cut from ~6 ms before the first frame
@@ -190,10 +190,10 @@ within 26 dB of the peak to the last frame within 40 dB of it, 2 ms fade in, 50 
 | `jump_01..02.wav` | 0.45 s | player jump (`jump`, −13 dB, 2 takes) | 0.94–1.10 | "a single athletic jump takeoff: boots scuff and push off hard from stone, a short sharp grunt of exertion and a quick rustle of cloth. Close mic, dry, indoors" |
 | `land_01..02.wav` | 0.37–0.55 s | player lands hard (`land`, −12 dB, 2 takes) | 0.90–1.08 | "boots landing hard on cold stone after a fall: one dull heavy thud with a faint gritty scrape of dust. Close-up, dry, short, no music" |
 | `spawn_rift_01..02.wav` | 1.6 s | directed spawn telegraph (`spawn_rift`, −10 dB, 2 takes) | 0.90–1.12 | "a demonic summoning portal opening: a low ominous rising swell out of silence, hissing rush of air, dark occult rumble and a faint chorus of whispers, ending in a soft dry crack as something arrives" |
-| `hit.ogg` | 0.07 s | dagger hits an enemy (`hit`) | 0.9–1.2 | "tiny wet crack, knife into chalk, one hit, very short" |
-| `skull_screech.ogg` | 0.5 s | enemy death (`skull_screech`, −6 dB) | 0.7–1.3 | "short strangled shriek of a choir of tiny voices cut off abruptly, distorted, tape-warped" |
+| `hit_01..02.wav` | 0.03–0.10 s | dagger hits an enemy (`hit`, −16 dB, 2 takes) | 0.88–1.20 | "a thrown blade striking bone: one tiny dry crack, like a knife punching into chalk. Extremely short, close-up, no reverb, no music" |
+| `death_screech_01..03.wav` | 0.46–0.75 s | enemy death (`skull_screech`, −9 dB, 3 takes) | 0.80–1.25 | "one sharp burst of a skull shattering: an instant wet crack of bone splintering with a tiny strangled shriek inside it, over immediately. Close-up, dry, harsh, no reverb, no music" |
+| `gem_chime_01..03.wav` | 0.75 s | gem collected (`gem_chime`, −14 dB, 3 takes) | 0.95–1.10 | "a single small cold glass bell struck once and immediately damped, slightly detuned, with a faint icy shimmer. Very short, close-up, dry, no music" |
 | `spawner_groan.ogg` | 2.7 s | nest rises / emits (`spawner_groan`) | 0.9–1.1 | "long low groan of stone grinding and a slowed-down church organ pedal note, rising then sinking" |
-| `gem_chime.ogg` | 0.55 s | gem collected (`gem_chime`) | 0.95–1.05 | "single small glass bell struck once, slightly detuned, reversed swell into the strike, cold" |
 | `tier_up.ogg` | 1.1 s | dagger tier up (`tier_up`, UI bus) | 1.0 | "short rising three-note bell chord with a reversed tail, solemn, church-like" |
 | `death_stinger.ogg` | 3.0 s | player death (`death_stinger`) | 1.0 | "slow descending funeral chord on a detuned organ, slowed to half speed, reversed tail, tape hiss, ends in silence" |
 | `ui_click.ogg` | 0.03 s | menu buttons (`ui_click`, UI bus) | 1.0 | "tiny dry tick of a rosary bead, one click" |

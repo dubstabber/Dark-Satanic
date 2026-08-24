@@ -15,16 +15,21 @@ const SFX_TAKES := {
 	"land": 2,
 	"spawn_rift": 2,
 	"whispers": 9,
-	"hit": 1,
-	"skull_screech": 1,
+	"hit": 2,
+	"skull_screech": 3,
 	"spawner_groan": 1,
-	"gem_chime": 1,
+	"gem_chime": 3,
 	"tier_up": 1,
 	"death_stinger": 1,
 	"ui_click": 1,
 	"skull_arrive": 1,
 }
 const LOOP_NAMES: Array[String] = ["amb_drone", "menu_hum"]
+## The cues whose takes come from the local moss-sfx server as uncompressed WAV, rather
+## than from tools/gen_audio.sh as sox-synthesised Ogg.
+const GENERATED: Array[String] = [
+	"dagger_tick", "shotgun_thump", "jump", "land", "spawn_rift", "skull_screech", "hit", "gem_chime",
+]
 const VALID_BUSES: Array[StringName] = [&"SFX", &"UI", &"Music"]
 
 
@@ -123,7 +128,7 @@ func test_fire_takes_stay_inside_their_fire_interval() -> void:
 
 
 func test_generated_takes_are_uncompressed_wav() -> void:
-	for cue_name in ["dagger_tick", "shotgun_thump", "jump", "land", "spawn_rift"]:
+	for cue_name in GENERATED:
 		for stream in _streams(cue_name):
 			assert_true(stream is AudioStreamWAV, "%s take is a WAV" % cue_name)
 
@@ -142,7 +147,7 @@ func test_loops_loop_on_music_bus_with_fixed_pitch() -> void:
 func test_pick_helpers_work_on_authored_cues() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 11
-	var cue := _cue("skull_screech")
+	var cue := _cue("spawner_groan")
 	for i in 20:
 		assert_same(cue.pick_stream(rng), cue.streams[0])
 		assert_between(cue.pick_pitch(rng), 0.7, 1.3)
@@ -151,7 +156,7 @@ func test_pick_helpers_work_on_authored_cues() -> void:
 func test_multi_take_cues_actually_rotate_between_takes() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
-	for cue_name in ["dagger_tick", "shotgun_thump", "jump", "land", "spawn_rift"]:
+	for cue_name in GENERATED:
 		var cue := _cue(cue_name)
 		var seen: Array[AudioStream] = []
 		for i in 60:
@@ -168,8 +173,9 @@ func test_specified_tunings() -> void:
 	assert_almost_eq(tick.pitch_max, 1.12, 0.001)
 	assert_gt(_cue("shotgun_thump").volume_db, tick.volume_db, "the volley is the loud one")
 	var screech := _cue("skull_screech")
-	assert_almost_eq(screech.pitch_min, 0.7, 0.001)
-	assert_almost_eq(screech.pitch_max, 1.3, 0.001)
+	assert_almost_eq(screech.pitch_min, 0.8, 0.001)
+	assert_almost_eq(screech.pitch_max, 1.25, 0.001)
+	assert_lt(screech.volume_db, 0.0)
 	assert_eq(_cue("ui_click").bus, &"UI")
 	assert_eq(tick.bus, &"SFX")
 

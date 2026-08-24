@@ -1,4 +1,4 @@
-[gd_resource type="StyleBoxFlat" format=3 uid="uid://n6uhvp2olp19t"]
+[gd_resource type="StyleBoxFlat" format=3 uid="uid://clmu4kbwv4f0j"]
 
 ; Rows are compact and quiet so ten of them fit: the ornate PanelContainer frame from
 ; the theme is a 96 px 9-slice and cannot survive at this size. Vertical margins match
