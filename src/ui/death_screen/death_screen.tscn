@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://fmef9v41t92am"]
+[gd_scene load_steps=6 format=3 uid="uid://fmef9v41t92am"]
 
 [ext_resource type="Script" path="res://src/ui/death_screen/death_screen.gd" id="1_death"]
 [ext_resource type="Script" path="res://src/ui/death_screen/leaderboard_list.gd" id="2_list"]
 [ext_resource type="Theme" path="res://src/ui/theme/sad_satan_theme.tres" id="3_theme"]
 [ext_resource type="LabelSettings" path="res://src/ui/theme/title_label_settings.tres" id="4_title"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/death_ornament.png" id="5_ornament"]
 
 [node name="DeathScreen" type="Control"]
 layout_mode = 3
@@ -42,6 +43,13 @@ layout_mode = 2
 text = "REQUIESCAT"
 label_settings = ExtResource("4_title")
 horizontal_alignment = 1
+
+[node name="Ornament" type="TextureRect" parent="Center/Column"]
+layout_mode = 2
+custom_minimum_size = Vector2(480, 72)
+texture = ExtResource("5_ornament")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Stats" type="HBoxContainer" parent="Center/Column"]
 layout_mode = 2

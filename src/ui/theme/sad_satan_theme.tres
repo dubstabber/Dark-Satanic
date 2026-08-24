@@ -1,6 +1,7 @@
-[gd_resource type="Theme" load_steps=7 format=3 uid="uid://pjc70aos23a03"]
+[gd_resource type="Theme" load_steps=9 format=3 uid="uid://pjc70aos23a03"]
 
 [ext_resource type="FontFile" path="res://assets/fonts/PirataOne-Regular.ttf" id="1_pirata"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/panel_frame.png" id="2_frame"]
 
 [sub_resource type="FontVariation" id="FontVariation_main"]
 base_font = ExtResource("1_pirata")
@@ -8,6 +9,17 @@ variation_embolden = 0.7
 variation_transform = Transform2D(1, 0, -0.14, 1, 0, 0)
 spacing_glyph = 2
 spacing_space = 3
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_panel"]
+content_margin_left = 20.0
+content_margin_top = 16.0
+content_margin_right = 20.0
+content_margin_bottom = 16.0
+texture = ExtResource("2_frame")
+texture_margin_left = 32.0
+texture_margin_top = 32.0
+texture_margin_right = 32.0
+texture_margin_bottom = 32.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 content_margin_left = 12.0
@@ -82,4 +94,4 @@ LineEdit/colors/caret_color = Color(1, 1, 1, 1)
 LineEdit/constants/outline_size = 6
 LineEdit/styles/focus = SubResource("StyleBoxFlat_button_hover")
 LineEdit/styles/normal = SubResource("StyleBoxFlat_panel")
-PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel")
+PanelContainer/styles/panel = SubResource("StyleBoxTexture_panel")

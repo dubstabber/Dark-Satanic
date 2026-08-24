@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://v4jvziz5jyiqd"]
+[gd_scene load_steps=7 format=3 uid="uid://v4jvziz5jyiqd"]
 
 [ext_resource type="Script" path="res://src/ui/main_menu/main_menu.gd" id="1_menu"]
 [ext_resource type="Script" path="res://src/ui/death_screen/leaderboard_list.gd" id="2_list"]
 [ext_resource type="Theme" path="res://src/ui/theme/sad_satan_theme.tres" id="3_theme"]
 [ext_resource type="LabelSettings" path="res://src/ui/theme/title_label_settings.tres" id="4_title"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/title_logo.png" id="5_logo"]
+[ext_resource type="Texture2D" path="res://assets/textures/ui/menu_backdrop.png" id="6_backdrop"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -15,14 +17,16 @@ grow_vertical = 2
 theme = ExtResource("3_theme")
 script = ExtResource("1_menu")
 
-[node name="Backdrop" type="ColorRect" parent="."]
+[node name="Backdrop" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 1)
+texture = ExtResource("6_backdrop")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -40,8 +44,16 @@ theme_override_constants/separation = 48
 layout_mode = 2
 theme_override_constants/separation = 14
 
+[node name="TitleLogo" type="TextureRect" parent="Center/Row/Column"]
+layout_mode = 2
+custom_minimum_size = Vector2(560, 140)
+texture = ExtResource("5_logo")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="TitleLabel" type="Label" parent="Center/Row/Column"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 text = "DARK SATANIC"
 label_settings = ExtResource("4_title")
