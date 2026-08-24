@@ -10,7 +10,7 @@ uniform vec3 center = vec3(0.0, 0.0, 0.0);
 uniform float radius : hint_range(1.0, 200.0, 0.5) = 30.0;
 uniform float fade_width : hint_range(0.1, 50.0, 0.1) = 8.0;
 uniform float texel_scale : hint_range(0.01, 2.0, 0.01) = 0.15;
-uniform float brightness : hint_range(0.0, 2.0, 0.01) = 0.5;
+uniform float brightness : hint_range(0.0, 2.0, 0.01) = 0.85;
 uniform float dither_cell : hint_range(1.0, 16.0, 1.0) = 3.0;
 
 varying vec3 world_pos;
