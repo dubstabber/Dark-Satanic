@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://r628x7bbydxa4"]
+[gd_scene load_steps=6 format=3 uid="uid://r628x7bbydxa4"]
 
 [ext_resource type="Script" path="res://src/vfx/particles/one_shot_vfx.gd" id="1_vfx"]
+[ext_resource type="Texture2D" path="res://assets/textures/gem_glint.png" id="2_tex"]
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sparkle"]
 direction = Vector3(0, 1, 0)
@@ -14,8 +15,11 @@ scale_min = 0.4
 scale_max = 1.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_white"]
+transparency = 1
+blend_mode = 1
 shading_mode = 0
 albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("2_tex")
 billboard_mode = 3
 
 [sub_resource type="QuadMesh" id="QuadMesh_sparkle"]
