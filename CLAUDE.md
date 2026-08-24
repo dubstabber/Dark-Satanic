@@ -35,3 +35,21 @@ must pass.
 Conventional commits on `main`: `feat(scope): ...`, `fix`, `test`, `chore`, `refactor`, `tune` (balance .tres
 tweaks), `ci`, `docs`. Scopes: core, components, player, weapons, enemies, spawning, pickups, arena, vfx, audio,
 ui, persistence, game, e2e.
+
+## Asset generation (local MCP servers)
+Missing or broken assets are generated locally via user-scope MCP servers (all verified end-to-end; each has a
+README with full tool docs in `~/.claude/mcp-servers/<name>/`). The GPU is an 8GB RTX 4070 — run only ONE heavy
+service at a time and stop daemons you no longer need (`forge_stop`, `hunyuan_stop`, `ace_stop`).
+- Images / textures / sprites: `forge-image` (`transparent=True` for sprites, `tiling=True` for textures).
+- 3D props: `forge-image` reference image → `hunyuan3d` `image_to_3d` (textured GLB; cap density with
+  `max_facenum`) → `assets/models/meshes/`. Incorrect meshes: regenerate from a cleaner reference image.
+- Mesh animation: `mesh-animate` `animate_mesh` (GLB + motion prompt → baked 16-frame vertex-animation FBX
+  + MP4 preview; keep meshes ≲100k verts, `decimate_mesh` drops textures — prefer lower `max_facenum`).
+- SFX → `assets/audio/sfx/`: iterate fast with `stable-audio` (small-sfx, ~15 s/take), final take with
+  `moss-sfx` (48 kHz, ~50 s/take, needs ~14GB free RAM).
+- Music: `ace-music` (full tracks, optional lyrics/vocals; >~3 min tracks return `pending` — collect with
+  `fetch_music_task`); `stable-audio` medium for quick ambient beds up to 380 s.
+- 3D environments: `worldgen` (detached jobs, poll `world_status`; `mesh=true` for walkable levels — Godot
+  import needs the Y-flip + vertex-color material setup shown in `~/WorldGen/godot-viewer/`).
+- Generators output WAV; existing audio is OGG. Godot imports both — keep WAV for short SFX, convert long
+  music to OGG (`ffmpeg -i in.wav -q:a 6 out.ogg`) to keep the repo small.
