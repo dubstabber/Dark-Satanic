@@ -21,6 +21,10 @@ extends Resource
 @export_range(0.0, 100.0, 0.5) var contact_damage: float = 1.0
 ## Scale-in time after spawning; the contact hitbox is inactive meanwhile.
 @export_range(0.0, 10.0, 0.05) var spawn_duration: float = 0.4
+## Stay put while scaling in, so a telegraphed arrival materialises where it was
+## announced instead of gliding at the player at half size. Nests switch this off:
+## rising out of the floor *is* their spawn animation.
+@export var hold_during_spawn: bool = true
 @export var hurt_cue: AudioCue
 ## Played when a hit lands on an armoured (0-multiplier) hurtbox; optional.
 @export var armor_cue: AudioCue

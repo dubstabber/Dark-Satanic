@@ -142,7 +142,17 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
   pixel art, greyscale, transparent background"*.
 - `gem_sparkle.tscn` (quad 0.06 m): 32² soft glint — *"small soft cross-shaped glint, white, transparent
   background"*.
-- To use: set the quad's material `albedo_texture`, `transparency = alpha`, `billboard = enabled`.
+- `spawn_rift.tscn` (billboard quad 3.4 m, plus 24 rising motes): 512² summoning circle,
+  `assets/textures/spawn_sigil.png`, generated with forge-image (Flux) — *"Top-down view of a ritual summoning
+  circle carved into stone, seen from directly above, perfectly centred and circular: a bone-white ring of
+  medieval blackletter script with radial spokes and small occult sigils around its rim, an empty dark centre.
+  Medieval woodcut engraving, stark high contrast bone-white line art glowing on a pure black background."*
+  Generated on black (**not** `transparent=True`, which hard-keys glows into a dark halo); alpha is rebuilt in
+  post as `alpha := luminance, RGB := white` with a black floor lift and a radial fade past 0.94 r so the square
+  corners vanish. That makes it an additive-blend sprite, which is what the particle `color_ramp` needs.
+- To use: set the quad's material `albedo_texture`, `transparency = alpha`, `billboard = enabled`. Sprites driven
+  by a particle `color_ramp` or `scale_curve` also need `vertex_color_use_as_albedo = true`, or the curve is
+  computed and then thrown away.
 
 ## 5. UI (2D)
 - **Title logo** (optional; the menu renders "DARK SATANIC" in UnifrakturMaguntia): 1600×400 PNG alpha —

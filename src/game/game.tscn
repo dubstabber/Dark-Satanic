@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://a7yh7fjmb40co"]
+[gd_scene load_steps=13 format=3 uid="uid://a7yh7fjmb40co"]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" uid="uid://x17set90aaksm" path="res://src/game/default_game.tres" id="2_config"]
@@ -10,6 +10,8 @@
 [ext_resource type="PackedScene" path="res://src/ui/hud/hud.tscn" id="8_hud"]
 [ext_resource type="Script" path="res://src/game/whisper_scheduler.gd" id="9_whispers"]
 [ext_resource type="Resource" uid="uid://btt3vo5bm2yvq" path="res://assets/audio/cues/whispers.tres" id="10_whisper_cue"]
+[ext_resource type="PackedScene" uid="uid://f227p1jj4hbud" path="res://src/vfx/particles/spawn_rift.tscn" id="11_spawn_rift"]
+[ext_resource type="Resource" uid="uid://dq5v8jt0ye2mn" path="res://assets/audio/cues/spawn_rift.tres" id="12_rift_cue"]
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_game")
@@ -35,12 +37,17 @@ projectile_root = NodePath("../../ProjectileContainer")
 
 [node name="ProjectileContainer" type="Node3D" parent="."]
 
-[node name="SpawnDirector" type="Node" parent="." node_paths=PackedStringArray("enemy_container", "drop_root", "arena", "target")]
+[node name="VfxContainer" type="Node3D" parent="."]
+
+[node name="SpawnDirector" type="Node" parent="." node_paths=PackedStringArray("enemy_container", "drop_root", "arena", "target", "vfx_root")]
 script = ExtResource("7_director")
 enemy_container = NodePath("../EnemyContainer")
 drop_root = NodePath("../GemContainer")
 arena = NodePath("../Arena")
 target = NodePath("../Player")
+telegraph_scene = ExtResource("11_spawn_rift")
+telegraph_cue = ExtResource("12_rift_cue")
+vfx_root = NodePath("../VfxContainer")
 
 [node name="WhisperScheduler" type="Node" parent="."]
 script = ExtResource("9_whispers")

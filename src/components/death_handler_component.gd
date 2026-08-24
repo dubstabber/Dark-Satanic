@@ -11,6 +11,10 @@ signal handled
 @export_range(0.0, 5.0, 0.05) var free_delay: float = 0.0
 ## Node to disable and free; when null the parent is used.
 @export var target: Node
+## Where the death VFX is parented; when null the target's own parent is used. Game
+## points this at VfxContainer, because a burst left in EnemyContainer would be
+## counted as an enemy ("is this an enemy" means "does it live in there").
+@export var vfx_root: Node
 
 var _free_target: Node
 var _free_remaining: float = -1.0
@@ -50,11 +54,12 @@ func handle_death() -> void:
 		return
 	_disable_collisions(node)
 	var position: Vector3 = node.global_position if node is Node3D else Vector3.ZERO
-	if death_vfx != null and node.get_parent() != null:
+	var root := vfx_root if vfx_root != null else node.get_parent()
+	if death_vfx != null and root != null:
 		var vfx := death_vfx.instantiate()
 		if vfx is Node3D:
-			vfx.position = position
-		node.get_parent().add_child.call_deferred(vfx)
+			vfx.position = root.to_local(position) if root is Node3D and root.is_inside_tree() else position
+		root.add_child.call_deferred(vfx)
 	if death_cue != null:
 		AudioManager.play(death_cue, position)
 	if free_delay <= 0.0:

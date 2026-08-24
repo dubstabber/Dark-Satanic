@@ -5,6 +5,8 @@ extends Node
 ## Time is driven through advance(delta); nothing here uses the engine clock.
 
 signal enemy_spawned(enemy: Node3D, event: SpawnEvent)
+## An arrival was announced at this position; the enemy follows telegraph_time later.
+signal telegraphed(position: Vector3)
 
 @export var wave_table: WaveTable
 @export var enemy_container: Node3D
@@ -20,6 +22,21 @@ signal enemy_spawned(enemy: Node3D, event: SpawnEvent)
 @export_range(0.1, 10.0, 0.05) var difficulty_scale: float = 1.0
 ## Advance on the engine clock instead of waiting for external advance() calls.
 @export var autonomous: bool = false
+
+@export_group("Telegraph")
+## Warning effect raised where a directed spawn will appear; the enemy itself arrives
+## `telegraph_time` later, so the arena tells the player what is coming before it can
+## touch them. Enemies released by a nest's SpawnerComponent are not telegraphed —
+## the nest is its own warning.
+@export var telegraph_scene: PackedScene
+## Seconds between the warning appearing and the enemy arriving (0 = no delay).
+@export_range(0.0, 5.0, 0.05) var telegraph_time: float = 0.85
+## Played at the warning's position; no-op when null.
+@export var telegraph_cue: AudioCue
+## Warning effects are parented here. Never `enemy_container`: "is this an enemy" is
+## "does it live in there", so a stray effect would be counted against max_alive.
+## When null the enemy container's own parent is used.
+@export var vfx_root: Node
 
 var rng := RandomNumberGenerator.new()
 ## Individuals dropped because max_alive was reached (capped at scheduling or at spawn time).
@@ -65,6 +82,8 @@ func advance(delta: float) -> void:
 	while _next_due():
 		_schedule(_events[_cursor], _events[_cursor].time)
 		_cursor += 1
+	for item in _queue.pop_telegraph_due(_elapsed):
+		telegraph_at(item["position"])
 	for item in _queue.pop_due(_elapsed):
 		_spawn_one(item["event"], item["position"])
 
@@ -112,10 +131,12 @@ func arena_info() -> ArenaInfo:
 	return info
 
 
+## Events are scheduled `telegraph_lead()` early so their warning has room to play;
+## the spawn itself still happens at the authored time.
 func _next_due() -> bool:
 	if _cursor >= _events.size():
 		_extend_loop()
-	return _cursor < _events.size() and _events[_cursor].time <= _elapsed
+	return _cursor < _events.size() and _events[_cursor].time - telegraph_lead() <= _elapsed
 
 
 ## Appends the next endless loop block lazily: at most one block per advance() and only
@@ -123,15 +144,43 @@ func _next_due() -> bool:
 func _extend_loop() -> void:
 	if wave_table == null or not wave_table.loops() or _events.is_empty() or _extended_this_advance:
 		return
-	if _elapsed < wave_table.loop_block_start(_loop_k + 1):
+	if _elapsed < wave_table.loop_block_start(_loop_k + 1) - telegraph_lead():
 		return
 	_loop_k += 1
 	_extended_this_advance = true
 	_events.append_array(wave_table.loop_events(_loop_k))
 
 
+## Seconds a warning runs before its enemy arrives; 0 when there is nothing to show.
+func telegraph_lead() -> float:
+	return telegraph_time if telegraph_scene != null and telegraph_time > 0.0 else 0.0
+
+
+## Where warning effects are parented. Deliberately not `enemy_container`.
+func telegraph_root() -> Node:
+	if vfx_root != null:
+		return vfx_root
+	return enemy_container.get_parent() if enemy_container != null else null
+
+
+## Announces an arrival at `position`: the cue always plays, and the warning effect is
+## raised when one is configured. Returns the effect, or null when there is none.
+func telegraph_at(position: Vector3) -> Node3D:
+	telegraphed.emit(position)
+	AudioManager.play(telegraph_cue, position)
+	var root := telegraph_root()
+	if telegraph_scene == null or root == null:
+		return null
+	var vfx := telegraph_scene.instantiate() as Node3D
+	if vfx == null:
+		return null
+	vfx.position = root.to_local(position) if root is Node3D and root.is_inside_tree() else position
+	root.add_child(vfx)
+	return vfx
+
+
 func _schedule(event: SpawnEvent, at_time: float) -> void:
-	_queue.push(event, at_time, _positions_for(event))
+	_queue.push(event, at_time, _positions_for(event), telegraph_lead())
 
 
 ## Positions for the event's (scaled) count, capped to the room left under max_alive.

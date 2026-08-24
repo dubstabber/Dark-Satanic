@@ -108,8 +108,13 @@ func test_falls_back_to_player_group() -> void:
 
 func test_moves_toward_target() -> void:
 	var enemy := _spawn()
+	for i in 20:
+		enemy.advance(1.0 / 60.0)
+	assert_true(enemy.is_holding(), "the first spawn_duration is spent materialising")
+	assert_almost_eq(enemy.global_position.x, 0.0, 0.001, "held where it arrived")
 	for i in 60:
 		enemy.advance(1.0 / 60.0)
+	assert_false(enemy.is_holding())
 	var distance := enemy.global_position.distance_to(_target.global_position)
 	assert_true(distance < 10.0 - 4.0, "closed in at ~5 m/s (distance %.2f)" % distance)
 	assert_almost_eq(enemy.global_position.y, 0.45, 0.001, "held at min_height")
@@ -120,7 +125,31 @@ func test_physics_process_delegates_to_advance() -> void:
 	var enemy := _spawn(true, true)
 	await wait_physics_frames(5)
 	assert_true(enemy.elapsed > 0.0)
+	await wait_physics_frames(35)  # past the spawn hold
 	assert_true(enemy.global_position.x > 0.0)
+
+
+func test_hold_during_spawn_can_be_switched_off_for_a_moving_spawn_animation() -> void:
+	var enemy: Enemy = BaseEnemy.instantiate()
+	var stats := _stats()
+	stats.hold_during_spawn = false
+	enemy.stats = stats
+	enemy.target = _target
+	enemy.get_node("Behaviors").add_child(SeekBehavior.new())
+	_world.add_child(enemy)
+	enemy.set_physics_process(false)
+	assert_false(enemy.is_holding())
+	for i in 10:
+		enemy.advance(1.0 / 60.0)
+	assert_gt(enemy.global_position.x, 0.0, "a nest's rise out of the floor is its spawn animation")
+
+
+func test_an_enemy_without_stats_never_holds() -> void:
+	var enemy: Enemy = BaseEnemy.instantiate()
+	enemy.target = _target
+	_world.add_child(enemy)
+	enemy.set_physics_process(false)
+	assert_false(enemy.is_holding())
 
 
 func test_contact_hitbox_inactive_during_spawn() -> void:

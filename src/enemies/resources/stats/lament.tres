@@ -18,6 +18,7 @@ scale = 1.0
 gem_count = 10
 contact_damage = 1.0
 spawn_duration = 0.8
+hold_during_spawn = false
 hurt_cue = ExtResource("2_hit")
 death_cue = ExtResource("3_skull_screech")
 spawn_cue = ExtResource("4_spawner_groan")

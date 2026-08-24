@@ -76,7 +76,7 @@ func test_death_presentation() -> void:
 	assert_true(AudioManager.is_music_playing(), "drone plays during the run")
 	await _die_in_the_void()
 	assert_false(AudioManager.is_music_playing(), "music stops on death")
-	assert_eq(AudioManager.playing_count(), 1, "death stinger plays")
+	assert_true(AudioManager.is_playing_cue(_flow.death_cue), "death stinger plays")
 	assert_eq(Input.mouse_mode, Input.MOUSE_MODE_VISIBLE)
 	await wait_seconds(_flow.screen_fade_duration + 0.1)
 	var post: PostProcessController = _flow.post_process
@@ -90,7 +90,7 @@ func test_tier_up_pulses_and_plays_cue_only_while_playing() -> void:
 	var post: PostProcessController = _flow.post_process
 	var base := float(post.get_parameter(&"brightness"))
 	RunManager.current.add_gems(RunManager.current.gems_to_next_tier())
-	assert_eq(AudioManager.playing_count(), 1, "tier-up cue")
+	assert_true(AudioManager.is_playing_cue(_flow.tier_up_cue), "tier-up cue")
 	assert_almost_eq(float(post.get_parameter(&"brightness")), base + _flow.tier_pulse_strength, 0.01)
 	assert_true(post.is_transitioning())
 	_flow.show_menu()

@@ -87,6 +87,18 @@ func set_bus_volume(bus: StringName, linear: float) -> void:
 	AudioServer.set_bus_volume_db(index, linear_to_db(clampf(linear, 0.0001, 1.0)))
 
 
+## True when any pooled player is currently playing one of `cue`'s takes. Callers that
+## want "is this particular sound audible" must ask this rather than counting players:
+## with several cues in flight at once a count says nothing about which.
+func is_playing_cue(cue: AudioCue) -> bool:
+	if cue == null:
+		return false
+	for player in _players_3d + _players_2d:
+		if player.playing and player.stream in cue.streams:
+			return true
+	return false
+
+
 func playing_count() -> int:
 	var count := 0
 	for player in _players_3d:

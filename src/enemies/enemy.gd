@@ -77,7 +77,7 @@ func advance(delta: float) -> void:
 		_spawned = true
 		if contact_hitbox != null:
 			contact_hitbox.active = true
-	if mover != null:
+	if mover != null and not is_holding():
 		mover.advance(ctx, delta)
 		# A nest still rising through the floor must not kill from underneath.
 		if contact_hitbox != null:
@@ -86,6 +86,11 @@ func advance(delta: float) -> void:
 
 func is_spawned() -> bool:
 	return _spawned
+
+
+## True while the enemy is still materialising and its stats say to stay put.
+func is_holding() -> bool:
+	return not _spawned and stats != null and stats.hold_during_spawn
 
 
 ## Where projectiles should aim: the first exposed WeakPointComponent child, else the root.

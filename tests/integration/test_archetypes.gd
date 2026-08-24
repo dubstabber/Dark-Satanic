@@ -72,9 +72,13 @@ func test_weeper_stats_and_behaviors() -> void:
 	assert_true(behaviors.get_node("Bob") is BobBehavior)
 	assert_almost_eq((weeper.hurtbox.get_child(0) as CollisionShape3D).shape.radius, 0.45, 0.001)
 	weeper.set_physics_process(false)
+	for i in 20:
+		weeper.advance(1.0 / 60.0)
+	assert_true(weeper.is_holding(), "materialising where the telegraph announced it")
+	assert_almost_eq(weeper.global_position.x, 0.0, 0.001, "no chasing yet")
 	for i in 30:
 		weeper.advance(1.0 / 60.0)
-	assert_true(weeper.global_position.x > 1.0, "chases the target")
+	assert_true(weeper.global_position.x > 1.0, "chases the target once it is fully there")
 
 
 func test_lament_body_is_armoured_but_weak_point_kills() -> void:

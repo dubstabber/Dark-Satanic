@@ -14,6 +14,7 @@ signal run_ended(result: RunResult)
 @onready var enemy_container: Node3D = $EnemyContainer
 @onready var gem_container: Node3D = $GemContainer
 @onready var projectile_container: Node3D = $ProjectileContainer
+@onready var vfx_container: Node3D = $VfxContainer
 @onready var spawn_director: SpawnDirector = $SpawnDirector
 @onready var hud: HUD = $HudLayer/HUD
 @onready var player_light: OmniLight3D = $PlayerLight
@@ -89,7 +90,16 @@ func _wire_arena() -> void:
 func _on_enemy_entered(node: Node) -> void:
 	if node.has_signal("died"):
 		node.died.connect(_on_enemy_died)
+	_route_death_vfx(node)
 	EventBus.enemy_spawned.emit(node)
+
+
+## Death effects go to VfxContainer wherever the enemy came from — the director or a
+## nest's SpawnerComponent. Left in EnemyContainer they would be counted as enemies.
+func _route_death_vfx(node: Node) -> void:
+	for child in node.get_children():
+		if child is DeathHandlerComponent:
+			(child as DeathHandlerComponent).vfx_root = vfx_container
 
 
 func _on_enemy_died(enemy: Node3D, _last_hit: HitInfo) -> void:

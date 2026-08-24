@@ -1,0 +1,97 @@
+[gd_scene load_steps=13 format=3 uid="uid://f227p1jj4hbud"]
+
+[ext_resource type="Script" path="res://src/vfx/particles/one_shot_vfx.gd" id="1_vfx"]
+[ext_resource type="Texture2D" path="res://assets/textures/spawn_sigil.png" id="2_sigil"]
+[ext_resource type="Texture2D" path="res://assets/textures/death_chip.png" id="3_chip"]
+
+[sub_resource type="Curve" id="Curve_grow"]
+_data = [Vector2(0, 0.25), 0.0, 0.0, 0, 0, Vector2(0.4, 0.95), 0.0, 0.0, 0, 0, Vector2(1, 1.15), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_grow"]
+curve = SubResource("Curve_grow")
+
+[sub_resource type="Gradient" id="Gradient_pulse"]
+offsets = PackedFloat32Array(0, 0.15, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_pulse"]
+gradient = SubResource("Gradient_pulse")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sigil"]
+direction = Vector3(0, 1, 0)
+spread = 0.0
+initial_velocity_min = 0.0
+initial_velocity_max = 0.0
+gravity = Vector3(0, 0, 0)
+scale_min = 1.0
+scale_max = 1.0
+scale_curve = SubResource("CurveTexture_grow")
+color_ramp = SubResource("GradientTexture1D_pulse")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sigil"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("2_sigil")
+texture_filter = 3
+billboard_mode = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_sigil"]
+material = SubResource("StandardMaterial3D_sigil")
+size = Vector2(3.4, 3.4)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_motes"]
+emission_shape = 1
+emission_sphere_radius = 1.2
+direction = Vector3(0, 1, 0)
+spread = 18.0
+initial_velocity_min = 1.2
+initial_velocity_max = 3.2
+gravity = Vector3(0, -1.5, 0)
+damping_min = 0.5
+damping_max = 1.5
+scale_min = 0.5
+scale_max = 1.3
+color_ramp = SubResource("GradientTexture1D_pulse")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mote"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("3_chip")
+texture_filter = 2
+billboard_mode = 3
+
+[sub_resource type="QuadMesh" id="QuadMesh_mote"]
+material = SubResource("StandardMaterial3D_mote")
+size = Vector2(0.11, 0.11)
+
+[node name="SpawnRift" type="Node3D"]
+script = ExtResource("1_vfx")
+safety_margin = 0.4
+
+[node name="Sigil" type="GPUParticles3D" parent="."]
+emitting = true
+amount = 1
+lifetime = 1.25
+one_shot = true
+explosiveness = 1.0
+fixed_fps = 30
+process_material = SubResource("ParticleProcessMaterial_sigil")
+draw_pass_1 = SubResource("QuadMesh_sigil")
+
+[node name="Motes" type="GPUParticles3D" parent="."]
+emitting = true
+amount = 24
+lifetime = 1.1
+one_shot = true
+explosiveness = 0.25
+fixed_fps = 24
+process_material = SubResource("ParticleProcessMaterial_motes")
+draw_pass_1 = SubResource("QuadMesh_mote")

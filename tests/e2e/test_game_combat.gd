@@ -38,7 +38,7 @@ func test_daggers_kill_enemy_and_gem_is_collected() -> void:
 	assert_true(RunManager.is_running(), "run still going")
 	assert_true(gems_dropped[0] >= 1, "gems drop into GemContainer (and may already be collected)")
 	for child in _flow.game.enemy_container.get_children():
-		assert_true(child.has_signal("died"), "%s: only enemies live in EnemyContainer" % child.name)
+		assert_true(child.has_signal("died"), "%s (%s, script %s): only enemies live in EnemyContainer" % [child.name, child.get_class(), child.get_script()])
 	for candidate in _flow.game.enemies():
 		assert_true(candidate.has_signal("died"), "homing targets are enemies only")
 	assert_true(_flow.game.projectile_container.get_child_count() >= 1, "daggers parented to ProjectileContainer")
