@@ -1,0 +1,164 @@
+[gd_scene load_steps=17 format=3 uid="uid://b9ljdxvv60axc"]
+
+[ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
+[ext_resource type="Resource" uid="uid://egtfj0uownscv" path="res://src/enemies/resources/stats/tenebrae.tres" id="2_stats"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/hover_drift_behavior.gd" id="3_hover"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/seek_behavior.gd" id="4_seek"]
+[ext_resource type="ArrayMesh" uid="uid://d1jqomlnfbndb" path="res://assets/models/meshes/tenebrae.res" id="5_mesh"]
+[ext_resource type="Texture2D" uid="uid://6775banqsjea" path="res://assets/textures/tenebrae.png" id="6_tex"]
+[ext_resource type="Script" path="res://src/components/spawner_component.gd" id="7_spawner"]
+[ext_resource type="PackedScene" uid="uid://w7bp2c8nlfukq" path="res://src/enemies/archetypes/weeper.tscn" id="8_weeper"]
+[ext_resource type="PackedScene" uid="uid://p8wmg00yqywjn" path="res://src/enemies/archetypes/vesper.tscn" id="9_vesper"]
+[ext_resource type="Script" path="res://src/enemies/bosses/boss_phase_controller.gd" id="10_phases"]
+[ext_resource type="PackedScene" uid="uid://x55za7cgor14r" path="res://src/components/weak_point_component.tscn" id="11_weak"]
+[ext_resource type="Resource" uid="uid://mtujgufjuc77q" path="res://assets/audio/cues/spawner_groan.tres" id="12_groan"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_body"]
+radius = 2.9
+height = 7.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tenebrae"]
+albedo_color = Color(0.82, 0.8, 0.76, 1)
+albedo_texture = ExtResource("6_tex")
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.28
+emission_texture = ExtResource("6_tex")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
+albedo_color = Color(1, 1, 1, 1)
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 3.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_flame"]
+material = SubResource("StandardMaterial3D_flame")
+radius = 0.32
+height = 0.8
+radial_segments = 8
+rings = 4
+
+[node name="Enemy" instance=ExtResource("1_base")]
+stats = ExtResource("2_stats")
+
+[node name="Hurtbox" parent="." index="1"]
+damage_multiplier = 0.0
+
+[node name="CollisionShape3D" parent="Hurtbox" index="0"]
+shape = SubResource("CylinderShape3D_body")
+
+[node name="ContactHitbox" parent="." index="2"]
+active = false
+
+[node name="CollisionShape3D" parent="ContactHitbox" index="0"]
+shape = SubResource("CylinderShape3D_body")
+
+[node name="Hover" type="Node" parent="Behaviors"]
+script = ExtResource("3_hover")
+hover_height = 13.0
+rise_depth = 0.0
+rise_duration = 2.5
+drift_speed = 2.5
+altitude_gain = 2.0
+
+[node name="Charge" type="Node" parent="Behaviors"]
+script = ExtResource("4_seek")
+enabled = false
+speed = 9.0
+turn_speed_deg = 45.0
+vertical = true
+
+[node name="Mesh" parent="Visual" index="0"]
+transform = Transform3D(4.6, 0, 0, 0, 4.6, 0, 0, 0, 4.6, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_tenebrae")
+mesh = ExtResource("5_mesh")
+
+[node name="Candle0" parent="." index="8" instance=ExtResource("11_weak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0000, 3.2344, -2.3000)
+crit_multiplier = 2.0
+
+[node name="Flame0" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0000, 3.7375, -2.3000)
+material_override = SubResource("StandardMaterial3D_flame")
+mesh = SubResource("SphereMesh_flame")
+
+[node name="Candle1" parent="." index="9" instance=ExtResource("11_weak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7982, 3.2344, -1.4340)
+crit_multiplier = 2.0
+
+[node name="Flame1" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7982, 3.7375, -1.4340)
+material_override = SubResource("StandardMaterial3D_flame")
+mesh = SubResource("SphereMesh_flame")
+
+[node name="Candle2" parent="." index="10" instance=ExtResource("11_weak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2424, 3.2344, 0.5117)
+crit_multiplier = 2.0
+
+[node name="Flame2" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2424, 3.7375, 0.5117)
+material_override = SubResource("StandardMaterial3D_flame")
+mesh = SubResource("SphereMesh_flame")
+
+[node name="Candle3" parent="." index="11" instance=ExtResource("11_weak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9979, 3.2344, 2.0723)
+crit_multiplier = 2.0
+
+[node name="Flame3" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9979, 3.7375, 2.0723)
+material_override = SubResource("StandardMaterial3D_flame")
+mesh = SubResource("SphereMesh_flame")
+
+[node name="Candle4" parent="." index="12" instance=ExtResource("11_weak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9979, 3.2344, 2.0723)
+crit_multiplier = 2.0
+
+[node name="Flame4" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9979, 3.7375, 2.0723)
+material_override = SubResource("StandardMaterial3D_flame")
+mesh = SubResource("SphereMesh_flame")
+
+[node name="Candle5" parent="." index="13" instance=ExtResource("11_weak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2424, 3.2344, 0.5117)
+crit_multiplier = 2.0
+
+[node name="Flame5" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2424, 3.7375, 0.5117)
+material_override = SubResource("StandardMaterial3D_flame")
+mesh = SubResource("SphereMesh_flame")
+
+[node name="Candle6" parent="." index="14" instance=ExtResource("11_weak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7982, 3.2344, -1.4340)
+crit_multiplier = 2.0
+
+[node name="Flame6" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7982, 3.7375, -1.4340)
+material_override = SubResource("StandardMaterial3D_flame")
+mesh = SubResource("SphereMesh_flame")
+
+[node name="Escorts" type="Node" parent="."]
+script = ExtResource("7_spawner")
+scene = ExtResource("8_weeper")
+interval = 5.0
+burst = 5
+initial_delay = 3.0
+max_alive = 24
+spawn_radius = 3.0
+spawn_on_floor = true
+autonomous = true
+emit_cue = ExtResource("12_groan")
+
+[node name="Phases" type="Node" parent="." node_paths=PackedStringArray("hover", "charge", "spawner", "contact_hitbox")]
+script = ExtResource("10_phases")
+candles = [NodePath("../Candle0"), NodePath("../Candle1"), NodePath("../Candle2"), NodePath("../Candle3"), NodePath("../Candle4"), NodePath("../Candle5"), NodePath("../Candle6")]
+flames = [NodePath("../Visual/Flame0"), NodePath("../Visual/Flame1"), NodePath("../Visual/Flame2"), NodePath("../Visual/Flame3"), NodePath("../Visual/Flame4"), NodePath("../Visual/Flame5"), NodePath("../Visual/Flame6")]
+phase_thresholds = Array[int]([2, 5])
+hover = NodePath("../Behaviors/Hover")
+hover_heights = Array[float]([13.0, 6.0, 6.0])
+hover_speeds = Array[float]([2.5, 4.5, 4.5])
+charge = NodePath("../Behaviors/Charge")
+spawner = NodePath("../Escorts")
+spawner_intervals = Array[float]([5.0, 7.0, 7.0])
+spawner_scenes = Array[PackedScene]([ExtResource("8_weeper"), ExtResource("9_vesper"), ExtResource("9_vesper")])
+contact_hitbox = NodePath("../ContactHitbox")
+contact_from_phase = 1

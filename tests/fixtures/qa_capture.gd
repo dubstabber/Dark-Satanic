@@ -69,6 +69,7 @@ func _capture_all() -> void:
 	await _frames(5)
 	await _shot("edge_ring")
 
+	await _boss_shot(main, player)
 	await _rift_shot(main, player)
 
 	main.queue_free()
@@ -96,6 +97,27 @@ func _full_board() -> LeaderboardData:
 	for i in 10:
 		data.insert(LeaderboardEntry.make("PILGRIM%d" % i, float(60 - i * 4), 40 - i * 3, 3 - i / 4, 20 - i))
 	return data
+
+
+## The Tenebrae, summoned on the spot and framed from far enough back to see its crown.
+func _boss_shot(main: Node, player: Node3D) -> void:
+	var boss_director: BossDirector = main.find_child("BossDirector", true, false)
+	if boss_director == null:
+		print("qa skip (no boss director): tenebrae")
+		return
+	var at := Vector3(0, 8, -13)
+	var boss := boss_director.director.spawn_at(boss_director.event, at)
+	if boss == null:
+		print("qa skip (boss refused): tenebrae")
+		return
+	_aim(player, Vector3(0, 0.2, 1), at)
+	await _frames(120)  # let EnemyVisual.spawn_in finish, or it is captured at 5% scale
+	boss.set_physics_process(false)
+	boss.global_position = at
+	await _frames(3)
+	await _shot("tenebrae")
+	boss.queue_free()
+	await _frames(3)
 
 
 ## The summoning sigil a directed spawn raises, framed from 5 m away.

@@ -112,6 +112,29 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
   with margin on all sides, PS1-era game model, isolated on a pure black background."*
 - Generated with forge-image (Flux, 768×1024) → hunyuan3d `image_to_3d` at `max_facenum=1800`.
 
+### 1.7 Tenebrae — the boss
+
+- Scene: `src/enemies/bosses/tenebrae.tscn`, stats `src/enemies/resources/stats/tenebrae.tres`,
+  phases `src/enemies/bosses/boss_phase_controller.gd`.
+- Named for the liturgical office of darkness, in which the candles are put out one by one until
+  the church is black. That is the fight: the body is armoured (`damage_multiplier = 0`) and the
+  only damageable parts are seven `WeakPointComponent` candles in a ring on its crown, each
+  snuffed at its seventh of the health bar. It reads perfectly through the 5-level dither —
+  seven bright points on a black mass — and the arena goes one notch darker as you win.
+- Fits: cylinder r 2.9 m, height 7.9 m, origin at the centre; mesh scaled 4.6 (≈ 6.5 × 8.6 × 5.8 m).
+  The candle ring sits at radius 2.3 m, y 3.23; the flames are separate meshes at y 3.74 so the
+  controller can hide them one at a time. Hovers at 13 m, drops to 6 m in phase II, charges in III.
+- Arrives on `BossDirector`'s own clock (every 180 s), not from the wave table — an ordinary
+  SpawnEvent is dropped at max_alive, which is exactly when a boss is most due.
+- Prompt: *"a colossal low-poly Tenebrae hearse — a towering triangular church candle-stand of
+  blackened pitted iron and fused bone, its upper frame crowned by a ring of seven tall candles
+  each tipped with a small pale flame, the whole structure grown into a hooded faceless mourner
+  whose stiff funeral drapes hang in heavy flat low-poly folds and end in nothing, no legs,
+  hovering, a small barred reliquary door set into its chest. Single subject, upright, symmetrical,
+  seen straight on, neutral pose, all seven candles and the full hem inside the frame with margin
+  on all sides, PS1-era horror game boss model, isolated on a pure black background."*
+- Generated with forge-image (Flux, 768×1024) → hunyuan3d `image_to_3d` at `max_facenum=2600`.
+
 ## 2. Weapon and pickups
 
 ### 2.1 Dagger projectile

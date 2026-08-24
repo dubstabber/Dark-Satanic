@@ -104,6 +104,12 @@ func spawn_now(event: SpawnEvent) -> Array[Node3D]:
 	return nodes
 
 
+## Spawns one individual of `event` at an exact position, outside the schedule. The boss
+## director uses it so the arrival lands on the spot its warning marked.
+func spawn_at(event: SpawnEvent, position: Vector3) -> Node3D:
+	return _spawn_one(event, position) if event != null else null
+
+
 ## Enemies (nodes with a `died` signal) in the container that are not queued for deletion.
 func alive_count() -> int:
 	if enemy_container == null:
@@ -190,7 +196,7 @@ func _schedule(event: SpawnEvent, at_time: float) -> void:
 ## Positions for the event's (scaled) count, capped to the room left under max_alive.
 func _positions_for(event: SpawnEvent) -> Array[Vector3]:
 	var count := int(ceil(float(event.count) * difficulty_scale))
-	if max_alive() > 0:
+	if max_alive() > 0 and not event.ignores_cap:
 		var room := maxi(max_alive() - alive_count() - pending_count(), 0)
 		if count > room:
 			dropped += count - room
@@ -207,7 +213,7 @@ func _positions_for(event: SpawnEvent) -> Array[Vector3]:
 func _spawn_one(event: SpawnEvent, position: Vector3) -> Node3D:
 	if event.enemy_scene == null or enemy_container == null:
 		return null
-	if max_alive() > 0 and alive_count() >= max_alive():
+	if max_alive() > 0 and not event.ignores_cap and alive_count() >= max_alive():
 		dropped += 1
 		return null
 	var node := event.enemy_scene.instantiate() as Node3D

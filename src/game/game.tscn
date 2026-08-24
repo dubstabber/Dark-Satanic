@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://a7yh7fjmb40co"]
+[gd_scene load_steps=19 format=3 uid="uid://a7yh7fjmb40co"]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" uid="uid://x17set90aaksm" path="res://src/game/default_game.tres" id="2_config"]
@@ -12,6 +12,27 @@
 [ext_resource type="Resource" uid="uid://btt3vo5bm2yvq" path="res://assets/audio/cues/whispers.tres" id="10_whisper_cue"]
 [ext_resource type="PackedScene" uid="uid://f227p1jj4hbud" path="res://src/vfx/particles/spawn_rift.tscn" id="11_spawn_rift"]
 [ext_resource type="Resource" uid="uid://dq5v8jt0ye2mn" path="res://assets/audio/cues/spawn_rift.tres" id="12_rift_cue"]
+[ext_resource type="Script" path="res://src/spawning/boss_director.gd" id="13_boss_director"]
+[ext_resource type="PackedScene" uid="uid://b9ljdxvv60axc" path="res://src/enemies/bosses/tenebrae.tscn" id="14_tenebrae"]
+[ext_resource type="Script" path="res://src/spawning/resources/spawn_event.gd" id="15_event"]
+[ext_resource type="Script" path="res://src/spawning/patterns/random_edge_pattern.gd" id="16_edge"]
+
+[sub_resource type="Resource" id="Resource_boss_pattern"]
+script = ExtResource("16_edge")
+min_radius_fraction = 0.0
+max_radius_fraction = 0.35
+height_min = 13.0
+height_max = 13.0
+
+[sub_resource type="Resource" id="Resource_boss_event"]
+script = ExtResource("15_event")
+time = 0.0
+enemy_scene = ExtResource("14_tenebrae")
+count = 1
+pattern = SubResource("Resource_boss_pattern")
+stagger = 0.0
+label = "tenebrae"
+ignores_cap = true
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_game")
@@ -49,6 +70,14 @@ telegraph_scene = ExtResource("11_spawn_rift")
 telegraph_cue = ExtResource("12_rift_cue")
 vfx_root = NodePath("../VfxContainer")
 projectile_root = NodePath("../ProjectileContainer")
+
+[node name="BossDirector" type="Node" parent="." node_paths=PackedStringArray("director")]
+script = ExtResource("13_boss_director")
+director = NodePath("../SpawnDirector")
+event = SubResource("Resource_boss_event")
+first_at = 180.0
+interval = 180.0
+telegraph_lead = 3.0
 
 [node name="WhisperScheduler" type="Node" parent="."]
 script = ExtResource("9_whispers")

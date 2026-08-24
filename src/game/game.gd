@@ -16,6 +16,7 @@ signal run_ended(result: RunResult)
 @onready var projectile_container: Node3D = $ProjectileContainer
 @onready var vfx_container: Node3D = $VfxContainer
 @onready var spawn_director: SpawnDirector = $SpawnDirector
+@onready var boss_director: BossDirector = $BossDirector
 @onready var hud: HUD = $HudLayer/HUD
 @onready var player_light: OmniLight3D = $PlayerLight
 @onready var whisper_scheduler: WhisperScheduler = $WhisperScheduler
@@ -39,6 +40,7 @@ func _ready() -> void:
 	run_state.gems_changed.connect(func(total: int) -> void: EventBus.gem_collected.emit(total))
 	player.weapon_holder.set_tier(run_state.current_tier())
 	spawn_director.start()
+	boss_director.start()
 
 
 func _physics_process(delta: float) -> void:
@@ -46,6 +48,7 @@ func _physics_process(delta: float) -> void:
 		return
 	run_state.tick(delta)
 	spawn_director.advance(delta)
+	boss_director.advance(delta)
 	whisper_scheduler.advance(delta)
 	arena_shrinker.advance(run_state.elapsed)
 	player_light.global_position = player.global_position + Vector3.UP * player_light_height

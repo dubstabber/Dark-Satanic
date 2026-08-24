@@ -43,6 +43,13 @@ func test_scene_wiring() -> void:
 	assert_true(_game.spawn_director.telegraph_cue is AudioCue, "and its cue")
 	assert_gt(_game.spawn_director.telegraph_lead(), 0.0, "so spawns really are announced early")
 	assert_same(_game.spawn_director.vfx_root, _game.vfx_container)
+	assert_same(_game.spawn_director.projectile_root, _game.projectile_container)
+	assert_same(_game.boss_director.director, _game.spawn_director)
+	assert_true(_game.boss_director.event is SpawnEvent, "the scene ships a boss to summon")
+	assert_true(_game.boss_director.event.enemy_scene is PackedScene)
+	assert_true(_game.boss_director.event.ignores_cap, "a full arena must not swallow it")
+	assert_gt(_game.boss_director.first_at, 0.0)
+	assert_gt(_game.boss_director.interval, 0.0)
 	assert_not_same(_game.spawn_director.vfx_root, _game.enemy_container, "never the enemy container")
 	assert_same(_game.arena.target, _game.player)
 	assert_true(_game.hud.is_bound())
@@ -150,3 +157,10 @@ func test_death_effects_are_routed_out_of_the_enemy_container() -> void:
 	_game.enemy_container.add_child(enemy)
 	await wait_physics_frames(1)
 	assert_same(enemy.death_handler.vfx_root, _game.vfx_container)
+
+
+func test_the_boss_clock_runs_with_the_run() -> void:
+	assert_eq(_game.boss_director.elapsed, 0.0, "started with the run")
+	await wait_physics_frames(30)
+	assert_gt(_game.boss_director.elapsed, 0.0, "and is driven by the physics clock")
+	assert_almost_eq(_game.boss_director.elapsed, _game.spawn_director.elapsed(), 0.001)
