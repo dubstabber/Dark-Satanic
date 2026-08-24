@@ -4,6 +4,7 @@ extends Node
 ## optionally also a burst when the owner dies. Time is driven through advance().
 
 signal spawned(node: Node3D)
+signal burst_released(nodes: Array[Node3D])
 
 @export var scene: PackedScene
 @export_range(0.1, 60.0, 0.1) var interval: float = 8.0
@@ -27,6 +28,9 @@ signal spawned(node: Node3D)
 @export var spawn_root: Node
 ## Position source; when null the parent is used.
 @export var anchor: Node3D
+## Emission origin override (e.g. a Marker3D at a nest's crown); children emerge
+## around it instead of around the anchor. The anchor still provides inheritance.
+@export var spawn_point: Node3D
 @export var health: HealthComponent
 @export var rng_seed: int = 0
 ## Properties copied from the anchor onto each child when both declare them.
@@ -87,6 +91,7 @@ func spawn_burst(amount: int) -> Array[Node3D]:
 	var root := spawn_root if spawn_root != null else (origin.get_parent() if origin != null else null)
 	if root == null:
 		return nodes
+	var center := spawn_point.global_position if spawn_point != null else origin.global_position
 	for i in amount:
 		if max_alive > 0 and alive_count() >= max_alive:
 			break
@@ -94,7 +99,7 @@ func spawn_burst(amount: int) -> Array[Node3D]:
 		if node == null:
 			continue
 		var angle := rng.randf_range(0.0, TAU)
-		var world_position := origin.global_position + Vector3(cos(angle), 0.0, sin(angle)) * spawn_radius
+		var world_position := center + Vector3(cos(angle), 0.0, sin(angle)) * spawn_radius
 		if spawn_on_floor:
 			world_position.y = _floor_y(origin) + _min_height(node)
 		node.position = root.to_local(world_position) if root is Node3D else world_position
@@ -105,7 +110,8 @@ func spawn_burst(amount: int) -> Array[Node3D]:
 		spawned.emit(node)
 	if not nodes.is_empty():
 		emissions += 1
-		AudioManager.play(emit_cue, origin.global_position)
+		AudioManager.play(emit_cue, center)
+		burst_released.emit(nodes)
 	return nodes
 
 

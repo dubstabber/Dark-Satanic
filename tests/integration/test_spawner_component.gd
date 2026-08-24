@@ -55,6 +55,30 @@ func test_children_inherit_target_and_sit_on_radius() -> void:
 	assert_almost_eq(nodes[0].global_position.distance_to(_anchor.global_position), 2.0, 0.001)
 
 
+func test_spawn_point_overrides_the_emission_origin() -> void:
+	var crown := Marker3D.new()
+	crown.position = Vector3(0, 2.1, 0)
+	_anchor.add_child(crown)
+	_spawner.spawn_point = crown
+	_spawner.spawn_radius = 0.5
+	var nodes := _spawner.spawn_burst(2)
+	await wait_process_frames(2)
+	for node in nodes:
+		assert_almost_eq(node.global_position.y, crown.global_position.y, 0.001, "released at the crown height")
+		var flat := node.global_position - crown.global_position
+		flat.y = 0.0
+		assert_almost_eq(flat.length(), 0.5, 0.001, "on the crown radius")
+
+
+func test_burst_released_fires_once_per_non_empty_burst() -> void:
+	assert_eq(_spawner.spawn_burst(3).size(), 3)
+	assert_signal_emit_count(_spawner, "burst_released", 1)
+	_spawner.scene = null
+	_spawner.spawn_burst(2)
+	assert_signal_emit_count(_spawner, "burst_released", 1, "empty bursts stay silent")
+	await wait_process_frames(2)
+
+
 func test_max_alive_caps_until_children_die() -> void:
 	_spawner.max_alive = 3
 	assert_eq(_spawner.spawn_burst(5).size(), 3)
