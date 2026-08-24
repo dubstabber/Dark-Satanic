@@ -3,9 +3,11 @@
 This file lists every asset worth replacing, the prompt to generate it with an external service, and the technical
 constraints it must meet to drop straight into the existing scenes (paths, sizes, orientation, formats).
 
-Status (2026-08-23): sections 1–3.1 and 6 are in — the five enemy models, dagger, gem, hand, the floor texture and
-all audio ship as real assets; `base_enemy.tscn`, the VFX sprites (4), the UI art (5), the edge ring (3.2) and the
-extras (7) are still procedural placeholders.
+Status (2026-08-24): everything ships as real assets — models (1–2, vesper regenerated at 1.5k tris), arena (3,
+edge ring strip included), VFX sprites (4), UI art (5, plus the app icon), audio (6) and the extras (7:
+`skull_arrive` weeper spawn cue and the `whispers` cue played by `WhisperScheduler` under `Game`). Only
+`base_enemy.tscn` keeps its procedural sphere on purpose — it is the never-visible template the archetypes
+override, and tests instantiate it directly.
 
 Drop-in workflow for a replaced `.glb`: copy it over the file in `assets/models/` (keep the name), run
 `tools/bake_textures.py <name>` for its greyscale albedo (names: weeper, mourner, lament, vesper, glutton, gem,
@@ -71,7 +73,9 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
 - Scene: `lament.tscn`. Fits: armoured body cylinder r 1.3 m, height 2.3 m centred at y −0.5 (spans −1.65..0.65),
   decorative stack up to y 1.1, and a **weak-point eye sphere r 0.6 at y 2.0** (spans 1.4..2.6) that must read as
   the obvious target. Total height ≈ 4.2 m. Origin at the body centre (y 0). Hovers at 3.5 m, rises from the
-  floor on spawn. Keep the eye a separate mesh or clearly separated so it can glow (emission 2.0).
+  floor on spawn. Keep the eye a separate mesh or clearly separated so it can glow (emission 2.0). Shipped: the
+  eye is a faceted SphereMesh wearing `assets/textures/lament_eye.png` (equirect iris/sclera, albedo + emission),
+  pupil staring straight down at the player.
 - Prompt: *"Floating low-poly idol: three stacked stone rings of carved bone and iron bands, a cone crown, topped
   by a single large lidless eye on a short stalk, the eye pale and luminous, the body dark and armoured, wailing
   faces etched faintly into the rings, medieval torture-device meets reliquary, PS1 horror game model,
@@ -107,9 +111,10 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
 
 ### 2.3 Player hands (first-person view model)
 - Scene: `src/player/player.tscn` → `CameraRig/Camera3D/HandViewModel` (two `BoxMesh` fingers 0.05 × 0.05 × 0.3 m).
-  Replace with one `.glb` of a right hand/forearm, ≈ 0.5 m long, origin at the wrist, fingers pointing −Z, palm
-  facing slightly inward; keep the `Muzzle` Marker3D at local (0, 0, −0.2). Visible at the bottom-right of a
-  100° FOV camera at 0.4× resolution — keep it chunky.
+  Replace with one `.glb` of a right hand/forearm, ≈ 1 m long including the full forearm, fingers pointing −Z,
+  palm facing slightly inward; keep the `Muzzle` Marker3D at local (0, 0, −0.2). Visible at the bottom-right of a
+  100° FOV camera at 0.4× resolution — keep it chunky, and fit the transform so the elbow cut stays outside the
+  frustum at every sway/kick extreme (fingers near the muzzle, forearm exiting the bottom-right frame corner).
 - Prompt: *"First-person view model of a gaunt pale human hand and forearm, fingers splayed forward as if casting,
   knuckles bound in grey cloth strips, faint scars, bone-white skin, low poly PS1 game asset, greyscale texture,
   pointing forward, isolated on black."*
