@@ -58,6 +58,7 @@ func _capture_all() -> void:
 	await _enemy_shot(main, player, "Glutton", "glutton")
 	await _enemy_shot(main, player, "Vesper", "vesper")
 	await _enemy_shot(main, player, "Cantor", "cantor")
+	await _enemy_shot(main, player, "Thurible", "thurible")
 
 	_aim(player, Vector3(0, 0.2, 16), Vector3(0, 1.0, 20))
 	Input.action_press("fire_primary")
@@ -210,6 +211,7 @@ func _posed_config() -> GameConfig:
 	events.append(_event("res://src/enemies/archetypes/vesper.tscn", Vector3(8, 3, 8), 1))
 	events.append(_event("res://src/enemies/archetypes/weeper.tscn", Vector3(0, 1, 20), 5))
 	events.append(_event("res://src/enemies/archetypes/cantor.tscn", Vector3(-9, 5, 3), 1))
+	events.append(_event("res://src/enemies/archetypes/thurible.tscn", Vector3(9, 2.4, 3), 1))
 	table.events = events
 	table.loop_from_time = -1.0
 	var config := GameConfig.new()

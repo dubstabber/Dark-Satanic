@@ -1,0 +1,60 @@
+[gd_scene load_steps=11 format=3 uid="uid://p1fkcxcp4v1yk"]
+
+[ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
+[ext_resource type="Resource" uid="uid://gpq7qexu6i309" path="res://src/enemies/resources/stats/thurible.tres" id="2_stats"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/seek_behavior.gd" id="3_seek"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/separation_behavior.gd" id="4_separation"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/bob_behavior.gd" id="5_bob"]
+[ext_resource type="ArrayMesh" uid="uid://bm4f81gr2g50x" path="res://assets/models/meshes/thurible.res" id="6_mesh"]
+[ext_resource type="Texture2D" uid="uid://cxciwq7wut8rk" path="res://assets/textures/thurible.png" id="7_tex"]
+[ext_resource type="Script" path="res://src/enemies/censer_component.gd" id="8_censer"]
+[ext_resource type="PackedScene" uid="uid://yk83f0m1n8pva" path="res://src/enemies/hazards/cinder.tscn" id="9_cinder"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_thurible"]
+radius = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_thurible"]
+albedo_color = Color(0.88, 0.86, 0.82, 1)
+albedo_texture = ExtResource("7_tex")
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 0.45
+emission_texture = ExtResource("7_tex")
+
+[node name="Enemy" instance=ExtResource("1_base")]
+stats = ExtResource("2_stats")
+
+[node name="CollisionShape3D" parent="Hurtbox" index="0"]
+shape = SubResource("SphereShape3D_thurible")
+
+[node name="CollisionShape3D" parent="ContactHitbox" index="0"]
+shape = SubResource("SphereShape3D_thurible")
+
+[node name="Seek" type="Node" parent="Behaviors"]
+script = ExtResource("3_seek")
+speed = 2.2
+
+[node name="Separation" type="Node" parent="Behaviors"]
+script = ExtResource("4_separation")
+radius = 3.0
+strength = 4.0
+
+[node name="Bob" type="Node" parent="Behaviors"]
+script = ExtResource("5_bob")
+amplitude = 0.45
+frequency = 0.4
+
+[node name="Mesh" parent="Visual" index="0"]
+transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_thurible")
+mesh = ExtResource("6_mesh")
+
+[node name="Censer" type="Node" parent="."]
+script = ExtResource("8_censer")
+hazard_scene = ExtResource("9_cinder")
+interval = 4.0
+initial_delay = 2.5
+burst = 2
+max_alive = 8
+autonomous = true
+drop_radius = 5.0

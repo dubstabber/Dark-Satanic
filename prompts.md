@@ -112,6 +112,24 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
   with margin on all sides, PS1-era game model, isolated on a pure black background."*
 - Generated with forge-image (Flux, 768×1024) → hunyuan3d `image_to_3d` at `max_facenum=1800`.
 
+### 1.8 Thurible — the zoner
+- Scene: `src/enemies/archetypes/thurible.tscn`, stats `src/enemies/resources/stats/thurible.tres`,
+  hazard `src/enemies/hazards/cinder.tscn`.
+- Fits: sphere r 0.9 m, origin at the centre, hovers at 2.4 m. Mesh scaled 1.15.
+- The first enemy that attacks the arena instead of the player: a `CenserComponent` drops
+  burning ground (`CinderHazard`) around the *player* every 4 s. Each cinder arms for 2.5 s
+  behind a growing sigil, burns for 0.6 s, then fades — long enough to walk out of, which
+  is the whole design. Slowest thing in the game (2.2 m/s) and the tankiest non-boss, so
+  ignoring it is expensive.
+- Prompt: *"a low-poly floating censer — a pierced spherical brazier of dark pitted iron,
+  its lid a small cone crown of carved bone, hung from three heavy broken chains that trail
+  upward and end in nothing, thin faint light leaking from the pierced holes and seams of
+  the sphere, small wailing faces embossed around its belly, a heavy sluggish curl of smoke
+  pooling underneath it. Single subject, hanging upright and centred, chains and smoke fully
+  in frame with margin on all sides, PS1-era horror game model, isolated on a pure black
+  background."*
+- Generated with forge-image (Flux, 768×1024) → hunyuan3d `image_to_3d` at `max_facenum=1600`.
+
 ### 1.7 Tenebrae — the boss
 
 - Scene: `src/enemies/bosses/tenebrae.tscn`, stats `src/enemies/resources/stats/tenebrae.tres`,

@@ -14,6 +14,7 @@ const ARCHETYPE_FITS := {
 	"res://src/enemies/archetypes/vesper.tscn": ["vesper", Vector3(0.72, 0.56, 1.56), 0.15],
 	"res://src/enemies/archetypes/glutton.tscn": ["glutton", Vector3(2.0, 1.3, 2.0), 0.1],
 	"res://src/enemies/archetypes/cantor.tscn": ["cantor", Vector3(1.56, 2.49, 1.33), 0.15],
+	"res://src/enemies/archetypes/thurible.tscn": ["thurible", Vector3(0.74, 2.29, 0.75), 0.15],
 }
 
 var _world: Node3D

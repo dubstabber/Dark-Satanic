@@ -60,7 +60,7 @@ projectile_root = NodePath("../../ProjectileContainer")
 
 [node name="VfxContainer" type="Node3D" parent="."]
 
-[node name="SpawnDirector" type="Node" parent="." node_paths=PackedStringArray("enemy_container", "drop_root", "arena", "target", "vfx_root", "projectile_root")]
+[node name="SpawnDirector" type="Node" parent="." node_paths=PackedStringArray("enemy_container", "drop_root", "arena", "target", "vfx_root", "projectile_root", "hazard_root")]
 script = ExtResource("7_director")
 enemy_container = NodePath("../EnemyContainer")
 drop_root = NodePath("../GemContainer")
@@ -70,6 +70,7 @@ telegraph_scene = ExtResource("11_spawn_rift")
 telegraph_cue = ExtResource("12_rift_cue")
 vfx_root = NodePath("../VfxContainer")
 projectile_root = NodePath("../ProjectileContainer")
+hazard_root = NodePath("../VfxContainer")
 
 [node name="BossDirector" type="Node" parent="." node_paths=PackedStringArray("director")]
 script = ExtResource("13_boss_director")

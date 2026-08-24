@@ -41,6 +41,8 @@ signal telegraphed(position: Vector3)
 ## entering the enemy container as a spawned enemy and announces it, so a Cantor's shards
 ## would each be reported as an arrival.
 @export var projectile_root: Node
+## Where ground hazards (a Thurible's cinders) are parented; same reasoning again.
+@export var hazard_root: Node
 
 var rng := RandomNumberGenerator.new()
 ## Individuals dropped because max_alive was reached (capped at scheduling or at spawn time).
@@ -242,6 +244,8 @@ func _wire_children(node: Node) -> void:
 		node.set("spawn_root", drop_root)
 	if projectile_root != null and "projectile_root" in node:
 		node.set("projectile_root", projectile_root)
+	if hazard_root != null and "hazard_root" in node:
+		node.set("hazard_root", hazard_root)
 	# Deliberately NOT injecting `target` here. It reads like the obvious sibling of the
 	# lines above, but DeathHandlerComponent.target is *the node it disables and frees* —
 	# handing it the player means the first enemy death queue_free()s the player. The

@@ -1,0 +1,81 @@
+[gd_scene load_steps=10 format=3 uid="uid://yk83f0m1n8pva"]
+
+[ext_resource type="Script" path="res://src/enemies/hazards/cinder.gd" id="1_cinder"]
+[ext_resource type="Script" path="res://src/components/hitbox_component.gd" id="2_hitbox"]
+[ext_resource type="Texture2D" path="res://assets/textures/spawn_sigil.png" id="3_sigil"]
+[ext_resource type="Texture2D" path="res://assets/textures/death_chip.png" id="4_chip"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_burn"]
+radius = 2.2
+height = 3.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sigil"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("3_sigil")
+texture_filter = 3
+
+[sub_resource type="QuadMesh" id="QuadMesh_sigil"]
+material = SubResource("StandardMaterial3D_sigil")
+size = Vector2(1, 1)
+orientation = 1
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_flare"]
+emission_shape = 1
+emission_sphere_radius = 1.8
+direction = Vector3(0, 1, 0)
+spread = 8.0
+initial_velocity_min = 3.5
+initial_velocity_max = 7.0
+gravity = Vector3(0, -2, 0)
+damping_min = 0.5
+damping_max = 2.0
+scale_min = 0.5
+scale_max = 1.4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ember"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("4_chip")
+texture_filter = 2
+billboard_mode = 3
+billboard_keep_scale = true
+
+[sub_resource type="QuadMesh" id="QuadMesh_ember"]
+material = SubResource("StandardMaterial3D_ember")
+size = Vector2(0.13, 0.13)
+
+[node name="Cinder" type="Node3D"]
+script = ExtResource("1_cinder")
+
+[node name="Sigil" type="MeshInstance3D" parent="."]
+transform = Transform3D(4.4, 0, 0, 0, 1, 0, 0, 0, 4.4, 0, 0.02, 0)
+mesh = SubResource("QuadMesh_sigil")
+
+[node name="Hitbox" type="Area3D" parent="."]
+collision_layer = 32
+collision_mask = 4
+monitorable = false
+script = ExtResource("2_hitbox")
+cause = &"cinder"
+active = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+shape = SubResource("CylinderShape3D_burn")
+
+[node name="Flare" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 26
+lifetime = 0.8
+one_shot = true
+explosiveness = 0.85
+fixed_fps = 24
+process_material = SubResource("ParticleProcessMaterial_flare")
+draw_pass_1 = SubResource("QuadMesh_ember")
