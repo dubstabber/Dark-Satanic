@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bbhh65dqtp333"]
+
+[ext_resource type="Script" path="res://tests/fixtures/qa_capture.gd" id="1_qa"]
+
+[node name="QACapture" type="Node"]
+script = ExtResource("1_qa")
