@@ -116,6 +116,7 @@ func _on_run_ended(result: RunResult) -> void:
 	# Deferred: death usually arrives from a physics callback, where collision
 	# objects may not be disabled synchronously.
 	game.set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
+	game.hud.visible = false
 	last_entry = LeaderboardEntry.from_result(result)
 	var rank := leaderboard.insert(last_entry)
 	store.save(leaderboard)
