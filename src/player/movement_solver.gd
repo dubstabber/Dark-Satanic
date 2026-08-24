@@ -58,8 +58,8 @@ static func air_accelerate(
 	return accelerate(result, wish_dir, stats.walk_speed, stats.air_control_accel, dt)
 
 
-## One physics tick. `wish_dir` is world-space; its y is ignored and it is normalised.
-## Gravity is always applied; move_and_slide() cancels it against the floor.
+## One physics tick, deciding the jump from the raw input edges.
+## `wish_dir` is world-space; its y is ignored and it is normalised.
 static func step(
 	vel: Vector3,
 	wish_dir: Vector3,
@@ -69,9 +69,20 @@ static func step(
 	stats: PlayerMovementStats,
 	dt: float
 ) -> Vector3:
+	var jumping := wants_jump(on_floor, jump_pressed, jump_held, stats)
+	return step_with_jump(vel, wish_dir, on_floor, jumping, stats, dt)
+
+
+## One physics tick with the jump decision already made — the form MovementController
+## uses, because coyote time and jump buffering can start a jump on a tick where
+## `on_floor` is false and must not also switch the tick to ground friction.
+## Gravity is always applied; move_and_slide() cancels it against the floor.
+static func step_with_jump(
+	vel: Vector3, wish_dir: Vector3, on_floor: bool, jumping: bool, stats: PlayerMovementStats, dt: float
+) -> Vector3:
 	var dir := flatten(wish_dir)
 	var result := vel
-	if wants_jump(on_floor, jump_pressed, jump_held, stats):
+	if jumping:
 		# No friction on the jump tick so bunny hopping keeps its speed.
 		result = jump(result, stats)
 		result = air_accelerate(result, dir, stats, dt)

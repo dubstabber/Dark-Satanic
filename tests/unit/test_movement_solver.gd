@@ -28,6 +28,8 @@ func test_default_resource_matches_design_numbers() -> void:
 	assert_eq(_stats.jump_horizontal_boost, 1.08)
 	assert_eq(_stats.max_bhop_speed, 14.0)
 	assert_true(_stats.auto_bhop)
+	assert_eq(_stats.coyote_time, 0.1)
+	assert_eq(_stats.jump_buffer_time, 0.15)
 	assert_eq(_stats.pitch_limit_deg, 89.0)
 	assert_eq(_stats.camera_height, 1.6)
 
@@ -182,6 +184,32 @@ func test_cannot_jump_in_the_air() -> void:
 	assert_false(MovementSolver.wants_jump(false, true, true, _stats))
 	var out := MovementSolver.step(Vector3(0, -2, 0), Vector3.ZERO, false, true, true, _stats, DT)
 	assert_lt(out.y, -2.0)
+
+
+func test_step_with_jump_matches_step_for_every_input_edge() -> void:
+	for on_floor in [true, false]:
+		for pressed in [true, false]:
+			for held in [true, false]:
+				var vel := Vector3(3, 1, -7)
+				var expected := MovementSolver.step(vel, FORWARD, on_floor, pressed, held, _stats, DT)
+				var jumping := MovementSolver.wants_jump(on_floor, pressed, held, _stats)
+				var got := MovementSolver.step_with_jump(vel, FORWARD, on_floor, jumping, _stats, DT)
+				assert_almost_eq(got, expected, Vector3.ONE * 0.000001, "floor=%s press=%s held=%s" % [on_floor, pressed, held])
+
+
+func test_a_coyote_jump_is_a_jump_tick_not_a_ground_tick() -> void:
+	# Airborne but jumping: MovementController's coyote grace. It must take the jump
+	# branch and skip friction, not fall through to the ground branch.
+	var vel := Vector3(0, -1, -9)
+	var out := MovementSolver.step_with_jump(vel, Vector3.ZERO, false, true, _stats, DT)
+	assert_almost_eq(out.y, _stats.jump_velocity - _stats.gravity * DT, 0.0001)
+	assert_almost_eq(_speed(out), 9.0 * _stats.jump_horizontal_boost, 0.0001, "no friction on the jump tick")
+
+
+func test_step_with_jump_false_on_the_floor_is_an_ordinary_ground_tick() -> void:
+	var out := MovementSolver.step_with_jump(Vector3(5, 0, 0), Vector3.ZERO, true, false, _stats, DT)
+	assert_lt(out.x, 5.0, "friction applied")
+	assert_almost_eq(out.y, -_stats.gravity * DT, 0.0001)
 
 
 func test_bunny_hopping_ends_faster_than_walk_speed_but_under_cap() -> void:

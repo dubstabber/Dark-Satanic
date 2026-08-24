@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://vm7p6ui6hndm8"]
+[gd_scene load_steps=22 format=3 uid="uid://vm7p6ui6hndm8"]
 
 [ext_resource type="Script" path="res://src/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://src/player/input_reader.gd" id="2_input"]
@@ -13,6 +13,10 @@
 [ext_resource type="Script" path="res://src/player/pickup_collector.gd" id="11_pickup"]
 [ext_resource type="ArrayMesh" uid="uid://bhduj5w0amnvh" path="res://assets/models/meshes/hand.res" id="12_hand_mesh"]
 [ext_resource type="Texture2D" uid="uid://domlb3tkm6bfs" path="res://assets/textures/hand.png" id="13_hand_tex"]
+[ext_resource type="Script" path="res://src/player/self_knockback.gd" id="14_knockback"]
+[ext_resource type="Script" path="res://src/player/player_audio.gd" id="15_audio"]
+[ext_resource type="Resource" uid="uid://ba1hyx6q7v3kd" path="res://assets/audio/cues/jump.tres" id="16_jump_cue"]
+[ext_resource type="Resource" uid="uid://cw8lqm0nx4t2r" path="res://assets/audio/cues/land.tres" id="17_land_cue"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.4
@@ -87,6 +91,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.065, 0.03, -0.52)
 script = ExtResource("8_weapon")
 aim_source = NodePath("../CameraRig/Camera3D")
 muzzle = NodePath("../CameraRig/Camera3D/HandViewModel/Muzzle")
+
+[node name="SelfKnockback" type="Node" parent="." node_paths=PackedStringArray("movement", "aim_source")]
+script = ExtResource("14_knockback")
+movement = NodePath("../MovementController")
+aim_source = NodePath("../CameraRig/Camera3D")
+
+[node name="PlayerAudio" type="Node" parent="." node_paths=PackedStringArray("movement")]
+script = ExtResource("15_audio")
+movement = NodePath("../MovementController")
+jump_cue = ExtResource("16_jump_cue")
+land_cue = ExtResource("17_land_cue")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("9_health")

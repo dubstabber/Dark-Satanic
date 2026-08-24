@@ -17,6 +17,8 @@ signal died(cause: StringName)
 @onready var camera_rig: CameraRig = $CameraRig
 @onready var camera: Camera3D = $CameraRig/Camera3D
 @onready var hands: HandViewModel = $CameraRig/Camera3D/HandViewModel
+@onready var self_knockback: SelfKnockback = get_node_or_null("SelfKnockback") as SelfKnockback
+@onready var player_audio: PlayerAudio = get_node_or_null("PlayerAudio") as PlayerAudio
 
 var last_frame: PlayerInputFrame = PlayerInputFrame.new()
 var _dead: bool = false
@@ -29,6 +31,8 @@ func _ready() -> void:
 	movement.landed.connect(camera_rig.on_landed)
 	weapon_holder.kicked.connect(camera_rig.kick)
 	weapon_holder.kicked.connect(hands.kick)
+	if self_knockback != null:
+		weapon_holder.weapon_fired.connect(self_knockback.on_fired)
 	if movement.stats != null:
 		camera_rig.position.y = movement.stats.camera_height
 
@@ -56,7 +60,14 @@ func advance(delta: float) -> void:
 	camera_rig.horizontal_speed = movement.horizontal_speed()
 	camera_rig.on_floor = movement.is_on_floor()
 	camera_rig.advance(delta)
+	hands.set_motion(local_velocity(), movement.is_on_floor())
 	hands.advance(delta)
+
+
+## This tick's velocity in body space (x = right, z = back), which is what the hands
+## need to know whether the player is strafing left or right.
+func local_velocity() -> Vector3:
+	return global_basis.inverse() * velocity
 
 
 func is_dead() -> bool:

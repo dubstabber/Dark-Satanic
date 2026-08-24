@@ -7,6 +7,9 @@ extends Node
 ## Recoil strength for a tick in which the weapon fired; Player feeds it to the
 ## camera rig and hands. Emitted once per `fired` with the mode's kick strength.
 signal kicked(strength: float)
+## The weapon's own `fired` report, re-emitted so listeners (self-knockback) do not
+## have to reach through to whatever node is currently plugged in.
+signal weapon_fired(count: int, mode: StringName)
 
 ## Anything with setup(aim_source, muzzle, projectile_root), update_fire(primary_held,
 ## secondary_pressed, delta) and apply_tier(tier). Assigning after _ready re-runs setup.
@@ -83,5 +86,6 @@ func _disconnect_fired() -> void:
 		weapon.disconnect("fired", _on_weapon_fired)
 
 
-func _on_weapon_fired(_count: int, mode: StringName) -> void:
+func _on_weapon_fired(count: int, mode: StringName) -> void:
 	kicked.emit(shotgun_kick if mode == &"shotgun" else stream_kick)
+	weapon_fired.emit(count, mode)

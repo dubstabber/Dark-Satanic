@@ -16,5 +16,7 @@ jump_velocity = 7.0
 jump_horizontal_boost = 1.08
 max_bhop_speed = 14.0
 auto_bhop = true
+coyote_time = 0.1
+jump_buffer_time = 0.15
 pitch_limit_deg = 89.0
 camera_height = 1.6

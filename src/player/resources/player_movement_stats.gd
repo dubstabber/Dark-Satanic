@@ -26,6 +26,13 @@ extends Resource
 ## Holding jump re-jumps on landing without re-pressing.
 @export var auto_bhop: bool = true
 
+@export_group("Jump assist")
+## Grace period after walking off an edge in which a jump still works (coyote time).
+@export_range(0.0, 0.5, 0.005) var coyote_time: float = 0.1
+## A jump pressed this long before touchdown fires the moment the floor is reached,
+## so a chained bunny hop is never eaten by a frame of bad timing.
+@export_range(0.0, 0.5, 0.005) var jump_buffer_time: float = 0.15
+
 @export_group("Camera")
 @export_range(0.0, 89.9, 0.1) var pitch_limit_deg: float = 89.0
 @export_range(0.0, 5.0, 0.01) var camera_height: float = 1.6
