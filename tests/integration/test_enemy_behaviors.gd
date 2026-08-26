@@ -154,6 +154,34 @@ func test_bob_phase_comes_from_rng() -> void:
 	assert_true(a.phase >= 0.0 and a.phase <= TAU)
 
 
+# --- Hover ---------------------------------------------------------------------
+
+func test_hover_climbs_to_its_height_and_stays_there() -> void:
+	var hover := _behavior(HoverBehavior.new())
+	hover.height = 1.5
+	_ctx.arena_info = ArenaInfo.new(Vector3.ZERO, 30.0, 2.0)
+	_body.position = Vector3(0, 2.0, 0)
+	var v := hover.steer(_ctx, DT)
+	assert_true(v.x == 0.0 and v.z == 0.0, "vertical only")
+	assert_almost_eq(v.y, 3.0, 0.001, "gain 2.0 per metre of the 1.5 m gap")
+	_run(hover, 3.0)
+	assert_almost_eq(_body.global_position.y, 3.5, 0.01, "floor_y + height")
+	_run(hover, 2.0)
+	assert_almost_eq(_body.global_position.y, 3.5, 0.01, "and holds it")
+
+
+func test_hover_glides_down_from_a_release_high_above_the_floor() -> void:
+	var hover := _behavior(HoverBehavior.new())
+	hover.height = 1.5
+	hover.max_climb = 6.0
+	_body.position = Vector3(0, 20, 0)
+	assert_almost_eq(hover.steer(_ctx, DT).y, -6.0, 0.001, "descent capped at max_climb")
+	_run(hover, 0.5)
+	assert_almost_eq(_body.global_position.y, 17.0, 0.05, "a glide, not a drop")
+	_run(hover, 6.0)
+	assert_almost_eq(_body.global_position.y, 1.5, 0.05, "settles at its flight height")
+
+
 # --- HoverDrift --------------------------------------------------------------
 
 func test_hover_drift_rises_then_orbits_spawn_radius() -> void:

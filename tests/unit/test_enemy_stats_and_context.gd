@@ -6,6 +6,7 @@ const LamentStats := preload("res://src/enemies/resources/stats/lament.tres")
 const VesperStats := preload("res://src/enemies/resources/stats/vesper.tres")
 const GluttonStats := preload("res://src/enemies/resources/stats/glutton.tres")
 const GemDefault := preload("res://src/pickups/resources/gem_default.tres")
+const PlayerMovement := preload("res://src/player/resources/default_movement.tres")
 
 
 func test_enemy_stats_defaults() -> void:
@@ -23,8 +24,8 @@ func test_enemy_stats_defaults() -> void:
 
 func test_authored_stats_load() -> void:
 	assert_eq(WeeperStats.max_health, 1.0)
-	assert_eq(WeeperStats.move_speed, 7.0)
-	assert_eq(WeeperStats.turn_speed_deg, 540.0)
+	assert_eq(WeeperStats.move_speed, 9.8)
+	assert_eq(WeeperStats.turn_speed_deg, 90.0)
 	assert_eq(WeeperStats.gem_count, 0)
 	assert_eq(MournerStats.max_health, 12.0)
 	assert_eq(MournerStats.move_speed, 4.5)
@@ -41,6 +42,17 @@ func test_authored_stats_load() -> void:
 	for stats: EnemyStats in [WeeperStats, MournerStats, LamentStats, VesperStats, GluttonStats]:
 		assert_true(stats.display_name.length() > 0)
 		assert_true(stats.move_speed > 0.0)
+
+
+## The weeper's design contract: a flyer that outruns a running player by a hair and is
+## too clumsy to follow a sidestep. `test_archetypes.gd` flies the chase itself.
+func test_weeper_is_a_slow_turning_flyer_faster_than_the_player() -> void:
+	assert_gt(WeeperStats.move_speed, PlayerMovement.walk_speed, "running away never shakes it")
+	assert_lt(WeeperStats.move_speed, PlayerMovement.walk_speed * 1.2, "but it only gains slowly")
+	assert_false(WeeperStats.grounded, "it flies")
+	assert_gt(WeeperStats.min_height, 0.9, "and never scrapes the floor")
+	var turn_radius: float = WeeperStats.move_speed / deg_to_rad(WeeperStats.turn_speed_deg)
+	assert_between(turn_radius, 5.0, 8.0, "the circle it cannot turn inside is what a strafe exploits")
 
 
 func test_gem_stats_defaults_and_authored() -> void:

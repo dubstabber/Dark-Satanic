@@ -59,7 +59,8 @@ contrast** survive. Design assets as bold light-on-dark or dark-on-light shapes;
 
 ### 1.1 Weeper — swarm skull
 - Scene: `src/enemies/archetypes/weeper.tscn` (`Visual/Mesh`), stats `src/enemies/resources/stats/weeper.tres`.
-- Fits: sphere r 0.45 m (0.9 m across). Origin at the centre, face toward −Z. Floats 0.45 m above the floor.
+- Fits: sphere r 0.45 m (0.9 m across). Origin at the centre, face toward −Z. Flies at 1.5 m above the floor
+  (head height — it never lands), bobbing ±0.25 m.
 - Count on screen: up to ~60 at once — keep it ≤ 600 tris.
 - Prompt: *"Low-poly human skull, weeping, hollow black eye sockets streaming dark tear stains, jaw slightly open,
   bone-white cracked surface, PS1-era game model, single greyscale texture, facing forward, centred, neutral

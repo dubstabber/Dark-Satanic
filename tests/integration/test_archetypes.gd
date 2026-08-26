@@ -68,6 +68,7 @@ func test_weeper_stats_and_behaviors() -> void:
 	assert_eq(weeper.gem_drop.count, 0)
 	var behaviors := weeper.get_node("Behaviors")
 	assert_true(behaviors.get_node("Seek") is SeekBehavior)
+	assert_true(behaviors.get_node("Hover") is HoverBehavior)
 	assert_true(behaviors.get_node("Separation") is SeparationBehavior)
 	assert_true(behaviors.get_node("Bob") is BobBehavior)
 	assert_almost_eq((weeper.hurtbox.get_child(0) as CollisionShape3D).shape.radius, 0.45, 0.001)
@@ -264,15 +265,6 @@ func test_lament_weepers_release_from_the_crown() -> void:
 				child.advance(1.0 / 60.0)
 			assert_lt(child.global_position.y, 5.5, "dives down toward the player after release")
 	assert_eq(weepers, 3)
-
-
-func test_weeper_left_at_nest_height_sinks_to_the_floor() -> void:
-	var weeper := _spawn(Weeper, Vector3(0, 3.5, 6))
-	weeper.set_physics_process(false)
-	assert_true(weeper.stats.grounded)
-	for i in 60:
-		weeper.advance(1.0 / 60.0)
-	assert_true(weeper.global_position.y <= 0.45 + 0.5 + 0.001, "pulled down to min_height + ground_slack (y %.2f)" % weeper.global_position.y)
 
 
 func test_lament_contact_hitbox_stays_off_until_it_has_risen() -> void:
