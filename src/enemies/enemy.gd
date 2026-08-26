@@ -69,7 +69,11 @@ func context() -> EnemyContext:
 
 
 func advance(delta: float) -> void:
+	# A corpse keeps ticking. EnemyVisual owns the death animation and is stepped here, on
+	# the same clock as everything else, until DeathHandlerComponent frees the body.
 	if health != null and health.is_dead():
+		if visual != null:
+			visual.advance(delta)
 		return
 	elapsed += delta
 	var ctx := context()
@@ -165,7 +169,7 @@ func _on_died(hit: HitInfo) -> void:
 	if contact_hitbox != null:
 		contact_hitbox.active = false
 	if visual != null:
-		visual.death()
+		visual.death(rng)
 	died.emit(self, hit)
 
 

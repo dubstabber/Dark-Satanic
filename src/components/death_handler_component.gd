@@ -63,6 +63,9 @@ func handle_death() -> void:
 		if vfx is Node3D:
 			vfx.position = root.to_local(position) if root is Node3D and root.is_inside_tree() else position
 			(vfx as Node3D).scale = Vector3.ONE * vfx_scale
+			# Scale the debris count with the body too, not just the size of each chip.
+			if vfx.has_method("set_intensity"):
+				vfx.call("set_intensity", vfx_scale)
 		root.add_child.call_deferred(vfx)
 	if death_cue != null:
 		AudioManager.play(death_cue, position)

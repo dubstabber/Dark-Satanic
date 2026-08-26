@@ -28,6 +28,16 @@ func _process(delta: float) -> void:
 	advance(delta)
 
 
+## Multiplies every emitter's particle count. Safe before the scene enters the tree, which
+## is when the death handler calls it: a body three times the size of a skull should throw
+## three times the debris rather than the same forty chips blown up bigger.
+func set_intensity(multiplier: float) -> void:
+	for child in get_children():
+		if child is GPUParticles3D:
+			var particles := child as GPUParticles3D
+			particles.amount = maxi(1, int(round(particles.amount * maxf(multiplier, 0.0))))
+
+
 ## Restarts every emitter so a pooled instance can replay.
 func restart() -> void:
 	elapsed = 0.0

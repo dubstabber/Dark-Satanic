@@ -184,3 +184,20 @@ func test_billboarded_emitters_that_scale_keep_their_scale() -> void:
 			)
 		vfx.free()
 	assert_gt(checked, 0, "the invariant found something to check")
+
+
+func test_intensity_scales_the_debris_count_before_it_enters_the_tree() -> void:
+	var vfx: OneShotVfx = SCENES["death_burst"].instantiate()
+	var before := _particles(vfx).amount
+	assert_gt(before, 0)
+	vfx.set_intensity(3.0)
+	assert_eq(_particles(vfx).amount, before * 3, "a boss throws three times the chips")
+	_world.add_child(vfx)
+	assert_eq(_particles(vfx).amount, before * 3, "and keeps them once it is emitting")
+
+
+func test_intensity_never_empties_an_emitter() -> void:
+	var vfx: OneShotVfx = SCENES["death_burst"].instantiate()
+	vfx.set_intensity(0.0)
+	assert_eq(_particles(vfx).amount, 1, "a burst of nothing would be a silent bug")
+	_world.add_child(vfx)

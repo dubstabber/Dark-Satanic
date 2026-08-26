@@ -53,7 +53,7 @@ func test_applies_stats_and_wires_components() -> void:
 	assert_eq(enemy.hurtbox.collision_layer, PhysicsLayers.ENEMY_HURTBOX)
 	assert_same(enemy.hurtbox.health, enemy.health)
 	assert_eq(enemy.gem_drop.count, 3)
-	assert_eq(enemy.death_handler.free_delay, 0.25)
+	assert_eq(enemy.death_handler.free_delay, 0.45, "the whole death animation fits inside it")
 	assert_not_null(enemy.mover)
 	assert_not_null(enemy.visual)
 	assert_not_null(enemy.visual.material(), "material duplicated per instance")
@@ -206,8 +206,8 @@ func test_dead_enemy_stops_moving_and_is_freed_after_delay() -> void:
 	var before := enemy.global_position
 	enemy.advance(0.5)
 	assert_eq(enemy.global_position, before)
-	enemy.death_handler.advance(0.3)
-	assert_true(enemy.is_queued_for_deletion(), "freed after DeathHandler.free_delay (0.25 s of advance)")
+	enemy.death_handler.advance(0.5)
+	assert_true(enemy.is_queued_for_deletion(), "freed after DeathHandler.free_delay (0.45 s of advance)")
 	await wait_process_frames(2)
 	assert_false(is_instance_valid(enemy))
 

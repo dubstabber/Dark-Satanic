@@ -72,4 +72,4 @@ count = 0
 [node name="DeathHandler" type="Node" parent="."]
 script = ExtResource("8_death")
 death_vfx = ExtResource("10_death_burst")
-free_delay = 0.25
+free_delay = 0.45

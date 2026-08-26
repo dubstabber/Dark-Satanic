@@ -164,3 +164,30 @@ func test_the_boss_clock_runs_with_the_run() -> void:
 	await wait_physics_frames(30)
 	assert_gt(_game.boss_director.elapsed, 0.0, "and is driven by the physics clock")
 	assert_almost_eq(_game.boss_director.elapsed, _game.spawn_director.elapsed(), 0.001)
+
+
+func test_a_big_death_flares_the_screen_and_a_skull_does_not() -> void:
+	var flow := GameFlow.new()
+	var post: PostProcessController = preload("res://src/vfx/post_process/post_process.tscn").instantiate()
+	flow.post_process = post
+	flow.state = GameFlow.State.PLAYING
+	add_child_autofree(post)
+	add_child_autofree(flow)
+	var weeper: EnemyStats = load("res://src/enemies/resources/stats/weeper.tres")
+	var mourner: EnemyStats = load("res://src/enemies/resources/stats/mourner.tres")
+	var base := float(post.get_parameter(&"brightness"))
+	flow._on_enemy_died(_enemy_with(weeper), Vector3.ZERO)
+	assert_almost_eq(float(post.get_parameter(&"brightness")), base, 0.001, "a 1 HP skull is beneath notice")
+	flow._on_enemy_died(_enemy_with(mourner), Vector3.ZERO)
+	var flare := float(post.get_parameter(&"brightness")) - base
+	assert_almost_eq(flare, (Enemy.death_burst_scale(mourner) - 1.0) * flow.kill_pulse_strength, 0.001)
+	flow.state = GameFlow.State.DEAD
+	post.pulse(0.0, 0.0)
+	flow._on_enemy_died(_enemy_with(mourner), Vector3.ZERO)
+	assert_almost_eq(float(post.get_parameter(&"brightness")), base, 0.001, "silent outside PLAYING")
+
+
+func _enemy_with(stats: EnemyStats) -> Enemy:
+	var enemy := Enemy.new()
+	enemy.stats = stats
+	return autofree(enemy)

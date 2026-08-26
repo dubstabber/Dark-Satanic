@@ -27,6 +27,13 @@ signal state_changed(from: State, to: State)
 ## Brightness bump (>1 also inverts) and its decay on every tier-up.
 @export_range(0.0, 3.0, 0.05) var tier_pulse_strength: float = 0.6
 @export_range(0.0, 3.0, 0.05) var tier_pulse_duration: float = 0.3
+## Screen flare when something dies, per unit of `Enemy.death_burst_scale` above 1. A skull
+## sits below 1 and does nothing; the Tenebrae is the loudest thing in the run.
+@export_range(0.0, 3.0, 0.05) var kill_pulse_strength: float = 0.3
+@export_range(0.0, 3.0, 0.05) var kill_pulse_duration: float = 0.35
+## Flash on the player's own death. Above 1.0 the frame inverts on the way out.
+@export_range(0.0, 3.0, 0.05) var death_pulse_strength: float = 1.3
+@export_range(0.0, 3.0, 0.05) var death_pulse_duration: float = 0.5
 @export var menu_music: AudioCue
 @export var game_music: AudioCue
 @export var death_cue: AudioCue
@@ -51,6 +58,8 @@ func setup(p_store: LeaderboardStore) -> void:
 	leaderboard = store.load()
 	if not EventBus.tier_changed.is_connected(_on_tier_changed):
 		EventBus.tier_changed.connect(_on_tier_changed)
+	if not EventBus.enemy_died.is_connected(_on_enemy_died):
+		EventBus.enemy_died.connect(_on_enemy_died)
 
 
 func show_menu() -> void:
@@ -128,6 +137,10 @@ func _on_run_ended(result: RunResult) -> void:
 		screen.show_result(result, leaderboard, rank)
 	AudioManager.play(death_cue)
 	_present(State.DEAD, death_profile, null, Input.MOUSE_MODE_VISIBLE)
+	# After _present, so this pulse tween is created last and wins the brightness/invert
+	# uniforms it shares with the death profile's crossfade.
+	if post_process != null:
+		post_process.pulse(death_pulse_strength, death_pulse_duration)
 
 
 func _on_name_submitted(player_name: String) -> void:
@@ -135,6 +148,19 @@ func _on_name_submitted(player_name: String) -> void:
 		return
 	last_entry.player_name = player_name
 	store.save(leaderboard)
+
+
+## Big deaths flare the screen. Reuses the tier-up pulse channel and the same size curve
+## the death burst uses, so the flare, the debris and the shake all read as one hit.
+func _on_enemy_died(enemy: Node3D, _position: Vector3) -> void:
+	if state != State.PLAYING or post_process == null or enemy == null:
+		return
+	var stats: Variant = enemy.get("stats")
+	if not (stats is EnemyStats):
+		return
+	var strength := (Enemy.death_burst_scale(stats) - 1.0) * kill_pulse_strength
+	if strength > 0.0:
+		post_process.pulse(strength, kill_pulse_duration)
 
 
 func _on_tier_changed(_tier: DaggerUpgradeTier, index: int) -> void:
