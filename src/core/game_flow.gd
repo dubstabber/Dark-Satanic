@@ -137,8 +137,9 @@ func _on_run_ended(result: RunResult) -> void:
 		screen.show_result(result, leaderboard, rank)
 	AudioManager.play(death_cue)
 	_present(State.DEAD, death_profile, null, Input.MOUSE_MODE_VISIBLE)
-	# After _present, so this pulse tween is created last and wins the brightness/invert
-	# uniforms it shares with the death profile's crossfade.
+	# After _present so the pulse reads the death profile's base; PostProcessController.apply
+	# deliberately does not tween brightness/invert, which is what stops the crossfade taking
+	# them back the moment this pulse ends.
 	if post_process != null:
 		post_process.pulse(death_pulse_strength, death_pulse_duration)
 

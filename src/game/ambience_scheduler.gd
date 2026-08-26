@@ -5,8 +5,8 @@ extends Node
 ## player is dead.
 ##
 ## Two of these run. The whispers are flat and in your head; the dread stingers - screams,
-## laughter, tape static, a bell - land out in the dark at `radius` metres, so they have a
-## direction and you turn to look at nothing. Neither has any side effect, and that is the
+## laughter, tape static, a dragged chain - land out in the dark at `radius` metres, so they
+## have a direction and you turn to look at nothing. Neither has any side effect, and that is the
 ## point: `SpawnEvent.announce_cue` heralds an arrival in the same register, so hearing a
 ## scream is never proof that anything is actually coming.
 

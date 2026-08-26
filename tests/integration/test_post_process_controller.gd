@@ -108,3 +108,25 @@ func test_bare_controller_without_material_is_safe() -> void:
 	assert_null(bare.material())
 	assert_null(bare.get_parameter(&"grain_amount"))
 	assert_false(bare.is_transitioning())
+
+
+## A pulse fired during a profile crossfade used to decay to base and then get yanked back
+## up when the pulse ended and the longer crossfade took the uniforms over again - the death
+## flash visibly blinking twice. brightness and invert belong to pulse() alone.
+func test_a_pulse_during_a_crossfade_decays_once_and_stays_down() -> void:
+	var profile := PostFxProfile.new()
+	_controller.apply(profile, 0.6)
+	_controller.pulse(1.3, 0.5)
+	assert_almost_eq(float(_controller.get_parameter(&"brightness")), profile.brightness + 1.3, 0.001)
+	var settled := false
+	var rose_after_settling := 0.0
+	for i in 45:
+		await wait_seconds(1.0 / 60.0)
+		var brightness := float(_controller.get_parameter(&"brightness"))
+		if settled:
+			rose_after_settling = maxf(rose_after_settling, brightness - profile.brightness)
+		elif brightness <= profile.brightness + 0.001:
+			settled = true
+	assert_true(settled, "the flash decayed back to the profile's brightness")
+	assert_lt(rose_after_settling, 0.001, "and never flared again (peaked %.3f above base)" % rose_after_settling)
+	assert_almost_eq(float(_controller.get_parameter(&"invert")), profile.invert, 0.001)

@@ -268,6 +268,8 @@ within 26 dB of the peak to the last frame within 40 dB of it, 2 ms fade in, 50 
 | `death_wail_01..02.wav` | 2.7–3.0 s | death of anything ≥ 8 HP (`death_wail`, −10 dB, 2 takes) | 0.90–1.10 | "a deep drawn-out human wail of agony cut short, hoarse and distorted" |
 | `armor_clang_01.wav` | 0.23 s | hits on 0-multiplier armour (`armor_clang`, −11 dB) | 0.90–1.15 | "a hard metal blade glancing off thick iron armour plate, dull dead clang with no ring, muffled and dry, close-up" |
 | `snuff_01.wav` | 1.8 s | a Tenebrae candle going out (`snuff`, −14 dB) | 0.95–1.10 | "a candle flame blown out with a sharp short breath, dry puff of air and a brief smoky sizzle, close-up, small and quiet, no bass" — high-passed twice at 200 Hz afterwards |
+| `whisper_01..09.ogg` | 2–4 s | run ambience (`whispers`, −18 dB, 9 takes) | 0.95–1.05 | half-heard latin/english whispers, dry, male, breathy — "requiescat", "ave", counted numbers |
+| `skull_arrive.ogg` | 0.3 s | weeper spawns (`skull_arrive`, −13 dB) | 0.9–1.1 | "dry breath intake with a hint of a far bell" — deliberately soft: the death screech was far too loud for a 16-skull ring, and `test_archetypes.gd` pins this cue at ≤ −12 dB |
 | `spawner_groan.ogg` | 2.7 s | nest rises / emits (`spawner_groan`) | 0.9–1.1 | "long low groan of stone grinding and a slowed-down church organ pedal note, rising then sinking" |
 | `tier_up.ogg` | 1.1 s | dagger tier up (`tier_up`, UI bus) | 1.0 | "short rising three-note bell chord with a reversed tail, solemn, church-like" |
 | `death_stinger.ogg` | 3.0 s | player death (`death_stinger`) | 1.0 | "slow descending funeral chord on a detuned organ, slowed to half speed, reversed tail, tape hiss, ends in silence" |

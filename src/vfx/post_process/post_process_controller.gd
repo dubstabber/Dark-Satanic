@@ -45,6 +45,14 @@ func apply(profile: PostFxProfile, duration: float = 0.0) -> void:
 		return
 	_tween = create_tween().set_parallel(true)
 	for uniform_name in values:
+		# brightness and invert belong to pulse(), which needs to own them outright. Crossfading
+		# them here too meant a pulse fired during a profile change decayed to base and then got
+		# yanked back up when the pulse tween ended and the longer crossfade took over again -
+		# the death flash blinking twice. Every profile sets them to the same resting 1.0 / 0.0,
+		# so a profile change has nothing to fade: it just states the base the pulse returns to.
+		if uniform_name == &"brightness" or uniform_name == &"invert":
+			set_parameter(uniform_name, values[uniform_name])
+			continue
 		_tween.tween_property(material(), "shader_parameter/%s" % uniform_name, values[uniform_name], duration)
 
 
