@@ -75,6 +75,27 @@ func test_every_archetype_material_is_textured_and_flashable() -> void:
 			assert_same(emission, albedo, scene_path)
 
 
+## The cantor's Mouth is the windup tell; WindupVisual finds it flashable and
+## actually swells it, so a material swap that breaks supports() cannot pass
+## silently the way a null _own_material() would in production.
+func test_cantor_mouth_glow_is_a_flashable_psx_material_the_windup_drives() -> void:
+	var enemy: Enemy = load("res://src/enemies/archetypes/cantor.tscn").instantiate()
+	enemy.target = Node3D.new()
+	_world.add_child(enemy.target)
+	_world.add_child(enemy)
+	enemy.set_physics_process(false)
+	var mouth := enemy.get_node("Visual/Mouth") as MeshInstance3D
+	var material := mouth.material_override as ShaderMaterial
+	assert_not_null(material, "WindupVisual replaced the override with its per-instance copy")
+	assert_eq(material.shader.resource_path, "res://src/vfx/shaders/psx_lit.gdshader")
+	assert_true(MaterialEnergy.supports(material), "the tell must stay flashable")
+	var windup: WindupVisual = enemy.get_node("WindupVisual")
+	assert_almost_eq(windup.emission(), 0.7, 0.001, "authored rest emission captured")
+	windup.on_windup_started()
+	await wait_process_frames(10)
+	assert_gt(windup.emission(), 0.7, "the tell swells while the attack winds up")
+
+
 func test_enemy_forward_features_face_minus_z() -> void:
 	# The dart tip and the glutton maw are the gameplay-facing ends; both models were exported facing +Z/+X.
 	var vesper := _visual_mesh("res://src/enemies/archetypes/vesper.tscn")
