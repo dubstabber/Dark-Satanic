@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://sv6aahzlkmp2g"]
+[gd_scene load_steps=9 format=3 uid="uid://sv6aahzlkmp2g"]
 
 [ext_resource type="Script" path="res://src/enemies/projectiles/psalm_shard.gd" id="1_shard"]
 [ext_resource type="Script" path="res://src/components/health_component.gd" id="2_health"]
@@ -6,18 +6,19 @@
 [ext_resource type="Script" path="res://src/components/hitbox_component.gd" id="4_hitbox"]
 [ext_resource type="Script" path="res://src/components/death_handler_component.gd" id="5_death"]
 [ext_resource type="PackedScene" uid="uid://xlmg9gtguasrj" path="res://src/vfx/particles/hit_spark.tscn" id="6_spark"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_lit.gdshader" id="7_psx"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_shard"]
 radius = 0.32
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shard"]
-albedo_color = Color(0.9, 0.88, 0.84, 1)
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.2
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_shard"]
+shader = ExtResource("7_psx")
+shader_parameter/albedo_color = Color(0.9, 0.88, 0.84, 1)
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 2.2
 
 [sub_resource type="PrismMesh" id="PrismMesh_shard"]
-material = SubResource("StandardMaterial3D_shard")
+material = SubResource("ShaderMaterial_shard")
 size = Vector3(0.22, 0.5, 0.22)
 
 [node name="PsalmShard" type="Node3D"]

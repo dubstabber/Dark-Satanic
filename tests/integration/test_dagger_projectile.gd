@@ -46,8 +46,8 @@ func test_launch_activates_and_positions() -> void:
 	assert_almost_eq(_projectile.velocity, Vector3(0, 0, -60), Vector3.ONE * 0.001)
 	assert_almost_eq(_projectile.scale, Vector3.ONE * 1.5, Vector3.ONE * 0.001)
 	var mesh: MeshInstance3D = _projectile.get_node("Mesh")
-	var material := mesh.get_surface_override_material(0) as StandardMaterial3D
-	assert_almost_eq(material.emission_energy_multiplier, 3.0, 0.001)
+	var material := mesh.get_surface_override_material(0)
+	assert_almost_eq(MaterialEnergy.get_energy(material), 3.0, 0.001)
 
 
 func test_material_is_shared_between_instances() -> void:
@@ -59,7 +59,7 @@ func test_material_is_shared_between_instances() -> void:
 	var params := _params()
 	params.emission_energy = 2.5
 	_projectile.launch(Vector3.ZERO, Vector3.FORWARD, params, _source)
-	assert_almost_eq((b as StandardMaterial3D).emission_energy_multiplier, 2.5, 0.001, "emission applied to all")
+	assert_almost_eq(MaterialEnergy.get_energy(b), 2.5, 0.001, "emission applied to all")
 
 
 func test_armoured_hurtbox_is_passed_through_to_inner_hurtbox() -> void:

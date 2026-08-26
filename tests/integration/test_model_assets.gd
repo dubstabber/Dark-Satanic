@@ -1,7 +1,8 @@
 extends GameTest
 ## The generated models (assets/models/*.glb → assets/models/meshes/*.res) are wired into the scenes:
 ## every drop-in keeps the node the scripts look for, fills its collision shape and carries a textured
-## StandardMaterial3D so EnemyVisual's flash and DaggerProjectile's tier glow still have something to drive.
+## psx_lit ShaderMaterial so EnemyVisual's flash and DaggerProjectile's tier glow still have something
+## to drive (through MaterialEnergy).
 
 const MESH_DIR := "res://assets/models/meshes/"
 const TEXTURE_DIR := "res://assets/textures/"
@@ -95,11 +96,14 @@ func test_dagger_projectile_mesh_is_the_bone_dagger() -> void:
 	var box := _fitted_aabb(mesh)
 	assert_almost_eq(box.size.z, 0.55, 0.02, "0.55 m long along Z")
 	assert_lt(box.size.x, 0.12, "thin")
-	var material := mesh.get_surface_override_material(0) as StandardMaterial3D
+	var material := mesh.get_surface_override_material(0) as ShaderMaterial
 	assert_not_null(material, "tier material is the surface override DaggerProjectile reads")
-	assert_not_null(material.albedo_texture)
-	assert_ne(material.shading_mode, BaseMaterial3D.SHADING_MODE_UNSHADED, "shaded, so the tier glow's emission renders")
-	assert_null(material.emission_texture, "tier glow is a flat emission colour; a texture would tint it per-texel")
+	assert_eq(material.shader.resource_path, "res://src/vfx/shaders/psx_lit.gdshader",
+		"psx_lit is shaded, so the tier glow's emission renders")
+	assert_not_null(material.get_shader_parameter(&"albedo_texture"))
+	assert_true(MaterialEnergy.supports(material), "DaggerProjectile drives the tier glow through this")
+	assert_null(material.get_shader_parameter(&"emission_texture"),
+		"tier glow is a flat emission colour; a texture would tint it per-texel")
 
 
 func test_player_hand_model_replaces_the_finger_boxes() -> void:

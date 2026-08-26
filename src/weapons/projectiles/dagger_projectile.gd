@@ -27,15 +27,17 @@ var age: float = 0.0
 
 ## The scene's material, shared by every instance (one tier look = one material,
 ## so daggers batch); launch() only writes emission when the value changes.
-var _material: StandardMaterial3D
+var _material: Material
 
 
 func _ready() -> void:
 	var mesh := _find_mesh()
 	if mesh != null:
-		_material = mesh.get_surface_override_material(0) as StandardMaterial3D
+		_material = mesh.get_surface_override_material(0)
 		if _material == null and mesh.mesh != null:
-			_material = mesh.mesh.surface_get_material(0) as StandardMaterial3D
+			_material = mesh.mesh.surface_get_material(0)
+		if not MaterialEnergy.supports(_material):
+			_material = null
 	if not active:
 		_deactivate()
 
@@ -53,8 +55,8 @@ func launch(origin: Vector3, direction: Vector3, p_params: ProjectileParams, p_s
 	velocity = dir * params.speed
 	global_position = origin
 	scale = Vector3.ONE * params.scale
-	if _material != null and not is_equal_approx(_material.emission_energy_multiplier, params.emission_energy):
-		_material.emission_energy_multiplier = params.emission_energy
+	if _material != null and not is_equal_approx(MaterialEnergy.get_energy(_material), params.emission_energy):
+		MaterialEnergy.set_energy(_material, params.emission_energy)
 	active = true
 	visible = true
 	set_physics_process(true)
