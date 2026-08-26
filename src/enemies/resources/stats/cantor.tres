@@ -1,22 +1,18 @@
-[gd_resource type="Resource" script_class="EnemyStats" load_steps=4 format=3 uid="uid://yup4jnn0enbl8"]
+[gd_resource type="Resource" script_class="EnemyStats" format=3 uid="uid://boav0b5h0f12n"]
 
-[ext_resource type="Script" path="res://src/enemies/resources/enemy_stats.gd" id="1_stats"]
-[ext_resource type="Resource" uid="uid://g88253rms0409" path="res://assets/audio/cues/hit.tres" id="2_hit"]
-[ext_resource type="Resource" uid="uid://v5ei5qdi6rxna" path="res://assets/audio/cues/skull_screech.tres" id="3_screech"]
+[ext_resource type="Script" uid="uid://cbtdxk2y5vtbr" path="res://src/enemies/resources/enemy_stats.gd" id="1_stats"]
+[ext_resource type="Resource" uid="uid://det7k1ud8taai" path="res://assets/audio/cues/hit.tres" id="2_hit"]
+[ext_resource type="Resource" uid="uid://ctc57gradrkug" path="res://assets/audio/cues/skull_screech.tres" id="3_screech"]
 
 [resource]
 script = ExtResource("1_stats")
 display_name = "Cantor"
 max_health = 8.0
-move_speed = 5.0
 acceleration = 18.0
 turn_speed_deg = 120.0
 min_height = 3.6
 grounded = false
-scale = 1.0
 gem_count = 4
-contact_damage = 1.0
 spawn_duration = 0.8
-hold_during_spawn = true
 hurt_cue = ExtResource("2_hit")
 death_cue = ExtResource("3_screech")

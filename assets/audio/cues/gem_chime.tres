@@ -1,15 +1,13 @@
-[gd_resource type="Resource" script_class="AudioCue" load_steps=5 format=3 uid="uid://mhd5t8ww1xh4m"]
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://u5j2256dcuuc"]
 
-[ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
-[ext_resource type="AudioStreamWAV" uid="uid://dumqkdc5a12vm" path="res://assets/audio/sfx/gem_chime_01.wav" id="2_g01"]
-[ext_resource type="AudioStreamWAV" uid="uid://calwwjnbp4avi" path="res://assets/audio/sfx/gem_chime_02.wav" id="3_g02"]
-[ext_resource type="AudioStreamWAV" uid="uid://rghvjacr17sh" path="res://assets/audio/sfx/gem_chime_03.wav" id="4_g03"]
+[ext_resource type="Script" uid="uid://csbtwlugnvt0g" path="res://src/core/audio_cue.gd" id="1_cue"]
+[ext_resource type="AudioStream" uid="uid://dumqkdc5a12vm" path="res://assets/audio/sfx/gem_chime_01.wav" id="2_g01"]
+[ext_resource type="AudioStream" uid="uid://calwwjnbp4avi" path="res://assets/audio/sfx/gem_chime_02.wav" id="3_g02"]
+[ext_resource type="AudioStream" uid="uid://rghvjacr17sh" path="res://assets/audio/sfx/gem_chime_03.wav" id="4_g03"]
 
 [resource]
 script = ExtResource("1_cue")
 streams = Array[AudioStream]([ExtResource("2_g01"), ExtResource("3_g02"), ExtResource("4_g03")])
 volume_db = -14.0
 pitch_min = 0.95
-pitch_max = 1.1
-bus = &"SFX"
 max_distance = 25.0

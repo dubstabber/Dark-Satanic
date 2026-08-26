@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="AudioCue" load_steps=5 format=3 uid="uid://v5ei5qdi6rxna"]
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://ctc57gradrkug"]
 
-[ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
-[ext_resource type="AudioStreamWAV" uid="uid://b60s3psg1lspb" path="res://assets/audio/sfx/death_screech_01.wav" id="2_d01"]
-[ext_resource type="AudioStreamWAV" uid="uid://bxgb1gyq1bepi" path="res://assets/audio/sfx/death_screech_02.wav" id="3_d02"]
-[ext_resource type="AudioStreamWAV" uid="uid://l7fuidoij3ry" path="res://assets/audio/sfx/death_screech_03.wav" id="4_d03"]
+[ext_resource type="Script" uid="uid://csbtwlugnvt0g" path="res://src/core/audio_cue.gd" id="1_cue"]
+[ext_resource type="AudioStream" uid="uid://b60s3psg1lspb" path="res://assets/audio/sfx/death_screech_01.wav" id="2_d01"]
+[ext_resource type="AudioStream" uid="uid://bxgb1gyq1bepi" path="res://assets/audio/sfx/death_screech_02.wav" id="3_d02"]
+[ext_resource type="AudioStream" uid="uid://l7fuidoij3ry" path="res://assets/audio/sfx/death_screech_03.wav" id="4_d03"]
 
 [resource]
 script = ExtResource("1_cue")
@@ -11,5 +11,4 @@ streams = Array[AudioStream]([ExtResource("2_d01"), ExtResource("3_d02"), ExtRes
 volume_db = -9.0
 pitch_min = 0.8
 pitch_max = 1.25
-bus = &"SFX"
 max_distance = 45.0

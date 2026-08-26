@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="AudioCue" load_steps=4 format=3 uid="uid://g88253rms0409"]
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://det7k1ud8taai"]
 
-[ext_resource type="Script" path="res://src/core/audio_cue.gd" id="1_cue"]
-[ext_resource type="AudioStreamWAV" uid="uid://bko22jo305ier" path="res://assets/audio/sfx/hit_01.wav" id="2_h01"]
-[ext_resource type="AudioStreamWAV" uid="uid://c41oe6jq6biif" path="res://assets/audio/sfx/hit_02.wav" id="3_h02"]
+[ext_resource type="Script" uid="uid://csbtwlugnvt0g" path="res://src/core/audio_cue.gd" id="1_cue"]
+[ext_resource type="AudioStream" uid="uid://bko22jo305ier" path="res://assets/audio/sfx/hit_01.wav" id="2_h01"]
+[ext_resource type="AudioStream" uid="uid://c41oe6jq6biif" path="res://assets/audio/sfx/hit_02.wav" id="3_h02"]
 
 [resource]
 script = ExtResource("1_cue")
@@ -10,5 +10,4 @@ streams = Array[AudioStream]([ExtResource("2_h01"), ExtResource("3_h02")])
 volume_db = -16.0
 pitch_min = 0.88
 pitch_max = 1.2
-bus = &"SFX"
 max_distance = 30.0

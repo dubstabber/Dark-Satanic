@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://tnylpbae0vhsm"]
+[gd_scene format=3 uid="uid://cw8q0n46u30s"]
 
 [ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" uid="uid://yup4jnn0enbl8" path="res://src/enemies/resources/stats/cantor.tres" id="2_stats"]

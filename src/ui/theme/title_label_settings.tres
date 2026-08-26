@@ -1,6 +1,6 @@
-[gd_resource type="LabelSettings" load_steps=3 format=3 uid="uid://iyg47z9ebbleb"]
+[gd_resource type="LabelSettings" format=3 uid="uid://8ne1wfu5vtur"]
 
-[ext_resource type="FontFile" path="res://assets/fonts/UnifrakturMaguntia-Book.ttf" id="1_unifraktur"]
+[ext_resource type="FontFile" uid="uid://bux0khwdj4ust" path="res://assets/fonts/UnifrakturMaguntia-Book.ttf" id="1_unifraktur"]
 
 [sub_resource type="FontVariation" id="FontVariation_title"]
 base_font = ExtResource("1_unifraktur")
@@ -12,6 +12,5 @@ spacing_space = 6
 [resource]
 font = SubResource("FontVariation_title")
 font_size = 64
-font_color = Color(1, 1, 1, 1)
 outline_size = 8
 outline_color = Color(0, 0, 0, 1)

@@ -45,6 +45,13 @@ service at a time and stop daemons you no longer need (`forge_stop`, `hunyuan_st
   `max_facenum`) → `assets/models/meshes/`. Incorrect meshes: regenerate from a cleaner reference image.
 - Mesh animation: `mesh-animate` `animate_mesh` (GLB + motion prompt → baked 16-frame vertex-animation FBX
   + MP4 preview; keep meshes ≲100k verts, `decimate_mesh` drops textures — prefer lower `max_facenum`).
+- Character rigging: `mesh-rig` `rig_mesh` (HUMANOID mesh → Mixamo-skeleton FBX, 22 bones / 52 with
+  `fingers`, ~25 s, ~3GB VRAM; creatures/props stay on `mesh-animate`). `retarget_bvh` bakes a MoMask BVH
+  onto the rig → animated FBX+GLB for Godot; `list_mixamo_animations` browses the ~2,453 local clips
+  (opaque hash names; `Standard Run` is named).
+- Character motion clips: `text-motion` `generate_motion` ('a person walks in a circle' → 22-joint BVH,
+  20 fps, ≤9.8 s; the foot-IK variant is the recommended one, plus MP4 preview; ~11 s warm, 1-2GB VRAM).
+  Plain everyday actions only (locomotion strong, combat weak); feed the BVH to `mesh-rig` `retarget_bvh`.
 - SFX → `assets/audio/sfx/`: iterate fast with `stable-audio` (small-sfx, ~15 s/take), final take with
   `moss-sfx` (48 kHz, ~50 s/take, needs ~14GB free RAM).
 - Music: `ace-music` (full tracks, optional lyrics/vocals; >~3 min tracks return `pending` — collect with
