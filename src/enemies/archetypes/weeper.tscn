@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://src/enemies/behaviors/seek_behavior.gd" id="3_seek"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/separation_behavior.gd" id="4_separation"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/bob_behavior.gd" id="5_bob"]
-[ext_resource type="Script" path="res://src/enemies/behaviors/hover_behavior.gd" id="8_hover"]
+[ext_resource type="Script" path="res://src/enemies/behaviors/flock_behavior.gd" id="8_flock"]
 [ext_resource type="ArrayMesh" uid="uid://bv5mq56npd04p" path="res://assets/models/meshes/weeper.res" id="6_mesh"]
 [ext_resource type="Texture2D" uid="uid://bl4vw74hepxgq" path="res://assets/textures/weeper.png" id="7_tex"]
 
@@ -31,19 +31,27 @@ shape = SubResource("SphereShape3D_weeper")
 
 [node name="Seek" type="Node" parent="Behaviors"]
 script = ExtResource("3_seek")
+fly = true
+aim_height = 1.2
+pitch_speed_deg = 270.0
+max_pitch_deg = 45.0
 
-[node name="Hover" type="Node" parent="Behaviors"]
-script = ExtResource("8_hover")
-height = 1.5
+[node name="Flock" type="Node" parent="Behaviors"]
+script = ExtResource("8_flock")
+radius = 6.0
+cohesion = 0.5
+alignment = 0.35
 
 [node name="Separation" type="Node" parent="Behaviors"]
 script = ExtResource("4_separation")
-radius = 1.2
+radius = 2.5
+strength = 14.0
+vertical = true
 
 [node name="Bob" type="Node" parent="Behaviors"]
 script = ExtResource("5_bob")
-amplitude = 0.25
-frequency = 1.2
+amplitude = 0.5
+frequency = 0.6
 
 [node name="Mesh" parent="Visual" index="0"]
 transform = Transform3D(0, 0.9, 0, 0, 0, -0.9, -0.9, 0, 0, 0, 0, 0)

@@ -97,6 +97,31 @@ func test_seek_slow_turner_overshoots() -> void:
 	assert_true(_body.global_position.distance_to(_target.global_position) > _closest)
 
 
+func test_seek_in_flight_turns_in_three_dimensions() -> void:
+	var seek := _behavior(SeekBehavior.new())
+	seek.fly = true
+	_ctx.stats.turn_speed_deg = 60.0
+	_ctx.stats.move_speed = 6.0
+	_target.position = Vector3(10, 0, 0)
+	seek.steer(_ctx, DT)
+	_target.position = Vector3(0, 10, 0)
+	var v := seek.steer(_ctx, 0.5)
+	assert_almost_eq(rad_to_deg(Vector3.RIGHT.angle_to(v)), 30.0, 0.1, "pitches up at the same limited rate")
+	assert_true(v.y > 0.0, "climbing, not clamping")
+	assert_almost_eq(v.length(), 6.0, 0.001, "always full speed, only ever pointed somewhere else")
+
+
+func test_seek_aim_height_goes_for_the_chest_not_the_feet() -> void:
+	var seek := _behavior(SeekBehavior.new())
+	seek.fly = true
+	seek.aim_height = 1.0
+	_body.position = Vector3(0, 4, 0)
+	_target.position = Vector3(0, 0, 6)
+	var v := seek.steer(_ctx, 1.0)
+	var to_chest := (Vector3(0, 1, 6) - _body.position).normalized()
+	assert_almost_eq(v.normalized().dot(to_chest), 1.0, 0.001, "dives at 1 m above the target's origin")
+
+
 func test_seek_without_target_is_still() -> void:
 	var seek := _behavior(SeekBehavior.new())
 	_ctx.target = null
@@ -129,6 +154,54 @@ func test_separation_handles_coincident_neighbor() -> void:
 	assert_true(v.length() > 0.0, "random push when exactly overlapping")
 
 
+# --- Flock -------------------------------------------------------------------
+
+func test_flock_pulls_toward_the_centre_of_the_neighbours() -> void:
+	var flock := _behavior(FlockBehavior.new())
+	flock.alignment = 0.0
+	flock.cohesion = 0.5
+	var near := Node3D.new()
+	near.position = Vector3(2, 1, 0)
+	var far := Node3D.new()
+	far.position = Vector3(4, 3, 0)
+	_world.add_child(near)
+	_world.add_child(far)
+	_ctx.neighbors_provider = func() -> Array[Node3D]: return [near, far]
+	var v := flock.steer(_ctx, DT)
+	assert_almost_eq(v.x, 1.5, 0.001, "half the offset to the middle of the pair")
+	assert_almost_eq(v.y, 1.0, 0.001, "cohesion works in the air, not just on the ground")
+	assert_almost_eq(v.z, 0.0, 0.001)
+
+
+func test_flock_ignores_neighbours_outside_its_radius() -> void:
+	var flock := _behavior(FlockBehavior.new())
+	flock.radius = 3.0
+	var far := Node3D.new()
+	far.position = Vector3(10, 0, 0)
+	_world.add_child(far)
+	_ctx.neighbors_provider = func() -> Array[Node3D]: return [far]
+	assert_eq(flock.steer(_ctx, DT), Vector3.ZERO, "as far as it can tell it is flying alone")
+
+
+func test_flock_matches_the_velocity_of_the_swarm() -> void:
+	var flock := _behavior(FlockBehavior.new())
+	flock.cohesion = 0.0
+	flock.alignment = 0.5
+	var enemy := Enemy.new()
+	var mover := EnemyMover.new()
+	enemy.add_child(mover)
+	enemy.position = Vector3(2, 0, 0)
+	_world.add_child(enemy)
+	enemy.set_physics_process(false)
+	mover.velocity = Vector3(0, 0, 8)
+	_ctx.neighbors_provider = func() -> Array[Node3D]: return [enemy]
+	assert_almost_eq(flock.steer(_ctx, DT).z, 4.0, 0.001, "matches half of a neighbour's 8 m/s")
+	var plain := Node3D.new()
+	_world.add_child(plain)
+	_ctx.neighbors_provider = func() -> Array[Node3D]: return [plain]
+	assert_eq(flock.steer(_ctx, DT), Vector3.ZERO, "anything without a mover contributes no heading")
+
+
 # --- Bob ---------------------------------------------------------------------
 
 func test_bob_oscillates_around_zero() -> void:
@@ -152,34 +225,6 @@ func test_bob_phase_comes_from_rng() -> void:
 	b.steer(_ctx, DT)
 	assert_eq(a.phase, b.phase)
 	assert_true(a.phase >= 0.0 and a.phase <= TAU)
-
-
-# --- Hover ---------------------------------------------------------------------
-
-func test_hover_climbs_to_its_height_and_stays_there() -> void:
-	var hover := _behavior(HoverBehavior.new())
-	hover.height = 1.5
-	_ctx.arena_info = ArenaInfo.new(Vector3.ZERO, 30.0, 2.0)
-	_body.position = Vector3(0, 2.0, 0)
-	var v := hover.steer(_ctx, DT)
-	assert_true(v.x == 0.0 and v.z == 0.0, "vertical only")
-	assert_almost_eq(v.y, 3.0, 0.001, "gain 2.0 per metre of the 1.5 m gap")
-	_run(hover, 3.0)
-	assert_almost_eq(_body.global_position.y, 3.5, 0.01, "floor_y + height")
-	_run(hover, 2.0)
-	assert_almost_eq(_body.global_position.y, 3.5, 0.01, "and holds it")
-
-
-func test_hover_glides_down_from_a_release_high_above_the_floor() -> void:
-	var hover := _behavior(HoverBehavior.new())
-	hover.height = 1.5
-	hover.max_climb = 6.0
-	_body.position = Vector3(0, 20, 0)
-	assert_almost_eq(hover.steer(_ctx, DT).y, -6.0, 0.001, "descent capped at max_climb")
-	_run(hover, 0.5)
-	assert_almost_eq(_body.global_position.y, 17.0, 0.05, "a glide, not a drop")
-	_run(hover, 6.0)
-	assert_almost_eq(_body.global_position.y, 1.5, 0.05, "settles at its flight height")
 
 
 # --- HoverDrift --------------------------------------------------------------

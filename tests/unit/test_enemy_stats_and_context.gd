@@ -50,7 +50,7 @@ func test_weeper_is_a_slow_turning_flyer_faster_than_the_player() -> void:
 	assert_gt(WeeperStats.move_speed, PlayerMovement.walk_speed, "running away never shakes it")
 	assert_lt(WeeperStats.move_speed, PlayerMovement.walk_speed * 1.2, "but it only gains slowly")
 	assert_false(WeeperStats.grounded, "it flies")
-	assert_gt(WeeperStats.min_height, 0.9, "and never scrapes the floor")
+	assert_gt(WeeperStats.min_height, 0.45, "its floor guard clears the 0.45 m skull")
 	var turn_radius: float = WeeperStats.move_speed / deg_to_rad(WeeperStats.turn_speed_deg)
 	assert_between(turn_radius, 5.0, 8.0, "the circle it cannot turn inside is what a strafe exploits")
 
@@ -154,3 +154,20 @@ func test_turn_toward_limits_rotation() -> void:
 	assert_almost_eq(full.distance_to(Vector3.FORWARD), 0.0, 0.001)
 	assert_eq(EnemyBehavior.turn_toward(Vector3.ZERO, Vector3.FORWARD, 10.0, 0.01), Vector3.FORWARD, "no heading yet: snap")
 	assert_eq(EnemyBehavior.turn_toward(heading, Vector3.ZERO, 10.0, 0.01), heading, "no desired: keep heading")
+
+
+func test_turn_toward_flight_banks_on_one_clock_and_pitches_on_another() -> void:
+	var climbing := EnemyBehavior.turn_toward_flight(Vector3.RIGHT, Vector3(1, 1, 0), 90.0, 180.0, 45.0, 0.1)
+	assert_almost_eq(rad_to_deg(asin(climbing.y)), 18.0, 0.1, "18 of the 45 degrees in a tenth of a second")
+	assert_almost_eq(Vector2(climbing.x, climbing.z).normalized().x, 1.0, 0.001, "bearing untouched by the climb")
+	var capped := EnemyBehavior.turn_toward_flight(Vector3.RIGHT, Vector3(0.01, 10, 0), 90.0, 3600.0, 30.0, 1.0)
+	assert_almost_eq(rad_to_deg(asin(capped.y)), 30.0, 0.1, "never steeper than max_pitch, however high the target")
+	var about_face := EnemyBehavior.turn_toward_flight(Vector3.RIGHT, Vector3.LEFT, 90.0, 90.0, 45.0, 1.0)
+	assert_almost_eq(rad_to_deg(Vector3.RIGHT.angle_to(about_face)), 90.0, 0.01, "the bearing swings at the yaw rate")
+	assert_almost_eq(about_face.y, 0.0, 0.001, "and stays level doing it, rather than looping over the top")
+	var first := EnemyBehavior.turn_toward_flight(Vector3.ZERO, Vector3(0, 3, 4), 90.0, 90.0, 45.0, 0.01)
+	assert_almost_eq(rad_to_deg(asin(first.y)), 36.87, 0.1, "no heading yet: straight onto the target's own climb")
+	assert_eq(EnemyBehavior.turn_toward_flight(Vector3.RIGHT, Vector3.ZERO, 90.0, 90.0, 45.0, 0.1), Vector3.RIGHT,
+		"no desired: keep heading")
+	assert_eq(EnemyBehavior.turn_toward_flight(Vector3.UP, Vector3.UP, 90.0, 90.0, 45.0, 0.1), Vector3.UP,
+		"a heading with no bearing at all is left alone")

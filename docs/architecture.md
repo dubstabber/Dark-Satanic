@@ -83,13 +83,19 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
   delegates. Enemies must never leave the platform (`ArenaInfo.clamp_to_platform`) or go below `floor_y + min_height`.
   Enemies spawned by other enemies (lament nests, mourner bursts) are placed on the floor / seek vertically so
   they can reach a grounded player.
-- Flyers (`stats.grounded = false`) hold their altitude with a behaviour instead of the mover: `HoverBehavior`
-  is the plain altitude hold (weeper: 1.5 m, so a nest-released one glides down to head height instead of
-  sinking), `HoverDriftBehavior` and `OrbitDiveBehavior` fly their own profiles. `stats.min_height` is only the
-  hard floor underneath them.
-- A chaser's `stats.turn_speed_deg` is its dodge contract: `SeekBehavior` turns the heading at that rate, so
-  `move_speed / turn_speed` is the circle it cannot turn inside (the weeper is faster than the player's
-  9 m/s walk but turns at 90 deg/s, i.e. a 6.2 m circle — running away fails, stepping across it works).
+- Flyers (`stats.grounded = false`) get their altitude from their steering, not from the mover;
+  `stats.min_height` is only the hard floor underneath them. `SeekBehavior.fly` is free 3D pursuit:
+  `EnemyBehavior.turn_toward_flight` swings the compass bearing at `turn_speed_deg` and chases the climb angle
+  separately at `pitch_speed_deg`, never past `max_pitch_deg`. Pitching faster than it banks is what stops a
+  slow turner recovering an overshoot by looping over the top and ending up 12 m above the arena; `aim_height`
+  puts the aim point at the target's chest instead of its feet. `HoverDriftBehavior` (nest) and
+  `OrbitDiveBehavior` (vesper) fly their own scripted profiles instead.
+- A chaser's `stats.turn_speed_deg` is its dodge contract: `move_speed / turn_speed` is the circle it cannot
+  turn inside (the weeper is faster than the player's 9 m/s walk but banks at 90 deg/s, i.e. a 6.2 m circle —
+  running away fails, stepping across it works).
+- The weeper swarm is boids, like the SKULL I it is modelled on: `FlockBehavior` (cohesion + alignment) and
+  `SeparationBehavior` (avoid; `vertical = true` so they slide over and under each other) on top of the flight
+  seek. Both walk `ctx.neighbors()` every tick and are the O(n)-per-enemy behaviours.
 - Gem drops use `GemDropComponent` with `gem_scene = res://src/pickups/gem_pickup.tscn`; the director injects
   `spawn_root = Game/GemContainer` before the enemy enters the tree.
 

@@ -68,7 +68,7 @@ func test_weeper_stats_and_behaviors() -> void:
 	assert_eq(weeper.gem_drop.count, 0)
 	var behaviors := weeper.get_node("Behaviors")
 	assert_true(behaviors.get_node("Seek") is SeekBehavior)
-	assert_true(behaviors.get_node("Hover") is HoverBehavior)
+	assert_true(behaviors.get_node("Flock") is FlockBehavior)
 	assert_true(behaviors.get_node("Separation") is SeparationBehavior)
 	assert_true(behaviors.get_node("Bob") is BobBehavior)
 	assert_almost_eq((weeper.hurtbox.get_child(0) as CollisionShape3D).shape.radius, 0.45, 0.001)
