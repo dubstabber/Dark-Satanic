@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://kr2ypnpu3jxi"]
 
 [ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
-[ext_resource type="Resource" uid="uid://gpq7qexu6i309" path="res://src/enemies/resources/stats/thurible.tres" id="2_stats"]
+[ext_resource type="Resource" uid="uid://cudc5c1mmb8ai" path="res://src/enemies/resources/stats/thurible.tres" id="2_stats"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/seek_behavior.gd" id="3_seek"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/separation_behavior.gd" id="4_separation"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/bob_behavior.gd" id="5_bob"]

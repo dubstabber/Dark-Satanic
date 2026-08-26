@@ -1,7 +1,7 @@
 [gd_scene load_steps=17 format=3 uid="uid://b9ljdxvv60axc"]
 
 [ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
-[ext_resource type="Resource" uid="uid://egtfj0uownscv" path="res://src/enemies/resources/stats/tenebrae.tres" id="2_stats"]
+[ext_resource type="Resource" uid="uid://lfjxxxgdgwk4" path="res://src/enemies/resources/stats/tenebrae.tres" id="2_stats"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/hover_drift_behavior.gd" id="3_hover"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/seek_behavior.gd" id="4_seek"]
 [ext_resource type="ArrayMesh" uid="uid://d1jqomlnfbndb" path="res://assets/models/meshes/tenebrae.res" id="5_mesh"]

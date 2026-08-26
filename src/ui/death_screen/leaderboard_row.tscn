@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://k04rzwdk51cpj"]
 
 [ext_resource type="Script" path="res://src/ui/death_screen/leaderboard_row.gd" id="1_row"]
-[ext_resource type="StyleBox" uid="uid://n6uhvp2olp19t" path="res://src/ui/death_screen/leaderboard_row_normal.tres" id="2_normal"]
+[ext_resource type="StyleBox" uid="uid://clmu4kbwv4f0j" path="res://src/ui/death_screen/leaderboard_row_normal.tres" id="2_normal"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cell"]
 

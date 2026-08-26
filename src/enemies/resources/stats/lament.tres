@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="EnemyStats" load_steps=5 format=3 uid="uid://mdqav82qj5ixk"]
 
 [ext_resource type="Script" path="res://src/enemies/resources/enemy_stats.gd" id="1_stats"]
-[ext_resource type="Resource" uid="uid://g88253rms0409" path="res://assets/audio/cues/hit.tres" id="2_hit"]
+[ext_resource type="Resource" uid="uid://det7k1ud8taai" path="res://assets/audio/cues/hit.tres" id="2_hit"]
 [ext_resource type="Resource" path="res://assets/audio/cues/death_wail.tres" id="3_skull_screech"]
 [ext_resource type="Resource" uid="uid://mtujgufjuc77q" path="res://assets/audio/cues/spawner_groan.tres" id="4_spawner_groan"]
 [ext_resource type="Resource" path="res://assets/audio/cues/armor_clang.tres" id="9_armor"]

@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="EnemyStats" load_steps=5 format=3 uid="uid://o8s8qthik3uq2"]
 
 [ext_resource type="Script" path="res://src/enemies/resources/enemy_stats.gd" id="1_stats"]
-[ext_resource type="Resource" uid="uid://g88253rms0409" path="res://assets/audio/cues/hit.tres" id="2_hit"]
-[ext_resource type="Resource" uid="uid://v5ei5qdi6rxna" path="res://assets/audio/cues/skull_screech.tres" id="3_skull_screech"]
+[ext_resource type="Resource" uid="uid://det7k1ud8taai" path="res://assets/audio/cues/hit.tres" id="2_hit"]
+[ext_resource type="Resource" uid="uid://ctc57gradrkug" path="res://assets/audio/cues/skull_screech.tres" id="3_skull_screech"]
 [ext_resource type="Resource" uid="uid://csq6knyy4pxnu" path="res://assets/audio/cues/skull_arrive.tres" id="4_skull_arrive"]
 
 [resource]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cw8q0n46u30s"]
 
 [ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
-[ext_resource type="Resource" uid="uid://yup4jnn0enbl8" path="res://src/enemies/resources/stats/cantor.tres" id="2_stats"]
+[ext_resource type="Resource" uid="uid://boav0b5h0f12n" path="res://src/enemies/resources/stats/cantor.tres" id="2_stats"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/seek_behavior.gd" id="3_seek"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/separation_behavior.gd" id="4_separation"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/bob_behavior.gd" id="5_bob"]

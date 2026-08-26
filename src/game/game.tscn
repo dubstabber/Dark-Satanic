@@ -10,7 +10,7 @@
 [ext_resource type="PackedScene" path="res://src/ui/hud/hud.tscn" id="8_hud"]
 [ext_resource type="Script" path="res://src/game/ambience_scheduler.gd" id="9_ambience"]
 [ext_resource type="Resource" uid="uid://btt3vo5bm2yvq" path="res://assets/audio/cues/whispers.tres" id="10_whisper_cue"]
-[ext_resource type="PackedScene" uid="uid://f227p1jj4hbud" path="res://src/vfx/particles/spawn_rift.tscn" id="11_spawn_rift"]
+[ext_resource type="PackedScene" uid="uid://b7oc4ymbkaf3l" path="res://src/vfx/particles/spawn_rift.tscn" id="11_spawn_rift"]
 [ext_resource type="Resource" uid="uid://dq5v8jt0ye2mn" path="res://assets/audio/cues/spawn_rift.tres" id="12_rift_cue"]
 [ext_resource type="Script" path="res://src/spawning/boss_director.gd" id="13_boss_director"]
 [ext_resource type="PackedScene" uid="uid://b9ljdxvv60axc" path="res://src/enemies/bosses/tenebrae.tscn" id="14_tenebrae"]
