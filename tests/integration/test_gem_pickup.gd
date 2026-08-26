@@ -66,8 +66,9 @@ func test_scene_layout_and_value() -> void:
 	assert_eq(gem.magnet_area.collision_mask, PhysicsLayers.PICKUP)
 	assert_not_null(gem.mesh_instance.mesh, "scene ships the crystal model")
 	assert_eq(gem.mesh_instance.mesh.resource_path, "res://assets/models/meshes/gem.res")
-	var gem_material := gem.mesh_instance.material_override as StandardMaterial3D
-	assert_eq(gem_material.albedo_texture.resource_path, "res://assets/textures/gem.png")
+	var gem_material := gem.mesh_instance.material_override as ShaderMaterial
+	var gem_albedo: Texture2D = gem_material.get_shader_parameter(&"albedo_texture")
+	assert_eq(gem_albedo.resource_path, "res://assets/textures/gem.png")
 	var aabb: AABB = gem.mesh_instance.transform * gem.mesh_instance.get_aabb()
 	assert_almost_eq(aabb.size.x, 0.6, 0.05, "model fits the 0.6 m wide drop-in spec")
 	assert_almost_eq(aabb.size.y, 0.9, 0.05, "model fits the 0.9 m tall drop-in spec")

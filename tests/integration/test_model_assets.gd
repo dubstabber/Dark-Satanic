@@ -124,4 +124,4 @@ func test_player_hand_model_replaces_the_finger_boxes() -> void:
 	var lined_up := box.grow(0.1)
 	assert_between(muzzle.x, lined_up.position.x, lined_up.end.x, "muzzle lines up with the hand in x")
 	assert_between(muzzle.y, lined_up.position.y, lined_up.end.y, "and in y")
-	assert_not_null((hand.material_override as StandardMaterial3D).albedo_texture)
+	assert_not_null((hand.material_override as ShaderMaterial).get_shader_parameter(&"albedo_texture"))

@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://vm7p6ui6hndm8"]
+[gd_scene load_steps=23 format=3 uid="uid://vm7p6ui6hndm8"]
 
 [ext_resource type="Script" path="res://src/player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://src/player/input_reader.gd" id="2_input"]
@@ -18,19 +18,19 @@
 [ext_resource type="Script" path="res://src/player/death_collapse.gd" id="18_collapse"]
 [ext_resource type="Resource" uid="uid://ba1hyx6q7v3kd" path="res://assets/audio/cues/jump.tres" id="16_jump_cue"]
 [ext_resource type="Resource" uid="uid://cw8lqm0nx4t2r" path="res://assets/audio/cues/land.tres" id="17_land_cue"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_lit.gdshader" id="19_psx"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.4
 height = 1.7
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bone"]
-albedo_color = Color(0.92, 0.9, 0.85, 1)
-albedo_texture = ExtResource("13_hand_tex")
-roughness = 0.9
-emission_enabled = true
-emission = Color(0.88, 0.86, 0.8, 1)
-emission_energy_multiplier = 0.22
-emission_texture = ExtResource("13_hand_tex")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bone"]
+shader = ExtResource("19_psx")
+shader_parameter/albedo_color = Color(0.92, 0.9, 0.85, 1)
+shader_parameter/albedo_texture = ExtResource("13_hand_tex")
+shader_parameter/emission_color = Color(0.88, 0.86, 0.8, 1)
+shader_parameter/emission_energy = 0.22
+shader_parameter/emission_texture = ExtResource("13_hand_tex")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hurt"]
 radius = 0.35
@@ -79,7 +79,7 @@ script = ExtResource("7_hands")
 
 [node name="Hand" type="MeshInstance3D" parent="CameraRig/Camera3D/HandViewModel"]
 transform = Transform3D(-0.202753, 0.259514, 0.29269, 0.352451, 0.264205, 0.00989328, -0.169686, 0.238688, -0.329179, 0.10159, -0.138904, 0.00736453)
-material_override = SubResource("StandardMaterial3D_bone")
+material_override = SubResource("ShaderMaterial_bone")
 mesh = ExtResource("12_hand_mesh")
 
 ; Just past the fingertips (the hand's own vertices reach z = -0.457 here, tips

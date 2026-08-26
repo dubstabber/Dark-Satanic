@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://r6pgaokpn3j4l"]
+[gd_scene load_steps=9 format=3 uid="uid://r6pgaokpn3j4l"]
 
 [ext_resource type="Script" path="res://src/pickups/gem_pickup.gd" id="1_gem"]
 [ext_resource type="Resource" path="res://src/pickups/resources/gem_default.tres" id="2_stats"]
 [ext_resource type="ArrayMesh" uid="uid://mvx6ops1wcj1" path="res://assets/models/meshes/gem.res" id="3_mesh"]
 [ext_resource type="Texture2D" uid="uid://5qmsa2byfcu7" path="res://assets/textures/gem.png" id="4_tex"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_lit.gdshader" id="5_psx"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pickup"]
 radius = 0.45
@@ -11,12 +12,12 @@ radius = 0.45
 [sub_resource type="SphereShape3D" id="SphereShape3D_magnet"]
 radius = 4.0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gem"]
-albedo_color = Color(0.9, 0.9, 0.9, 1)
-albedo_texture = ExtResource("4_tex")
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.0
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gem"]
+shader = ExtResource("5_psx")
+shader_parameter/albedo_color = Color(0.9, 0.9, 0.9, 1)
+shader_parameter/albedo_texture = ExtResource("4_tex")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 2.0
 
 [node name="GemPickup" type="Area3D"]
 collision_layer = 0
@@ -38,5 +39,5 @@ shape = SubResource("SphereShape3D_magnet")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.52, 0, 0, 0, 0.52, 0, 0, 0, 0.52, 0, 0.05, 0)
-material_override = SubResource("StandardMaterial3D_gem")
+material_override = SubResource("ShaderMaterial_gem")
 mesh = ExtResource("3_mesh")
