@@ -108,11 +108,13 @@ func test_menu_buttons_play_the_ui_cue() -> void:
 	assert_not_null(_flow.ui_cue, "main.tscn assigns ui_click")
 	var menu: MainMenu = _ui().get_node("MainMenu")
 	menu.leaderboard_button.pressed.emit()
-	assert_eq(AudioManager.playing_count(), 1, "one click cue playing")
+	# is_playing_cue, not playing_count: the 30 ms click can finish on the audio
+	# thread between two asserts, so counting players is a wall-clock race.
+	assert_true(AudioManager.is_playing_cue(_flow.ui_cue), "click cue playing")
 	_flow.open_settings()
 	var panel: SettingsPanel = _ui().get_node("SettingsPanel")
 	panel.close_button.pressed.emit()
-	assert_eq(AudioManager.playing_count(), 2, "settings close button clicks too")
+	assert_true(AudioManager.is_playing_cue(_flow.ui_cue), "settings close button clicks too")
 
 
 func test_menu_and_game_music_come_from_cues() -> void:
