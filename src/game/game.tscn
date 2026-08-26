@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://a7yh7fjmb40co"]
+[gd_scene load_steps=26 format=3 uid="uid://a7yh7fjmb40co"]
 
 [ext_resource type="Script" path="res://src/game/game.gd" id="1_game"]
 [ext_resource type="Resource" uid="uid://x17set90aaksm" path="res://src/game/default_game.tres" id="2_config"]
@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" path="res://src/weapons/dagger_weapon.tscn" id="6_weapon"]
 [ext_resource type="Script" path="res://src/spawning/spawn_director.gd" id="7_director"]
 [ext_resource type="PackedScene" path="res://src/ui/hud/hud.tscn" id="8_hud"]
-[ext_resource type="Script" path="res://src/game/whisper_scheduler.gd" id="9_whispers"]
+[ext_resource type="Script" path="res://src/game/ambience_scheduler.gd" id="9_ambience"]
 [ext_resource type="Resource" uid="uid://btt3vo5bm2yvq" path="res://assets/audio/cues/whispers.tres" id="10_whisper_cue"]
 [ext_resource type="PackedScene" uid="uid://f227p1jj4hbud" path="res://src/vfx/particles/spawn_rift.tscn" id="11_spawn_rift"]
 [ext_resource type="Resource" uid="uid://dq5v8jt0ye2mn" path="res://assets/audio/cues/spawn_rift.tres" id="12_rift_cue"]
@@ -16,6 +16,13 @@
 [ext_resource type="PackedScene" uid="uid://b9ljdxvv60axc" path="res://src/enemies/bosses/tenebrae.tscn" id="14_tenebrae"]
 [ext_resource type="Script" path="res://src/spawning/resources/spawn_event.gd" id="15_event"]
 [ext_resource type="Script" path="res://src/spawning/patterns/random_edge_pattern.gd" id="16_edge"]
+[ext_resource type="Resource" path="res://assets/audio/cues/scream_far.tres" id="17_scream_far"]
+[ext_resource type="Resource" path="res://assets/audio/cues/scream_near.tres" id="18_scream_near"]
+[ext_resource type="Resource" path="res://assets/audio/cues/laugh_broken.tres" id="19_laugh_broken"]
+[ext_resource type="Resource" path="res://assets/audio/cues/tape_static.tres" id="20_tape_static"]
+[ext_resource type="Resource" path="res://assets/audio/cues/metal_drag.tres" id="21_metal_drag"]
+[ext_resource type="Resource" path="res://assets/audio/cues/breath_close.tres" id="22_breath_close"]
+[ext_resource type="Resource" path="res://assets/audio/cues/herald_boss.tres" id="23_herald_boss"]
 
 [sub_resource type="Resource" id="Resource_boss_pattern"]
 script = ExtResource("16_edge")
@@ -28,6 +35,7 @@ height_max = 13.0
 script = ExtResource("15_event")
 time = 0.0
 enemy_scene = ExtResource("14_tenebrae")
+announce_cue = ExtResource("23_herald_boss")
 count = 1
 pattern = SubResource("Resource_boss_pattern")
 stagger = 0.0
@@ -81,8 +89,19 @@ interval = 180.0
 telegraph_lead = 3.0
 
 [node name="WhisperScheduler" type="Node" parent="."]
-script = ExtResource("9_whispers")
-cue = ExtResource("10_whisper_cue")
+script = ExtResource("9_ambience")
+cues = Array[AudioCue]([ExtResource("10_whisper_cue")])
+interval_min = 20.0
+interval_max = 45.0
+
+[node name="DreadScheduler" type="Node" parent="." node_paths=PackedStringArray("origin")]
+script = ExtResource("9_ambience")
+cues = Array[AudioCue]([ExtResource("17_scream_far"), ExtResource("18_scream_near"), ExtResource("19_laugh_broken"), ExtResource("20_tape_static"), ExtResource("21_metal_drag"), ExtResource("22_breath_close")])
+interval_min = 11.0
+interval_max = 26.0
+radius = 15.0
+height_spread = 2.5
+origin = NodePath("../Player")
 
 [node name="PlayerLight" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)

@@ -2,7 +2,8 @@
 
 [ext_resource type="Script" uid="uid://cbtdxk2y5vtbr" path="res://src/enemies/resources/enemy_stats.gd" id="1_stats"]
 [ext_resource type="Resource" uid="uid://det7k1ud8taai" path="res://assets/audio/cues/hit.tres" id="2_hit"]
-[ext_resource type="Resource" uid="uid://ctc57gradrkug" path="res://assets/audio/cues/skull_screech.tres" id="3_screech"]
+[ext_resource type="Resource" path="res://assets/audio/cues/death_wail.tres" id="3_screech"]
+[ext_resource type="Resource" path="res://assets/audio/cues/armor_clang.tres" id="9_armor"]
 
 [resource]
 script = ExtResource("1_stats")
@@ -16,5 +17,6 @@ grounded = false
 gem_count = 60
 spawn_duration = 1.6
 hold_during_spawn = false
+armor_cue = ExtResource("9_armor")
 hurt_cue = ExtResource("2_hit")
 death_cue = ExtResource("3_screech")

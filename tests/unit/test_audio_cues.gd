@@ -23,12 +23,34 @@ const SFX_TAKES := {
 	"death_stinger": 1,
 	"ui_click": 1,
 	"skull_arrive": 1,
+	"death_wail": 2,
+	"armor_clang": 1,
+	"snuff": 1,
+	"scream_far": 3,
+	"scream_near": 3,
+	"laugh_broken": 2,
+	"tape_static": 2,
+	"metal_drag": 1,
+	"breath_close": 1,
+	"herald_choir": 3,
+	"herald_bell": 3,
+	"herald_maw": 3,
+	"herald_swarm": 3,
+	"herald_boss": 3,
 }
+## The heralds announce an arrival; the atmosphere cues announce nothing at all, which is
+## the whole trick - they share a register so a scream is never proof of anything.
+const HERALDS: Array[String] = ["herald_choir", "herald_bell", "herald_maw", "herald_swarm", "herald_boss"]
+const ATMOSPHERE: Array[String] = [
+	"scream_far", "scream_near", "laugh_broken", "tape_static", "metal_drag", "breath_close", "whispers",
+]
 const LOOP_NAMES: Array[String] = ["amb_drone", "menu_hum"]
 ## The cues whose takes come from the local moss-sfx server as uncompressed WAV, rather
 ## than from tools/gen_audio.sh as sox-synthesised Ogg.
 const GENERATED: Array[String] = [
 	"dagger_tick", "shotgun_thump", "jump", "land", "spawn_rift", "skull_screech", "hit", "gem_chime",
+	"death_wail", "snuff", "scream_far", "scream_near", "laugh_broken", "tape_static", "metal_drag",
+	"breath_close", "armor_clang", "herald_choir", "herald_bell", "herald_maw", "herald_swarm", "herald_boss",
 ]
 const VALID_BUSES: Array[StringName] = [&"SFX", &"UI", &"Music"]
 
@@ -188,3 +210,15 @@ func test_loops_are_longer_than_every_one_shot() -> void:
 	for cue_name in _sfx_names():
 		for stream in _streams(cue_name):
 			assert_lt(stream.get_length(), shortest_loop, cue_name)
+
+
+## A herald has to carry across the arena to be a warning; atmosphere has to sit behind the
+## fight without ever becoming the loudest thing in it.
+func test_heralds_carry_further_than_the_atmosphere_they_hide_among() -> void:
+	for cue_name in HERALDS:
+		var cue := _cue(cue_name)
+		assert_gt(cue.max_distance, 55.0, "%s reaches across the arena" % cue_name)
+		assert_gt(cue.volume_db, -12.0, "%s is meant to be heard" % cue_name)
+	for cue_name in ATMOSPHERE:
+		var cue := _cue(cue_name)
+		assert_lt(cue.volume_db, -9.0, "%s sits under the fight" % cue_name)

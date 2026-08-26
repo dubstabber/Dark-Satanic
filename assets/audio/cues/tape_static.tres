@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://b01k6usb76nvk"]
+
+[ext_resource type="Script" uid="uid://csbtwlugnvt0g" path="res://src/core/audio_cue.gd" id="1_cue"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/tape_static_01.wav" id="2_t01"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/tape_static_02.wav" id="3_t02"]
+
+[resource]
+script = ExtResource("1_cue")
+streams = Array[AudioStream]([ExtResource("2_t01"), ExtResource("3_t02")])
+volume_db = -16.0
+pitch_min = 0.9
+pitch_max = 1.1
+max_distance = 35.0

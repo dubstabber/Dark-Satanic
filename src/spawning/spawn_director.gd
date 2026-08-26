@@ -89,7 +89,7 @@ func advance(delta: float) -> void:
 		_schedule(_events[_cursor], _events[_cursor].time)
 		_cursor += 1
 	for item in _queue.pop_telegraph_due(_elapsed):
-		telegraph_at(item["position"])
+		telegraph_at(item["position"], item["event"])
 	for item in _queue.pop_due(_elapsed):
 		_spawn_one(item["event"], item["position"])
 
@@ -175,11 +175,14 @@ func telegraph_root() -> Node:
 	return enemy_container.get_parent() if enemy_container != null else null
 
 
-## Announces an arrival at `position`: the cue always plays, and the warning effect is
-## raised when one is configured. Returns the effect, or null when there is none.
-func telegraph_at(position: Vector3) -> Node3D:
+## Announces an arrival at `position`: a cue always plays - the event's own `announce_cue`
+## when it has one, otherwise the generic rift - and the warning effect is raised when one
+## is configured. Returns the effect, or null when there is none. `event` is optional
+## because the boss director and the QA harness announce a position with no queue entry.
+func telegraph_at(position: Vector3, event: SpawnEvent = null) -> Node3D:
 	telegraphed.emit(position)
-	AudioManager.play(telegraph_cue, position)
+	var cue: AudioCue = event.announce_cue if event != null and event.announce_cue != null else telegraph_cue
+	AudioManager.play(cue, position)
 	var root := telegraph_root()
 	if telegraph_scene == null or root == null:
 		return null

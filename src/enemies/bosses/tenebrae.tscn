@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://src/enemies/bosses/boss_phase_controller.gd" id="10_phases"]
 [ext_resource type="PackedScene" uid="uid://x55za7cgor14r" path="res://src/components/weak_point_component.tscn" id="11_weak"]
 [ext_resource type="Resource" uid="uid://mtujgufjuc77q" path="res://assets/audio/cues/spawner_groan.tres" id="12_groan"]
+[ext_resource type="Resource" path="res://assets/audio/cues/snuff.tres" id="30_snuff"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_body"]
 radius = 2.9
@@ -162,3 +163,4 @@ spawner_intervals = Array[float]([5.0, 7.0, 7.0])
 spawner_scenes = Array[PackedScene]([ExtResource("8_weeper"), ExtResource("9_vesper"), ExtResource("9_vesper")])
 contact_hitbox = NodePath("../ContactHitbox")
 contact_from_phase = 1
+snuff_cue = ExtResource("30_snuff")

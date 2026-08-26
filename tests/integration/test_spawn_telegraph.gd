@@ -227,3 +227,38 @@ func test_the_first_arrival_of_every_endless_loop_block_is_warned_too() -> void:
 			lead, _director.telegraph_lead(), 0.02,
 			"arrival %d at t=%.2f got %.2f s of warning" % [i, arrived[i], lead]
 		)
+
+
+## Some arrivals are worth naming. A SpawnEvent carrying an `announce_cue` is warned with
+## that sound instead of the generic rift, which is how a wave of skulls and the first
+## cantor stop sounding like the same event.
+func test_an_event_with_its_own_herald_is_announced_with_it() -> void:
+	var herald: AudioCue = preload("res://assets/audio/cues/herald_choir.tres")
+	_director.wave_table = _table(2.0)
+	_director.wave_table.events[0].announce_cue = herald
+	_director.start()
+	AudioManager.reset()
+	_director.advance(1.3)
+	assert_eq(_rifts().size(), 1, "the sigil still goes up")
+	assert_true(AudioManager.is_playing_cue(herald), "heralded")
+	assert_false(AudioManager.is_playing_cue(RiftCue), "and not doubled with the generic rift")
+
+
+func test_an_event_without_a_herald_falls_back_to_the_rift() -> void:
+	AudioManager.reset()
+	_director.advance(1.3)
+	assert_true(AudioManager.is_playing_cue(RiftCue))
+
+
+func test_telegraph_at_still_works_without_an_event() -> void:
+	AudioManager.reset()
+	assert_not_null(_director.telegraph_at(Vector3(1, 1, 1)), "the boss director calls it this way")
+	assert_true(AudioManager.is_playing_cue(RiftCue))
+
+
+func test_a_looped_block_keeps_its_herald() -> void:
+	var herald: AudioCue = preload("res://assets/audio/cues/herald_swarm.tres")
+	var event := SpawnEvent.new()
+	event.announce_cue = herald
+	event.label = "swarm"
+	assert_same(event.retimed(90.0, 4).announce_cue, herald, "or the endless loop goes quiet")

@@ -3,9 +3,10 @@
 This file lists every asset worth replacing, the prompt to generate it with an external service, and the technical
 constraints it must meet to drop straight into the existing scenes (paths, sizes, orientation, formats).
 
-Status (2026-08-24): everything ships as real assets — models (1–2, vesper regenerated at 1.5k tris), arena (3,
-edge ring strip included), VFX sprites (4), UI art (5, plus the app icon), audio (6) and the extras (7:
-`skull_arrive` weeper spawn cue and the `whispers` cue played by `WhisperScheduler` under `Game`). Only
+Status (2026-08-26): everything ships as real assets — models (1–2, vesper regenerated at 1.5k tris), arena (3,
+edge ring strip included), VFX sprites (4), UI art (5, plus the app icon) and audio (6), including the two
+registers that hide among each other: the heralds that announce a rare arrival and the atmosphere library the
+two `AmbienceScheduler` nodes throw around the player for no reason at all. Only
 `base_enemy.tscn` keeps its procedural sphere on purpose — it is the never-visible template the archetypes
 override, and tests instantiate it directly.
 
@@ -253,6 +254,20 @@ within 26 dB of the peak to the last frame within 40 dB of it, 2 ms fade in, 50 
 | `hit_01..02.wav` | 0.03–0.10 s | dagger hits an enemy (`hit`, −16 dB, 2 takes) | 0.88–1.20 | "a thrown blade striking bone: one tiny dry crack, like a knife punching into chalk. Extremely short, close-up, no reverb, no music" |
 | `death_screech_01..03.wav` | 0.46–0.75 s | enemy death (`skull_screech`, −9 dB, 3 takes) | 0.80–1.25 | "one sharp burst of a skull shattering: an instant wet crack of bone splintering with a tiny strangled shriek inside it, over immediately. Close-up, dry, harsh, no reverb, no music" |
 | `gem_chime_01..03.wav` | 0.75 s | gem collected (`gem_chime`, −14 dB, 3 takes) | 0.95–1.10 | "a single small cold glass bell struck once and immediately damped, slightly detuned, with a faint icy shimmer. Very short, close-up, dry, no music" |
+| `scream_far_01..03.wav` | 3.5 s | atmosphere (`scream_far`, −12 dB, 3 takes) | 0.90–1.05 | "a distant human scream echoing across a huge empty stone space, hoarse and muffled, long reverberant tail, dark low-mid tone" |
+| `scream_near_01..03.wav` | 2.1–2.5 s | atmosphere (`scream_near`, −13 dB, 3 takes) | 0.92–1.08 | "a short shrill high-pitched human shriek of terror very close to the microphone, piercing throat scream, thin and distorted, no bass rumble" |
+| `laugh_broken_01..02.wav` | 3.0 s | atmosphere (`laugh_broken`, −14 dB, 2 takes) | 0.90–1.05 | "broken distorted laughter from a hoarse man, slowed down and warped like damaged magnetic tape, wavering pitch" |
+| `tape_static_01..02.wav` | 2.5 s | atmosphere (`tape_static`, −16 dB, 2 takes) | 0.90–1.10 | "harsh analog tape static and crackling white noise hiss with a warbling wow and flutter, dry buzzing interference, no bass" — high-passed twice at 200 Hz afterwards, see below |
+| `metal_drag_01.wav` | 3.5 s | atmosphere (`metal_drag`, −15 dB) | 0.90–1.10 | "a heavy iron chain dragged slowly across a rough stone floor in a large echoing chamber, metallic scrape and rattle" |
+| `breath_close_01.wav` | 2.9 s | atmosphere (`breath_close`, −13 dB) | 0.95–1.05 | "a slow wet ragged exhale very close to the microphone, breathy and sick, throat rattle, dark and muffled" |
+| `herald_choir_01..03.wav` | 3.5 s | cantor arrivals (`herald_choir`, −8 dB, 3 takes) | 0.95–1.05 | "a distant choir of hoarse male voices swelling into a sour dissonant chord inside a huge stone cathedral, ominous, low and muffled, long reverb" |
+| `herald_bell_01..03.wav` | 3.5 s | thurible arrivals (`herald_bell`, −8 dB, 3 takes) | 0.95–1.05 | "a single cracked church bell struck once in a large empty stone hall, dark and detuned, long decaying metallic tail" |
+| `herald_maw_01..03.wav` | 3.0 s | the glutton (`herald_maw`, −9 dB, 3 takes) | 0.95–1.05 | "a huge wet guttural swallow and gurgling belch from a giant fleshy mouth, low and slimy, close-up" |
+| `herald_swarm_01..03.wav` | 3.5 s | weeper swarm / flood (`herald_swarm`, −8 dB, 3 takes) | 0.95–1.05 | "a rising chorus of many distant human shrieks rushing closer, layered and distorted, swelling crescendo" |
+| `herald_boss_01..03.wav` | 3.8 s | Tenebrae, 3 s early (`herald_boss`, −5 dB, 3 takes) | 0.98–1.02 | "an enormous slow groaning horn blast over a distant screaming crowd, vast cathedral reverb, ominous and swelling" |
+| `death_wail_01..02.wav` | 2.7–3.0 s | death of anything ≥ 8 HP (`death_wail`, −10 dB, 2 takes) | 0.90–1.10 | "a deep drawn-out human wail of agony cut short, hoarse and distorted" |
+| `armor_clang_01.wav` | 0.23 s | hits on 0-multiplier armour (`armor_clang`, −11 dB) | 0.90–1.15 | "a hard metal blade glancing off thick iron armour plate, dull dead clang with no ring, muffled and dry, close-up" |
+| `snuff_01.wav` | 1.8 s | a Tenebrae candle going out (`snuff`, −14 dB) | 0.95–1.10 | "a candle flame blown out with a sharp short breath, dry puff of air and a brief smoky sizzle, close-up, small and quiet, no bass" — high-passed twice at 200 Hz afterwards |
 | `spawner_groan.ogg` | 2.7 s | nest rises / emits (`spawner_groan`) | 0.9–1.1 | "long low groan of stone grinding and a slowed-down church organ pedal note, rising then sinking" |
 | `tier_up.ogg` | 1.1 s | dagger tier up (`tier_up`, UI bus) | 1.0 | "short rising three-note bell chord with a reversed tail, solemn, church-like" |
 | `death_stinger.ogg` | 3.0 s | player death (`death_stinger`) | 1.0 | "slow descending funeral chord on a detuned organ, slowed to half speed, reversed tail, tape hiss, ends in silence" |
@@ -260,14 +275,16 @@ within 26 dB of the peak to the last frame within 40 dB of it, 2 ms fade in, 50 
 | `amb_drone.ogg` | 30 s loop, stereo | gameplay music (`amb_drone`, Music bus) | 1.0 | "seamless 30-second loop: a cathedral drone of sub-bass organ and reversed choir, slowed to half speed, distant, hollow, no melody, no rhythm, tape-warped" |
 | `menu_hum.ogg` | 30 s loop, stereo | main menu (`menu_hum`, Music bus) | 1.0 | "seamless 30-second loop: faint electrical hum of an old CRT television in an empty room, a very low breathing tone beneath it, almost silence" |
 
+Verify a generated take numerically instead of trusting it: the VHS bus low-passes everything at 3.8 kHz, so a
+take whose energy is nearly all below 150 Hz is a rumble, not a sound. Measure the share of spectral energy in
+150 Hz–3.8 kHz; below roughly 50 % the take is either rejected or rescued with `sox in.wav out.wav highpass 200
+highpass 200 gain -n -3`, which is what `tape_static` and `snuff` needed (the model insists on answering "static"
+and "puff" with sub-bass). Anything the high-pass leaves above 3.8 kHz is removed by the bus anyway and does not
+count against the take.
+
 Loops must be cut so the end matches the start (crossfade the last 0.5 s into the first 0.5 s) and stay under
 −10 dBFS RMS; the menu hum should be about 6 dB quieter than the drone.
 
 ## 7. Optional extras (not wired yet, nice to have)
-- **Whisper lines** (voice): 8–12 half-heard latin/english whispers (2–4 s each, dry, male, breathy) for random
-  playback during runs — "requiescat", "ave", counting down numbers. Would become new `AudioCue`s played by
-  `Game` on a random interval.
-- **Skull spawn cue**: a softer "skull_arrive.ogg" (0.3 s, "dry breath intake with a hint of a far bell") — the
-  Weeper currently has no spawn cue on purpose (its death screech was too loud for a 16-skull ring).
 - **Splash/icon**: 512² app icon — *"bone-white inverted cross inside a rough circle on black, woodcut, greyscale"*
   → `icon.svg` / export presets.

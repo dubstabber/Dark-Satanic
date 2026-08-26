@@ -82,7 +82,9 @@ func _announce() -> void:
 	_telegraph_position = _pick_position()
 	if only_one_alive and is_boss_alive():
 		return
-	director.telegraph_at(_telegraph_position)
+	# The boss event is a SpawnEvent like any other, so its own `announce_cue` is its herald;
+	# past the guard above, a window skipped because the last boss still stands stays silent.
+	director.telegraph_at(_telegraph_position, event)
 	boss_telegraphed.emit(_telegraph_position)
 
 

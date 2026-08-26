@@ -191,3 +191,34 @@ func _enemy_with(stats: EnemyStats) -> Enemy:
 	var enemy := Enemy.new()
 	enemy.stats = stats
 	return autofree(enemy)
+
+
+func test_both_ambience_schedulers_are_wired_and_only_one_is_placed() -> void:
+	var whispers: AmbienceScheduler = _game.whisper_scheduler
+	var dread: AmbienceScheduler = _game.dread_scheduler
+	assert_eq(whispers.radius, 0.0, "whispers are in your head, not out in the room")
+	assert_eq(whispers.cues.size(), 1)
+	assert_gt(dread.radius, 10.0, "the dread comes from somewhere out in the dark")
+	assert_same(dread.origin, _game.player, "somewhere around you, wherever you are")
+	assert_gt(dread.cues.size(), 4, "a library, so the same scream is not always the scream")
+	assert_lt(dread.interval_max, whispers.interval_max, "and it is the more frequent of the two")
+	for cue in dread.cues:
+		assert_true(cue is AudioCue and cue.is_playable(), "every dread cue is playable")
+
+
+func test_the_boss_arrival_has_its_own_herald() -> void:
+	var event: SpawnEvent = _game.boss_director.event
+	assert_not_null(event.announce_cue, "3 s of warning deserves its own sound")
+	assert_true(event.announce_cue.is_playable())
+	assert_gt(event.announce_cue.max_distance, 100.0, "audible wherever you are standing")
+
+
+func test_the_wave_table_names_its_special_arrivals() -> void:
+	var table: WaveTable = load("res://src/spawning/waves/milestone1.tres")
+	var announced: Array[String] = []
+	for event in table.events:
+		if event.announce_cue != null:
+			announced.append(event.label)
+			assert_true(event.announce_cue.is_playable(), "%s herald is playable" % event.label)
+	assert_gt(announced.size(), 3, "the rare arrivals are heralded: %s" % [announced])
+	assert_lt(announced.size(), table.events.size() / 2, "but most arrivals are not, or it means nothing")

@@ -12,6 +12,10 @@
 [ext_resource type="PackedScene" uid="uid://bsee50cbn08ha" path="res://src/enemies/archetypes/glutton.tscn" id="10_glutton"]
 [ext_resource type="PackedScene" uid="uid://cw8q0n46u30s" path="res://src/enemies/archetypes/cantor.tscn" id="11_cantor"]
 [ext_resource type="PackedScene" uid="uid://kr2ypnpu3jxi" path="res://src/enemies/archetypes/thurible.tscn" id="12_thurible"]
+[ext_resource type="Resource" path="res://assets/audio/cues/herald_bell.tres" id="20_herald_bell"]
+[ext_resource type="Resource" path="res://assets/audio/cues/herald_choir.tres" id="21_herald_choir"]
+[ext_resource type="Resource" path="res://assets/audio/cues/herald_maw.tres" id="22_herald_maw"]
+[ext_resource type="Resource" path="res://assets/audio/cues/herald_swarm.tres" id="23_herald_swarm"]
 
 [sub_resource type="Resource" id="RandomEdgePattern_1"]
 script = ExtResource("4_edge")
@@ -149,6 +153,7 @@ time = 120.0
 enemy_scene = ExtResource("10_glutton")
 pattern = SubResource("OppositePlayerPattern_12")
 label = "the glutton"
+announce_cue = ExtResource("22_herald_maw")
 
 [sub_resource type="Resource" id="RingPattern_13"]
 script = ExtResource("3_ring")
@@ -195,6 +200,7 @@ count = 16
 pattern = SubResource("RingPattern_16")
 stagger = 0.1
 label = "weeper swarm"
+announce_cue = ExtResource("23_herald_swarm")
 
 [sub_resource type="Resource" id="RingPattern_17"]
 script = ExtResource("3_ring")
@@ -243,6 +249,7 @@ count = 20
 pattern = SubResource("OppositePlayerPattern_20")
 stagger = 0.05
 label = "weeper flood"
+announce_cue = ExtResource("23_herald_swarm")
 
 [sub_resource type="Resource" id="RingPattern_21"]
 script = ExtResource("3_ring")
@@ -304,6 +311,7 @@ time = 70.0
 enemy_scene = ExtResource("11_cantor")
 pattern = SubResource("RandomEdgePattern_25")
 label = "first cantor"
+announce_cue = ExtResource("21_herald_choir")
 
 [sub_resource type="Resource" id="OppositePlayerPattern_26"]
 script = ExtResource("5_opposite")
@@ -334,6 +342,7 @@ count = 3
 pattern = SubResource("RandomEdgePattern_27")
 stagger = 0.5
 label = "cantor choir"
+announce_cue = ExtResource("21_herald_choir")
 
 [sub_resource type="Resource" id="OppositePlayerPattern_28"]
 script = ExtResource("5_opposite")
@@ -346,6 +355,7 @@ time = 100.0
 enemy_scene = ExtResource("12_thurible")
 pattern = SubResource("OppositePlayerPattern_28")
 label = "first thurible"
+announce_cue = ExtResource("20_herald_bell")
 
 [sub_resource type="Resource" id="RandomEdgePattern_29"]
 script = ExtResource("4_edge")

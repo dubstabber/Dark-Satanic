@@ -19,7 +19,8 @@ signal run_ended(result: RunResult)
 @onready var boss_director: BossDirector = $BossDirector
 @onready var hud: HUD = $HudLayer/HUD
 @onready var player_light: OmniLight3D = $PlayerLight
-@onready var whisper_scheduler: WhisperScheduler = $WhisperScheduler
+@onready var whisper_scheduler: AmbienceScheduler = $WhisperScheduler
+@onready var dread_scheduler: AmbienceScheduler = $DreadScheduler
 
 ## Screen shake from an enemy dying right next to you (0 disables).
 @export_range(0.0, 1.0, 0.005) var death_shake: float = 0.1
@@ -55,6 +56,7 @@ func _physics_process(delta: float) -> void:
 	spawn_director.advance(delta)
 	boss_director.advance(delta)
 	whisper_scheduler.advance(delta)
+	dread_scheduler.advance(delta)
 	arena_shrinker.advance(run_state.elapsed)
 	player_light.global_position = player.global_position + Vector3.UP * player_light_height
 

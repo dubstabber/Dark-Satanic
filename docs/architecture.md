@@ -206,6 +206,14 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
   `tier_up`, `death_stinger`, `ui_click` (GameFlow's `ui_cue`), plus the music loops `amb_drone` (game) and
   `menu_hum` (menu), both on the Music bus and played through `AudioManager.play_music_cue`.
   `assets/audio/default_bus_layout.tres`: Master → VHS → Music / SFX / UI.
+- Sounds come in two registers that deliberately overlap. **Heralds** announce an arrival:
+  `SpawnEvent.announce_cue` is played by `SpawnDirector.telegraph_at(position, event)` at the warning, in
+  place of the generic `telegraph_cue`, and the boss event in `game.tscn` carries `herald_boss` for its 3 s
+  lead. **Atmosphere** announces nothing: two `AmbienceScheduler` nodes throw `whispers` (flat, in your head)
+  and the dread library — screams, laughter, tape static, a dragged chain, a breath — around the player at
+  15 m. They share a register on purpose, so a scream is a hint and never a promise. `test_audio_cues.gd`
+  keeps `assets/audio/cues` a closed set: a new `.tres` must be registered in `SFX_TAKES` with its exact take
+  count, stay under 4 s per take and sit on SFX/UI, or the suite fails.
 
 ### Game (`src/game`) and flow (`src/core/game_flow.gd`, `src/core/main.tscn`)
 - `GameConfig` (Resource): `wave_table`, `ladder`, `shrink_curve`, `difficulty_scale`, `rng_seed` (seeds the
@@ -213,19 +221,24 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
   Player, arena and gem scenes are baked into `game.tscn` / `base_enemy.tscn`; post-process profiles, music
   cues and the fade/pulse tunables live on `GameFlow` exports in `main.tscn`.
 - `game.tscn`: `Arena`, `Player` (editable; `WeaponHolder.projectile_root → ProjectileContainer`),
-  `EnemyContainer`, `GemContainer`, `ProjectileContainer`, `SpawnDirector` (container/drop_root/arena/target
-  wired by `node_paths`), `PlayerLight`, `HudLayer/HUD`.
+  `EnemyContainer`, `GemContainer`, `ProjectileContainer`, `VfxContainer`, `SpawnDirector`
+  (container/drop_root/arena/target wired by `node_paths`), `BossDirector`, `WhisperScheduler` and
+  `DreadScheduler` (both `AmbienceScheduler`), `PlayerLight`, `HudLayer/HUD`.
 - `Game` wires everything: connects `player.pickup_collector.gem_collected → run_state.add_gems`,
   `run_state.tier_changed → player.weapon_holder.set_tier` + `EventBus.tier_changed`,
   `enemy_container.child_entered_tree` → enemy `died` → `run_state.add_kill` + `EventBus.enemy_died`,
   `player.died → run_state.end(cause)` → `run_ended`; `enemies()` is the homing target provider; drives
-  `run_state.tick`, `spawn_director.advance`, `arena_shrinker.advance` from `_physics_process`.
+  `run_state.tick`, `spawn_director.advance`, `boss_director.advance`, both `AmbienceScheduler.advance` and
+  `arena_shrinker.advance` from `_physics_process` — which is what makes all of them stop dead in menus,
+  under a pause and the instant the player dies.
   `setup(run_state)` before `add_child` injects a state (tests); otherwise `RunManager.begin(ladder)`.
 - `Main` (`main.gd`): `leaderboard_path`, `autostart` (from `--autostart`); `GameFlow`
   (`process_mode = ALWAYS` so ESC resumes a paused tree): MENU → PLAYING ⇄ PAUSED → DEAD; `show_menu()`
   aborts a live run via `RunManager.finish(&"aborted")`; `_on_run_ended` builds `LeaderboardEntry.from_result`,
-  saves, shows `DeathScreen`, plays `death_cue`, stops music; tier-ups play `tier_up_cue` and pulse only while
-  PLAYING.
+  saves, shows `DeathScreen`, plays `death_cue`, stops music, then pulses the screen (after `_present`, so
+  that tween is created last and wins the brightness/invert uniforms the profile crossfade also writes);
+  tier-ups play `tier_up_cue` and pulse only while PLAYING, and `EventBus.enemy_died` pulses by
+  `Enemy.death_burst_scale` so only big deaths flare.
 
 ## Signal chain
 ```
