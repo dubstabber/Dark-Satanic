@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://zr1esgs6ucwec"]
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://clk584bog4ntq"]
 
 [ext_resource type="Script" uid="uid://csbtwlugnvt0g" path="res://src/core/audio_cue.gd" id="1_cue"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/herald_boss_01.wav" id="2_t01"]

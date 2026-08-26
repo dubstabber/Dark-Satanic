@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://kzjnkhgpkgnfb"]
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://dapwedl7f1vvr"]
 
 [ext_resource type="Script" uid="uid://csbtwlugnvt0g" path="res://src/core/audio_cue.gd" id="1_cue"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/death_wail_01.wav" id="2_t01"]

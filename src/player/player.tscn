@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://domlb3tkm6bfs" path="res://assets/textures/hand.png" id="13_hand_tex"]
 [ext_resource type="Script" path="res://src/player/self_knockback.gd" id="14_knockback"]
 [ext_resource type="Script" path="res://src/player/player_audio.gd" id="15_audio"]
+[ext_resource type="Script" path="res://src/player/death_collapse.gd" id="18_collapse"]
 [ext_resource type="Resource" uid="uid://ba1hyx6q7v3kd" path="res://assets/audio/cues/jump.tres" id="16_jump_cue"]
 [ext_resource type="Resource" uid="uid://cw8lqm0nx4t2r" path="res://assets/audio/cues/land.tres" id="17_land_cue"]
 
@@ -102,6 +103,11 @@ script = ExtResource("15_audio")
 movement = NodePath("../MovementController")
 jump_cue = ExtResource("16_jump_cue")
 land_cue = ExtResource("17_land_cue")
+
+[node name="DeathCollapse" type="Node" parent="." node_paths=PackedStringArray("rig")]
+process_mode = 3
+script = ExtResource("18_collapse")
+rig = NodePath("../CameraRig")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("9_health")

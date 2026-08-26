@@ -51,6 +51,11 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
   `signal kicked(strength)` → `CameraRig.kick` / `HandViewModel.kick` (wired in `Player._ready`).
 - Player hurtbox: child `Hurtbox` (HurtboxComponent, layer PLAYER_HURTBOX) feeding `HealthComponent`
   (max_health 1). `died` re-emits the last `HitInfo.cause` (`&"enemy"`, `&"void"`).
+- `DeathCollapse` (`PlayerDeathCollapse`) drops the view when the player dies: the CameraRig falls from eye
+  height, rolls onto its side and settles, in the rig's local space so a void death collapses the same way.
+  `Player._on_health_died` starts it *before* emitting `died`, because GameFlow disables the whole Game on the
+  far end of that signal — the node carries `process_mode = 3` (ALWAYS) and its own `autonomous` tick, which is
+  what keeps it animating inside a switched-off Game.
 
 ### Weapons (`src/weapons`)
 - `dagger_weapon.tscn` root `DaggerWeapon` (Node3D): `setup(aim_source: Node3D, muzzle: Node3D,
@@ -235,8 +240,11 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
 - `Main` (`main.gd`): `leaderboard_path`, `autostart` (from `--autostart`); `GameFlow`
   (`process_mode = ALWAYS` so ESC resumes a paused tree): MENU → PLAYING ⇄ PAUSED → DEAD; `show_menu()`
   aborts a live run via `RunManager.finish(&"aborted")`; `_on_run_ended` builds `LeaderboardEntry.from_result`,
-  saves, shows `DeathScreen`, plays `death_cue`, stops music, then pulses the screen (after `_present`, so
-  that tween is created last and wins the brightness/invert uniforms the profile crossfade also writes);
+  saves, plays `death_cue`, stops music and pulses the screen, then holds the `DeathScreen` back for
+  `death_screen_delay` (counted down in `_process`) so the corpse view is not immediately covered by its
+  85%-opaque backdrop; in DEAD, ESC returns to the menu, R restarts, and a click anywhere that is not a widget
+  restarts through `DeathScreen.background_clicked` — `_gui_input`, not `_unhandled_input`, because Godot marks
+  a mouse button handled for whatever control it picked and that screen covers the viewport;
   tier-ups play `tier_up_cue` and pulse only while PLAYING, and `EventBus.enemy_died` pulses by
   `Enemy.death_burst_scale` so only big deaths flare.
 

@@ -24,6 +24,7 @@ signal died(cause: StringName)
 @export_range(0.0, 0.2, 0.001) var shake_per_fall_speed: float = 0.012
 
 @onready var self_knockback: SelfKnockback = get_node_or_null("SelfKnockback") as SelfKnockback
+@onready var death_collapse: PlayerDeathCollapse = get_node_or_null("DeathCollapse") as PlayerDeathCollapse
 @onready var player_audio: PlayerAudio = get_node_or_null("PlayerAudio") as PlayerAudio
 
 var last_frame: PlayerInputFrame = PlayerInputFrame.new()
@@ -94,6 +95,10 @@ func _on_health_died(last_hit: HitInfo) -> void:
 	if _dead:
 		return
 	_dead = true
+	# Before the signal: GameFlow disables the Game on the far end of it, and the collapse
+	# has to have taken its starting pose from the live rig by then.
+	if death_collapse != null:
+		death_collapse.start()
 	var cause: StringName = last_hit.cause if last_hit != null else &"unknown"
 	died.emit(cause)
 

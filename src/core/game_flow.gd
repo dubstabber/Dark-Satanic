@@ -31,6 +31,11 @@ signal state_changed(from: State, to: State)
 ## sits below 1 and does nothing; the Tenebrae is the loudest thing in the run.
 @export_range(0.0, 3.0, 0.05) var kill_pulse_strength: float = 0.3
 @export_range(0.0, 3.0, 0.05) var kill_pulse_duration: float = 0.35
+## Seconds the corpse view is left alone before the score screen covers it. The screen is an
+## 85%-opaque plate, so without this the body finishes falling behind it and the player never
+## sees their own death. It doubles as the input guard: there is nothing to click on yet, so
+## the shot they were already firing cannot skip it. ESC and R are never held back.
+@export_range(0.0, 5.0, 0.05) var death_screen_delay: float = 1.0
 ## Flash on the player's own death. Above 1.0 the frame inverts on the way out.
 @export_range(0.0, 3.0, 0.05) var death_pulse_strength: float = 1.3
 @export_range(0.0, 3.0, 0.05) var death_pulse_duration: float = 0.5
@@ -47,10 +52,26 @@ var store: LeaderboardStore
 var leaderboard: LeaderboardData
 var last_entry: LeaderboardEntry
 var _screen: Control
+var _death_wait: float = 0.0
+var _pending_result: RunResult
+var _pending_rank: int = -1
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+func _process(delta: float) -> void:
+	if _death_wait <= 0.0:
+		return
+	_death_wait = maxf(_death_wait - delta, 0.0)
+	if _death_wait <= 0.0 and state == State.DEAD:
+		_show_death_screen()
+
+
+## True once the body has come to rest and the score screen is up.
+func death_screen_shown() -> bool:
+	return state == State.DEAD and _death_wait <= 0.0
 
 
 func setup(p_store: LeaderboardStore) -> void:
@@ -63,6 +84,7 @@ func setup(p_store: LeaderboardStore) -> void:
 
 
 func show_menu() -> void:
+	_death_wait = 0.0
 	RunManager.finish(&"aborted")
 	_clear_game()
 	get_tree().paused = false
@@ -76,6 +98,7 @@ func show_menu() -> void:
 
 
 func start_run() -> void:
+	_death_wait = 0.0
 	_clear_game()
 	_clear_screen()
 	get_tree().paused = false
@@ -127,21 +150,39 @@ func _on_run_ended(result: RunResult) -> void:
 	game.set_deferred("process_mode", Node.PROCESS_MODE_DISABLED)
 	game.hud.visible = false
 	last_entry = LeaderboardEntry.from_result(result)
-	var rank := leaderboard.insert(last_entry)
+	_pending_result = result
+	_pending_rank = leaderboard.insert(last_entry)
 	store.save(leaderboard)
-	var screen := _show_screen(death_screen_scene)
-	if screen != null:
-		screen.retry_requested.connect(start_run)
-		screen.menu_requested.connect(show_menu)
-		screen.name_submitted.connect(_on_name_submitted)
-		screen.show_result(result, leaderboard, rank)
 	AudioManager.play(death_cue)
 	_present(State.DEAD, death_profile, null, Input.MOUSE_MODE_VISIBLE)
+	_death_wait = death_screen_delay
+	if _death_wait <= 0.0:
+		_show_death_screen()
 	# After _present so the pulse reads the death profile's base; PostProcessController.apply
 	# deliberately does not tween brightness/invert, which is what stops the crossfade taking
 	# them back the moment this pulse ends.
 	if post_process != null:
 		post_process.pulse(death_pulse_strength, death_pulse_duration)
+
+
+## The score screen, once the body has come to rest.
+func _show_death_screen() -> void:
+	var screen := _show_screen(death_screen_scene)
+	if screen == null:
+		return
+	screen.retry_requested.connect(start_run)
+	screen.menu_requested.connect(show_menu)
+	screen.name_submitted.connect(_on_name_submitted)
+	screen.background_clicked.connect(_on_death_click)
+	screen.show_result(_pending_result, leaderboard, _pending_rank)
+
+
+## Clicking the corpse view restarts. The click arrives through DeathScreen._gui_input rather
+## than _unhandled_input: Godot marks a mouse button handled for whatever control it picked
+## under the cursor, and this screen covers all of it.
+func _on_death_click() -> void:
+	if state == State.DEAD:
+		start_run()
 
 
 func _on_name_submitted(player_name: String) -> void:
@@ -177,6 +218,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			pause()
 		elif state == State.PAUSED:
 			resume()
+		elif state == State.DEAD:
+			show_menu()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("retry") and state == State.DEAD:
 		start_run()

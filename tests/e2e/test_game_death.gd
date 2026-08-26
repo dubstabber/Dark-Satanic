@@ -26,6 +26,12 @@ func _ui() -> CanvasLayer:
 	return _main.get_node("UiLayer")
 
 
+## The score screen is deliberately held back until the corpse has finished falling.
+func _await_death_screen() -> DeathScreen:
+	await wait_seconds(_flow.death_screen_delay + 0.1)
+	return _ui().get_node_or_null("DeathScreen") as DeathScreen
+
+
 func _die_in_the_void() -> void:
 	_flow.start_run()
 	await wait_physics_frames(5)
@@ -46,8 +52,9 @@ func test_contact_death_shows_screen_and_saves_score() -> void:
 	assert_eq(_flow.state, GameFlow.State.DEAD)
 	assert_signal_emitted_with_parameters(EventBus, "player_died", [&"enemy"])
 	assert_false(RunManager.is_running())
-	var screen: DeathScreen = _ui().get_node_or_null("DeathScreen")
-	assert_not_null(screen)
+	assert_null(_ui().get_node_or_null("DeathScreen"), "the corpse view gets its moment first")
+	var screen: DeathScreen = await _await_death_screen()
+	assert_not_null(screen, "then the score screen")
 	assert_eq(_flow.game.process_mode, Node.PROCESS_MODE_DISABLED)
 	assert_true(FileAccess.file_exists(ProjectSettings.globalize_path(_path)), "score saved on death")
 	screen.name_submitted.emit("DUBSTABBER")
@@ -104,14 +111,14 @@ func test_tier_up_pulses_and_plays_cue_only_while_playing() -> void:
 func test_second_death_renames_only_the_second_entry() -> void:
 	await _boot(E2EHelpers.tiny_config())
 	await _die_in_the_void()
-	var screen: DeathScreen = _ui().get_node("DeathScreen")
+	var screen: DeathScreen = await _await_death_screen()
 	screen.retry_button.pressed.emit()
 	assert_eq(_flow.state, GameFlow.State.PLAYING, "retry button restarts through the flow")
 	await wait_physics_frames(30)
 	_flow.game.player.global_position = Vector3(0, -12, 0)
 	await wait_physics_frames(6)
 	assert_eq(_flow.state, GameFlow.State.DEAD)
-	screen = _ui().get_node("DeathScreen")
+	screen = await _await_death_screen()
 	screen.name_entry.text = "second"
 	screen.submit_name()
 	var data := LeaderboardStore.new(_path).load()
@@ -134,7 +141,7 @@ func test_unranked_death_is_not_saved() -> void:
 	assert_eq(LeaderboardStore.new(_path).save(full), OK)
 	await _boot(E2EHelpers.tiny_config())
 	await _die_in_the_void()
-	var screen: DeathScreen = _ui().get_node("DeathScreen")
+	var screen: DeathScreen = await _await_death_screen()
 	assert_eq(screen.rank, -1)
 	assert_false(screen.name_box.visible, "no name entry when unranked")
 	assert_eq(screen.rank_label.text, "UNRANKED")
@@ -156,3 +163,59 @@ func test_arena_shrink_drops_player_into_the_void() -> void:
 	assert_almost_eq(game.arena.radius, 5.0, 0.01, "arena shrank")
 	assert_eq(_flow.state, GameFlow.State.DEAD)
 	assert_signal_emitted_with_parameters(EventBus, "player_died", [&"void"])
+
+
+## Handed to the death screen the way the engine hands it over on a real window: Godot picks
+## the control under the cursor, marks the button handled and calls its _gui_input. A headless
+## DisplayServer dispatches no mouse buttons at all, so pushing one through the viewport or
+## Input.parse_input_event proves nothing here - that half was verified against a real window,
+## where the click lands in DeathScreen._gui_input and restarts the run. This drives the same
+## entry point with the same event, which covers everything downstream of the pick.
+func _click(button: MouseButton = MOUSE_BUTTON_LEFT) -> void:
+	var screen: DeathScreen = _ui().get_node_or_null("DeathScreen")
+	if screen == null:
+		return
+	var press := InputEventMouseButton.new()
+	press.button_index = button
+	press.pressed = true
+	screen._gui_input(press)
+
+
+func test_the_body_collapses_and_a_click_restarts_the_run() -> void:
+	await _boot(E2EHelpers.tiny_config())
+	_flow.start_run()
+	await wait_physics_frames(5)
+	var player: Player = _flow.game.player
+	var rig: Node3D = player.camera_rig
+	var eye_height: float = rig.position.y
+	assert_gt(eye_height, 1.0, "standing up")
+	player.global_position = Vector3(0, -12, 0)
+	await wait_physics_frames(6)
+	assert_eq(_flow.state, GameFlow.State.DEAD)
+	assert_false(_flow.game.can_process(), "the whole Game switches off when the run ends")
+	assert_true(player.death_collapse.can_process(), "except the collapse, which still has a job")
+	_click()
+	await wait_process_frames(1)
+	assert_eq(_flow.state, GameFlow.State.DEAD, "the shot already in flight has nothing to click yet")
+	assert_false(_flow.death_screen_shown())
+	await _await_death_screen()
+	assert_true(_flow.death_screen_shown(), "the screen arrives after the fall")
+	assert_true(player.death_collapse.has_fallen(), "the body came to rest")
+	_click(MOUSE_BUTTON_RIGHT)
+	await wait_process_frames(1)
+	assert_eq(_flow.state, GameFlow.State.DEAD, "only the left button counts")
+	assert_lt(rig.position.y, eye_height - 0.8, "the view went down with it (y %.2f)" % rig.position.y)
+	assert_gt(absf(rad_to_deg(rig.rotation.z)), 40.0, "and rolled onto its side")
+	_click()
+	await wait_process_frames(1)
+	assert_eq(_flow.state, GameFlow.State.PLAYING, "a click anywhere on the corpse view restarts")
+
+
+func test_escape_from_the_corpse_view_goes_back_to_the_menu() -> void:
+	await _boot(E2EHelpers.tiny_config())
+	await _die_in_the_void()
+	E2EHelpers.press_action(self, &"pause")
+	await wait_process_frames(1)
+	assert_eq(_flow.state, GameFlow.State.MENU)
+	assert_not_null(_ui().get_node_or_null("MainMenu"), "back at the menu, not a paused corpse")
+	assert_false(RunManager.is_running())

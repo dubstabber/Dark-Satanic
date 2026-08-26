@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://ywb2bha2tizd2"]
+[gd_resource type="Resource" script_class="AudioCue" format=3 uid="uid://bputq4rkgbqth"]
 
 [ext_resource type="Script" uid="uid://csbtwlugnvt0g" path="res://src/core/audio_cue.gd" id="1_cue"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/scream_near_01.wav" id="2_t01"]

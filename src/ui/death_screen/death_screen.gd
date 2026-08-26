@@ -5,6 +5,10 @@ extends Control
 signal retry_requested
 signal menu_requested
 signal name_submitted(name: String)
+## A click that landed on the screen itself rather than on one of its widgets. GameFlow
+## restarts on it, but only once the body has finished falling - which is why this is its
+## own signal and not just another `retry_requested`.
+signal background_clicked
 
 const MAX_NAME_LENGTH := 12
 const DEFAULT_NAME := LeaderboardEntry.DEFAULT_NAME
@@ -33,6 +37,14 @@ func _ready() -> void:
 	name_entry.text_submitted.connect(func(_text: String) -> void: submit_name())
 	retry_button.pressed.connect(retry_requested.emit)
 	menu_button.pressed.connect(menu_requested.emit)
+
+
+## Everything decorative here is IGNORE or PASS, so a click anywhere that is not a button,
+## the name box or the board propagates up to this root and lands here.
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		background_clicked.emit()
+		accept_event()
 
 
 func show_result(result: RunResult, data: LeaderboardData, p_rank: int) -> void:
