@@ -172,6 +172,15 @@ Read `CLAUDE.md` for the coding rules. When code and this file disagree, fix one
   `PostProcessController`: `func apply(profile: PostFxProfile, duration: float = 0.0)`,
   `func pulse(strength: float, duration: float)`, `func set_virtual_scale(scale: float)`,
   `get_parameter(name)`; profiles in `src/vfx/post_process/profiles/{menu,gameplay,death}.tres`.
+- PSX look: every gameplay mesh material is a `ShaderMaterial` on `psx_lit.gdshader` (Gouraud
+  `vertex_lighting`, clip-space vertex snap, affine texture mapping, nearest textures; uniforms
+  `albedo_color/albedo_texture/emission_color/emission_texture/emission_energy/uv_scale/snap_strength/`
+  `affine_strength`) or `psx_unlit.gdshader` (edge ring); the vertex helpers live in
+  `shaders/includes/psx.gdshaderinc` and `void_floor.gdshader` shares the snap. Scripts never cast a mesh
+  material to a concrete class: `MaterialEnergy` (static) reads/writes the emission-energy knob across
+  StandardMaterial3D and the PSX materials (`property()` for tweens, `get_energy`/`set_energy`,
+  `supports`), which is how `EnemyVisual`, `WindupVisual` and `DaggerProjectile` drive flashes and glows.
+  ShaderMaterial scenes must set `shader_parameter/emission_energy` explicitly — an unset uniform reads 0.
 - `src/vfx/particles/*` + `OneShotVfx` are wired: `death_burst.tscn` is the `DeathHandler.death_vfx` of
   `base_enemy.tscn`, `hit_spark.tscn` the default `DaggerProjectile.hit_vfx`, `gem_sparkle.tscn` the
   `GemStats.collect_vfx`. `MeshFactory` / `MaterialFactory` (static, cached builders) are a tested toolkit for

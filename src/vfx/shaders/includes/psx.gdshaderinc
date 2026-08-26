@@ -1,7 +1,9 @@
 // PSX-look vertex helpers shared by the psx_* spatial shaders.
-// Reworked from references/godot-psx-master (MIT, AnalogFeelings): the snap
-// runs in clip space through POSITION so normals and vertex lighting stay
-// correct (the reference's skip_vertex_transform path never transformed
+// Reworked from godot-psx by AnalogFeelings, MIT License,
+// Copyright (c) 2022 AnalogFeelings (github.com/AnalogFeelings/godot-psx),
+// itself derived from CC0 work by Mighty Duke. Changes here: the snap runs
+// in clip space through POSITION so normals and vertex lighting stay
+// correct (the original's skip_vertex_transform path never transformed
 // NORMAL), and the affine warp is the exact perspective-cancelling form
 // rather than a view-depth approximation.
 
