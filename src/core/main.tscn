@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dowbyp8us0jsd"]
+[gd_scene load_steps=18 format=3 uid="uid://dowbyp8us0jsd"]
 
 [ext_resource type="Script" uid="uid://bb25gf4mhy6r0" path="res://src/core/main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://sv16wy0uwpeh" path="res://src/core/game_flow.gd" id="2_flow"]

@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cah5u6q8tr1mi"]
+[gd_scene load_steps=9 format=3 uid="uid://cah5u6q8tr1mi"]
 
 [ext_resource type="Script" path="res://src/weapons/dagger_weapon.gd" id="1_weapon"]
 [ext_resource type="Resource" uid="uid://j2cr76jyso7x9" path="res://assets/audio/cues/dagger_tick.tres" id="8_dagger_tick"]

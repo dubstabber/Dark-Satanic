@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://b9ljdxvv60axc"]
+[gd_scene load_steps=19 format=3 uid="uid://b9ljdxvv60axc"]
 
 [ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" uid="uid://lfjxxxgdgwk4" path="res://src/enemies/resources/stats/tenebrae.tres" id="2_stats"]
