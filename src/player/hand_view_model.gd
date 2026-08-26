@@ -27,8 +27,11 @@ var on_floor: bool = true
 @export_group("Bob")
 ## Metres of horizontal bob at full walk speed; the vertical figure-eight is half this.
 @export_range(0.0, 0.2, 0.001) var bob_amount: float = 0.024
-## Bob cycles per metre travelled (one figure-eight per stride pair).
-@export_range(0.0, 5.0, 0.05) var bob_frequency: float = 0.45
+## Bob cycles per metre travelled (one figure-eight per stride pair). The rate you see is
+## speed x this, and the vertical lobe runs at twice it: 1.8 Hz across / 3.6 Hz up at the
+## 9 m/s walk. Keep `CameraRig.bob_frequency` at twice this value or the two verticals,
+## which are the same sine today, drift out of step.
+@export_range(0.0, 5.0, 0.05) var bob_frequency: float = 0.2
 ## Horizontal speed that counts as "full" bob.
 @export_range(0.1, 50.0, 0.1) var bob_full_speed: float = 9.0
 ## How fast bob fades in / out (1/s).

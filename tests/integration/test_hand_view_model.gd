@@ -168,3 +168,26 @@ func test_muzzle_lookup() -> void:
 	muzzle.name = "Muzzle"
 	_hands.add_child(muzzle)
 	assert_same(_hands.muzzle(), muzzle)
+
+
+## Nothing pinned the bob RATE before - only its amplitudes, and those assertions read the
+## knob back off the node, so the bob could be sped back up silently. The vertical lobe is
+## the bounce a player actually sees, and at 60 Hz physics anything past ~4.5 Hz is sampled
+## too coarsely to read as anything but jitter.
+func test_the_bob_bounces_at_a_walking_cadence() -> void:
+	_still_hands()
+	_hands.set_motion(FORWARD, true)
+	_advance(60)
+	var bounces := 0
+	var previous := 0.0
+	var rising := false
+	for i in 120:
+		_hands.advance(DT)
+		var height := _hands.bob().y
+		var going_up := height > previous
+		if rising and not going_up:
+			bounces += 1
+		rising = going_up
+		previous = height
+	var hz := bounces / 2.0
+	assert_between(hz, 2.0, 4.5, "%d bounces in 2 s of running at 9 m/s = %.1f Hz" % [bounces, hz])

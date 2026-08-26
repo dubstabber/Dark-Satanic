@@ -80,3 +80,26 @@ func test_kick_pitches_camera_up_and_recovers() -> void:
 	for i in 180:
 		_rig.advance(DT)
 	assert_almost_eq(_camera.rotation.x, 0.0, 0.0005)
+
+
+func test_the_bob_bounces_at_a_walking_cadence() -> void:
+	_rig.horizontal_speed = 9.0
+	_rig.on_floor = true
+	for i in 60:
+		_rig.advance(DT)
+	var bounces := 0
+	var previous := 0.0
+	var rising := false
+	for i in 120:
+		_rig.advance(DT)
+		var height := _camera.position.y
+		var going_up := height > previous
+		if rising and not going_up:
+			bounces += 1
+		rising = going_up
+		previous = height
+	var hz := bounces / 2.0
+	assert_between(hz, 2.0, 4.5, "%d bounces in 2 s of running at 9 m/s = %.1f Hz" % [bounces, hz])
+	var hands: HandViewModel = autofree(HandViewModel.new())
+	assert_almost_eq(_rig.bob_frequency, hands.bob_frequency * 2.0, 0.001,
+		"this bounce and the weapon's vertical lobe are the same sine - keep them locked")

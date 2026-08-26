@@ -10,8 +10,9 @@ extends Node3D
 @export_group("Bob")
 ## Vertical bob amplitude (metres) at full walk speed.
 @export_range(0.0, 0.5, 0.005) var bob_amplitude: float = 0.035
-## Bob cycles per metre travelled.
-@export_range(0.0, 5.0, 0.05) var bob_frequency: float = 0.9
+## Bob cycles per metre travelled: 3.6 Hz at the 9 m/s walk. Twice `HandViewModel`'s, which
+## is what keeps this bounce and the weapon's vertical lobe on the same sine.
+@export_range(0.0, 5.0, 0.05) var bob_frequency: float = 0.4
 ## Horizontal speed that counts as "full" bob.
 @export_range(0.1, 50.0, 0.1) var bob_full_speed: float = 9.0
 ## How fast bob fades in / out (1/s).
