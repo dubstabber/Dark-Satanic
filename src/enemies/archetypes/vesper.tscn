@@ -1,27 +1,28 @@
-[gd_scene load_steps=10 format=3 uid="uid://p8wmg00yqywjn"]
+[gd_scene load_steps=11 format=3 uid="uid://p8wmg00yqywjn"]
 
 [ext_resource type="PackedScene" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" path="res://src/enemies/resources/stats/vesper.tres" id="2_stats"]
 [ext_resource type="Script" path="res://src/enemies/behaviors/orbit_dive_behavior.gd" id="3_orbit_dive"]
 [ext_resource type="ArrayMesh" uid="uid://lcjhdedkx62p" path="res://assets/models/meshes/vesper.res" id="4_mesh"]
 [ext_resource type="Texture2D" uid="uid://4ggv0fwa54r8" path="res://assets/textures/vesper.png" id="5_tex"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_lit.gdshader" id="6_psx"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vesper"]
 radius = 0.3
 height = 1.6
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vesper"]
-albedo_color = Color(0.9, 0.9, 0.9, 1)
-albedo_texture = ExtResource("5_tex")
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 0.05
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vesper"]
+shader = ExtResource("6_psx")
+shader_parameter/albedo_color = Color(0.9, 0.9, 0.9, 1)
+shader_parameter/albedo_texture = ExtResource("5_tex")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 0.05
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tip"]
-albedo_color = Color(1, 1, 1, 1)
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 2.5
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tip"]
+shader = ExtResource("6_psx")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 2.5
 
 [sub_resource type="SphereMesh" id="SphereMesh_tip"]
 radius = 0.12
@@ -45,10 +46,10 @@ script = ExtResource("3_orbit_dive")
 
 [node name="Mesh" parent="Visual" index="0"]
 transform = Transform3D(0, 0, -0.684315, 0.160406, 0.35198, 0, 0.689937, -0.314423, 0, -0.00226543, -0.0346407, 0.016103)
-material_override = SubResource("StandardMaterial3D_vesper")
+material_override = SubResource("ShaderMaterial_vesper")
 mesh = ExtResource("4_mesh")
 
 [node name="Tip" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.85)
-material_override = SubResource("StandardMaterial3D_tip")
+material_override = SubResource("ShaderMaterial_tip")
 mesh = SubResource("SphereMesh_tip")

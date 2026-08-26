@@ -83,9 +83,9 @@ func test_death_burns_the_emission_down_to_black() -> void:
 	var material := _visual.material()
 	assert_not_null(material, "the visual duplicated the mesh material")
 	_visual.death(_rng(7))
-	assert_almost_eq(material.emission_energy_multiplier, _visual.flash_emission, 0.001, "flares white")
+	assert_almost_eq(MaterialEnergy.get_energy(material), _visual.flash_emission, 0.001, "flares white")
 	_advance(_visual.death_duration)
-	assert_almost_eq(material.emission_energy_multiplier, 0.0, 0.01, "and goes out")
+	assert_almost_eq(MaterialEnergy.get_energy(material), 0.0, 0.01, "and goes out")
 
 
 func test_a_flash_never_fights_the_death_animation() -> void:

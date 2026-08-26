@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://hdj55bx2e55rz"]
+[gd_scene load_steps=16 format=3 uid="uid://hdj55bx2e55rz"]
 
 [ext_resource type="Script" path="res://src/enemies/enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://src/components/health_component.gd" id="2_health"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://src/components/death_handler_component.gd" id="8_death"]
 [ext_resource type="PackedScene" path="res://src/pickups/gem_pickup.tscn" id="9_gem_scene"]
 [ext_resource type="PackedScene" path="res://src/vfx/particles/death_burst.tscn" id="10_death_burst"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_lit.gdshader" id="11_psx"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_hurt"]
 radius = 0.5
@@ -17,11 +18,11 @@ radius = 0.5
 [sub_resource type="SphereShape3D" id="SphereShape3D_hit"]
 radius = 0.5
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_body"]
-albedo_color = Color(0.85, 0.85, 0.8, 1)
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 0.3
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_body"]
+shader = ExtResource("11_psx")
+shader_parameter/albedo_color = Color(0.85, 0.85, 0.8, 1)
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 0.3
 
 [sub_resource type="SphereMesh" id="SphereMesh_body"]
 radius = 0.5
@@ -61,7 +62,7 @@ script = ExtResource("5_mover")
 script = ExtResource("6_visual")
 
 [node name="Mesh" type="MeshInstance3D" parent="Visual"]
-material_override = SubResource("StandardMaterial3D_body")
+material_override = SubResource("ShaderMaterial_body")
 mesh = SubResource("SphereMesh_body")
 
 [node name="GemDrop" type="Node" parent="."]

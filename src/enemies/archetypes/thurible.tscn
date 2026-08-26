@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://kr2ypnpu3jxi"]
+[gd_scene load_steps=13 format=3 uid="uid://kr2ypnpu3jxi"]
 
 [ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" uid="uid://cudc5c1mmb8ai" path="res://src/enemies/resources/stats/thurible.tres" id="2_stats"]
@@ -9,17 +9,18 @@
 [ext_resource type="Texture2D" uid="uid://cxciwq7wut8rk" path="res://assets/textures/thurible.png" id="7_tex"]
 [ext_resource type="Script" path="res://src/enemies/censer_component.gd" id="8_censer"]
 [ext_resource type="PackedScene" uid="uid://yk83f0m1n8pva" path="res://src/enemies/hazards/cinder.tscn" id="9_cinder"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_lit.gdshader" id="10_psx"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_thurible"]
 radius = 0.9
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_thurible"]
-albedo_color = Color(0.88, 0.86, 0.82, 1)
-albedo_texture = ExtResource("7_tex")
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 0.45
-emission_texture = ExtResource("7_tex")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_thurible"]
+shader = ExtResource("10_psx")
+shader_parameter/albedo_color = Color(0.88, 0.86, 0.82, 1)
+shader_parameter/albedo_texture = ExtResource("7_tex")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 0.45
+shader_parameter/emission_texture = ExtResource("7_tex")
 
 [node name="Enemy" instance=ExtResource("1_base")]
 stats = ExtResource("2_stats")
@@ -46,7 +47,7 @@ frequency = 0.4
 
 [node name="Mesh" parent="Visual" index="0"]
 transform = Transform3D(1.15, 0, 0, 0, 1.15, 0, 0, 0, 1.15, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_thurible")
+material_override = SubResource("ShaderMaterial_thurible")
 mesh = ExtResource("6_mesh")
 
 [node name="Censer" type="Node" parent="."]

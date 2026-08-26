@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cw8q0n46u30s"]
+[gd_scene load_steps=16 format=3 uid="uid://cw8q0n46u30s"]
 
 [ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" uid="uid://boav0b5h0f12n" path="res://src/enemies/resources/stats/cantor.tres" id="2_stats"]
@@ -10,27 +10,28 @@
 [ext_resource type="Script" path="res://src/enemies/ranged_attack_component.gd" id="8_ranged"]
 [ext_resource type="Script" path="res://src/enemies/windup_visual.gd" id="9_windup"]
 [ext_resource type="PackedScene" uid="uid://sv6aahzlkmp2g" path="res://src/enemies/projectiles/psalm_shard.tscn" id="10_shard"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_lit.gdshader" id="11_psx"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_cantor"]
 radius = 0.55
 height = 2.6
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cantor"]
-albedo_color = Color(0.9, 0.88, 0.84, 1)
-albedo_texture = ExtResource("7_tex")
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 0.42
-emission_texture = ExtResource("7_tex")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cantor"]
+shader = ExtResource("11_psx")
+shader_parameter/albedo_color = Color(0.9, 0.88, 0.84, 1)
+shader_parameter/albedo_texture = ExtResource("7_tex")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 0.42
+shader_parameter/emission_texture = ExtResource("7_tex")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mouth"]
-albedo_color = Color(1, 1, 1, 1)
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 0.7
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mouth"]
+shader = ExtResource("11_psx")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 0.7
 
 [sub_resource type="SphereMesh" id="SphereMesh_mouth"]
-material = SubResource("StandardMaterial3D_mouth")
+material = SubResource("ShaderMaterial_mouth")
 radius = 0.22
 height = 0.44
 radial_segments = 8
@@ -62,12 +63,12 @@ frequency = 0.7
 
 [node name="Mesh" parent="Visual" index="0"]
 transform = Transform3D(1.25, 0, 0, 0, 1.25, 0, 0, 0, 1.25, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_cantor")
+material_override = SubResource("ShaderMaterial_cantor")
 mesh = ExtResource("6_mesh")
 
 [node name="Mouth" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -0.42)
-material_override = SubResource("StandardMaterial3D_mouth")
+material_override = SubResource("ShaderMaterial_mouth")
 mesh = SubResource("SphereMesh_mouth")
 
 [node name="Muzzle" type="Marker3D" parent="."]

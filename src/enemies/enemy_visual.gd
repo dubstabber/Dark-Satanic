@@ -11,7 +11,7 @@ extends Node3D
 ## this, or the corpse is freed part-way through the fall.
 @export_range(0.0, 2.0, 0.01) var death_duration: float = 0.45
 @export_range(1.0, 3.0, 0.05) var death_pop_scale: float = 1.3
-## Scale bump used for the hit flash when the mesh has no StandardMaterial3D.
+## Scale bump used for the hit flash when the mesh has no flashable material.
 @export_range(1.0, 3.0, 0.05) var flash_scale: float = 1.15
 ## Share of `death_duration` spent lurching before the corpse starts to fall.
 @export_range(0.0, 1.0, 0.05) var death_pop_fraction: float = 0.25
@@ -22,7 +22,7 @@ extends Node3D
 @export_range(0.0, 10.0, 0.05) var death_drop: float = 0.8
 
 var base_scale: Vector3 = Vector3.ONE
-var _material: StandardMaterial3D
+var _material: Material
 var _base_emission: float = 0.0
 var _tween: Tween
 var _flash_tween: Tween
@@ -37,13 +37,13 @@ func _ready() -> void:
 	_base_position = position
 	if mesh_instance == null:
 		mesh_instance = _find_mesh(self)
-	if mesh_instance != null and mesh_instance.material_override is StandardMaterial3D:
-		_material = mesh_instance.material_override.duplicate() as StandardMaterial3D
+	if mesh_instance != null and MaterialEnergy.supports(mesh_instance.material_override):
+		_material = mesh_instance.material_override.duplicate()
 		mesh_instance.material_override = _material
-		_base_emission = _material.emission_energy_multiplier
+		_base_emission = MaterialEnergy.get_energy(_material)
 
 
-func material() -> StandardMaterial3D:
+func material() -> Material:
 	return _material
 
 
@@ -73,9 +73,8 @@ func flash() -> void:
 	if _material != null:
 		# Emission is the flash's own channel, so it can play over the spawn-in scale tween
 		# instead of aborting it and leaving a half-materialised enemy at 5% size.
-		_material.emission_enabled = true
-		_material.emission_energy_multiplier = flash_emission
-		_flash_tween.tween_property(_material, "emission_energy_multiplier", _base_emission, flash_duration)
+		MaterialEnergy.set_energy(_material, flash_emission)
+		_flash_tween.tween_property(_material, MaterialEnergy.property(_material), _base_emission, flash_duration)
 	else:
 		# No material: the flash has to borrow scale, which is what spawn_in animates.
 		_kill(_tween)
@@ -119,8 +118,7 @@ func _apply_death(t: float) -> void:
 	basis = Basis(_death_axis, deg_to_rad(death_spin_deg) * t * death_duration).scaled(base_scale * size)
 	position = _base_position + Vector3.DOWN * death_drop * t * t
 	if _material != null:
-		_material.emission_enabled = true
-		_material.emission_energy_multiplier = lerpf(flash_emission, 0.0, t)
+		MaterialEnergy.set_energy(_material, lerpf(flash_emission, 0.0, t))
 
 
 ## Mostly-level axis to tumble around, so bodies tip over rather than spin like tops.

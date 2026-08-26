@@ -15,7 +15,7 @@ extends Node
 ## Seconds the flash after firing takes to die back down.
 @export_range(0.05, 3.0, 0.05) var release_time: float = 0.35
 
-var _material: StandardMaterial3D
+var _material: Material
 var _rest: float = 0.0
 var _tween: Tween
 
@@ -23,8 +23,8 @@ var _tween: Tween
 func _ready() -> void:
 	_material = _own_material()
 	if _material != null:
-		_rest = rest_emission if rest_emission >= 0.0 else _material.emission_energy_multiplier
-		_material.emission_energy_multiplier = _rest
+		_rest = rest_emission if rest_emission >= 0.0 else MaterialEnergy.get_energy(_material)
+		MaterialEnergy.set_energy(_material, _rest)
 	if attack == null:
 		return
 	attack.windup_started.connect(on_windup_started)
@@ -32,7 +32,7 @@ func _ready() -> void:
 
 
 func emission() -> float:
-	return _material.emission_energy_multiplier if _material != null else 0.0
+	return MaterialEnergy.get_energy(_material) if _material != null else 0.0
 
 
 func on_windup_started() -> void:
@@ -51,19 +51,19 @@ func _retune(to: float, duration: float, ease: Tween.EaseType) -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
 	_tween = create_tween()
-	_tween.tween_property(_material, "emission_energy_multiplier", to, duration) \
+	_tween.tween_property(_material, MaterialEnergy.property(_material), to, duration) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(ease)
 
 
 ## A per-instance copy of the glow mesh's material, so one enemy's tell stays its own.
-func _own_material() -> StandardMaterial3D:
+func _own_material() -> Material:
 	if glow == null:
 		return null
-	var source := glow.material_override as StandardMaterial3D
+	var source: Material = glow.material_override
 	if source == null and glow.mesh != null:
-		source = glow.mesh.surface_get_material(0) as StandardMaterial3D
-	if source == null:
+		source = glow.mesh.surface_get_material(0)
+	if source == null or not MaterialEnergy.supports(source):
 		return null
-	var copy := source.duplicate() as StandardMaterial3D
+	var copy: Material = source.duplicate()
 	glow.material_override = copy
 	return copy

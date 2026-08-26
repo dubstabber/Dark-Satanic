@@ -275,11 +275,11 @@ func test_the_hit_flash_does_not_retrigger_while_it_is_still_playing() -> void:
 	var visual := enemy.visual
 	visual.flash()
 	assert_true(visual.is_flashing())
-	var lit: float = visual.material().emission_energy_multiplier
+	var lit: float = MaterialEnergy.get_energy(visual.material())
 	# A tier-IV stream lands ~40 hits a second; without the guard this pinned the mesh white.
 	for i in 20:
 		visual.flash()
-	assert_almost_eq(visual.material().emission_energy_multiplier, lit, 0.0001, "still the same flash")
+	assert_almost_eq(MaterialEnergy.get_energy(visual.material()), lit, 0.0001, "still the same flash")
 	await wait_seconds(visual.flash_duration + 0.05)
 	assert_false(visual.is_flashing(), "and it finishes")
 	visual.flash()

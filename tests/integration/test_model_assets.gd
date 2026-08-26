@@ -57,17 +57,21 @@ func test_every_archetype_uses_its_saved_model_and_fills_its_shape() -> void:
 func test_every_archetype_material_is_textured_and_flashable() -> void:
 	for scene_path: String in ARCHETYPE_FITS:
 		var mesh := _visual_mesh(scene_path)
-		var material := mesh.material_override as StandardMaterial3D
-		assert_not_null(material, "%s has a StandardMaterial3D override for EnemyVisual" % scene_path)
-		assert_not_null(material.albedo_texture, "%s albedo texture" % scene_path)
-		assert_true(material.albedo_texture.resource_path.begins_with(TEXTURE_DIR), scene_path)
-		assert_true(material.emission_enabled, "%s emission drives the hit flash" % scene_path)
+		var material := mesh.material_override as ShaderMaterial
+		assert_not_null(material, "%s has a PSX ShaderMaterial override for EnemyVisual" % scene_path)
+		assert_eq(material.shader.resource_path, "res://src/vfx/shaders/psx_lit.gdshader", scene_path)
+		var albedo: Texture2D = material.get_shader_parameter(&"albedo_texture")
+		assert_not_null(albedo, "%s albedo texture" % scene_path)
+		assert_true(albedo.resource_path.begins_with(TEXTURE_DIR), scene_path)
+		assert_true(MaterialEnergy.supports(material), "%s emission drives the hit flash" % scene_path)
+		assert_gt(MaterialEnergy.get_energy(material), 0.0, "%s rests lit so the flash has a base" % scene_path)
 		var visual: EnemyVisual = mesh.get_parent()
 		assert_not_null(visual.material(), "%s visual duplicated the material" % scene_path)
-		if material.emission_texture != null:
-			# Godot's default EMISSION_OP_ADD makes emission (colour + texel) * energy, so the texture
-			# only lifts the bright texels; it must be the albedo map or the two would disagree.
-			assert_same(material.emission_texture, material.albedo_texture, scene_path)
+		var emission: Texture2D = material.get_shader_parameter(&"emission_texture")
+		if emission != null:
+			# psx_lit mirrors EMISSION_OP_ADD — (colour + texel) * energy — so the texture only
+			# lifts the bright texels; it must be the albedo map or the two would disagree.
+			assert_same(emission, albedo, scene_path)
 
 
 func test_enemy_forward_features_face_minus_z() -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://b9ljdxvv60axc"]
+[gd_scene load_steps=18 format=3 uid="uid://b9ljdxvv60axc"]
 
 [ext_resource type="PackedScene" uid="uid://hdj55bx2e55rz" path="res://src/enemies/base_enemy.tscn" id="1_base"]
 [ext_resource type="Resource" uid="uid://lfjxxxgdgwk4" path="res://src/enemies/resources/stats/tenebrae.tres" id="2_stats"]
@@ -13,27 +13,28 @@
 [ext_resource type="PackedScene" uid="uid://x55za7cgor14r" path="res://src/components/weak_point_component.tscn" id="11_weak"]
 [ext_resource type="Resource" uid="uid://mtujgufjuc77q" path="res://assets/audio/cues/spawner_groan.tres" id="12_groan"]
 [ext_resource type="Resource" path="res://assets/audio/cues/snuff.tres" id="30_snuff"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_lit.gdshader" id="31_psx"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_body"]
 radius = 2.9
 height = 7.9
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tenebrae"]
-albedo_color = Color(0.82, 0.8, 0.76, 1)
-albedo_texture = ExtResource("6_tex")
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 0.28
-emission_texture = ExtResource("6_tex")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tenebrae"]
+shader = ExtResource("31_psx")
+shader_parameter/albedo_color = Color(0.82, 0.8, 0.76, 1)
+shader_parameter/albedo_texture = ExtResource("6_tex")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 0.28
+shader_parameter/emission_texture = ExtResource("6_tex")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flame"]
-albedo_color = Color(1, 1, 1, 1)
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 3.5
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flame"]
+shader = ExtResource("31_psx")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_energy = 3.5
 
 [sub_resource type="SphereMesh" id="SphereMesh_flame"]
-material = SubResource("StandardMaterial3D_flame")
+material = SubResource("ShaderMaterial_flame")
 radius = 0.32
 height = 0.8
 radial_segments = 8
@@ -71,7 +72,7 @@ vertical = true
 
 [node name="Mesh" parent="Visual" index="0"]
 transform = Transform3D(4.6, 0, 0, 0, 4.6, 0, 0, 0, 4.6, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_tenebrae")
+material_override = SubResource("ShaderMaterial_tenebrae")
 mesh = ExtResource("5_mesh")
 
 [node name="Candle0" parent="." index="8" instance=ExtResource("11_weak")]
@@ -80,7 +81,7 @@ crit_multiplier = 2.0
 
 [node name="Flame0" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0000, 3.7375, -2.3000)
-material_override = SubResource("StandardMaterial3D_flame")
+material_override = SubResource("ShaderMaterial_flame")
 mesh = SubResource("SphereMesh_flame")
 
 [node name="Candle1" parent="." index="9" instance=ExtResource("11_weak")]
@@ -89,7 +90,7 @@ crit_multiplier = 2.0
 
 [node name="Flame1" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7982, 3.7375, -1.4340)
-material_override = SubResource("StandardMaterial3D_flame")
+material_override = SubResource("ShaderMaterial_flame")
 mesh = SubResource("SphereMesh_flame")
 
 [node name="Candle2" parent="." index="10" instance=ExtResource("11_weak")]
@@ -98,7 +99,7 @@ crit_multiplier = 2.0
 
 [node name="Flame2" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.2424, 3.7375, 0.5117)
-material_override = SubResource("StandardMaterial3D_flame")
+material_override = SubResource("ShaderMaterial_flame")
 mesh = SubResource("SphereMesh_flame")
 
 [node name="Candle3" parent="." index="11" instance=ExtResource("11_weak")]
@@ -107,7 +108,7 @@ crit_multiplier = 2.0
 
 [node name="Flame3" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9979, 3.7375, 2.0723)
-material_override = SubResource("StandardMaterial3D_flame")
+material_override = SubResource("ShaderMaterial_flame")
 mesh = SubResource("SphereMesh_flame")
 
 [node name="Candle4" parent="." index="12" instance=ExtResource("11_weak")]
@@ -116,7 +117,7 @@ crit_multiplier = 2.0
 
 [node name="Flame4" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9979, 3.7375, 2.0723)
-material_override = SubResource("StandardMaterial3D_flame")
+material_override = SubResource("ShaderMaterial_flame")
 mesh = SubResource("SphereMesh_flame")
 
 [node name="Candle5" parent="." index="13" instance=ExtResource("11_weak")]
@@ -125,7 +126,7 @@ crit_multiplier = 2.0
 
 [node name="Flame5" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2424, 3.7375, 0.5117)
-material_override = SubResource("StandardMaterial3D_flame")
+material_override = SubResource("ShaderMaterial_flame")
 mesh = SubResource("SphereMesh_flame")
 
 [node name="Candle6" parent="." index="14" instance=ExtResource("11_weak")]
@@ -134,7 +135,7 @@ crit_multiplier = 2.0
 
 [node name="Flame6" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.7982, 3.7375, -1.4340)
-material_override = SubResource("StandardMaterial3D_flame")
+material_override = SubResource("ShaderMaterial_flame")
 mesh = SubResource("SphereMesh_flame")
 
 [node name="Escorts" type="Node" parent="."]
