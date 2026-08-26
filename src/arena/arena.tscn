@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://2yjaiev4m2dp"]
+[gd_scene load_steps=14 format=3 uid="uid://2yjaiev4m2dp"]
 
 [ext_resource type="Script" path="res://src/arena/arena.gd" id="1_arena"]
 [ext_resource type="Shader" path="res://src/vfx/shaders/void_floor.gdshader" id="4_void_floor"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://src/arena/kill_zone.gd" id="3_killzone"]
 [ext_resource type="Texture2D" uid="uid://b54vq4rtu3l4h" path="res://assets/textures/floor_bone.png" id="5_floor_tex"]
 [ext_resource type="Texture2D" path="res://assets/textures/ring_rosary.png" id="6_ring_tex"]
+[ext_resource type="Shader" path="res://src/vfx/shaders/psx_unlit.gdshader" id="7_psx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 resource_local_to_scene = true
@@ -31,16 +32,15 @@ resource_local_to_scene = true
 height = 2.0
 radius = 30.0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ring"]
-shading_mode = 0
-albedo_color = Color(1, 1, 1, 1)
-albedo_texture = ExtResource("6_ring_tex")
-texture_filter = 2
-uv1_scale = Vector3(10, 1, 1)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ring"]
+shader = ExtResource("7_psx")
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
+shader_parameter/albedo_texture = ExtResource("6_ring_tex")
+shader_parameter/uv_scale = Vector2(10, 1)
 
 [sub_resource type="TorusMesh" id="TorusMesh_ring"]
 resource_local_to_scene = true
-material = SubResource("StandardMaterial3D_ring")
+material = SubResource("ShaderMaterial_ring")
 inner_radius = 29.6
 outer_radius = 30.0
 rings = 128
